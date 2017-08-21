@@ -1,0 +1,80 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# PyCharm Idea files
+.idea/
+
+# Protected Source Texts
+sources/dougadams/
+sources/pratchett/
+sources/shakespeare
+sources/twain
+sources/inaugural
+sources/various/stranger.txt
+sources/various/moonharshmistress.txt
+
+
+# Generated Markov chains and data
+*.map
+*.map.srcmap
+*.posmap
+*.structmap
+*.ini
+*.names.txt
+
+
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+.idea/workspace.xml
+
+__pycache__/Oracle.cpython-35.pyc

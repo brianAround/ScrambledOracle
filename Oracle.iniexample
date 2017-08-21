@@ -1,0 +1,21 @@
+[twitter]
+app_key = XxXxXxXxXxXxXxXxXxXxXxXx
+app_secret = XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
+acct_key = XxXxXxXxXxXxXxXxXx-XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
+acct_secret = XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxX
+
+[email_account]
+send_email = True
+smtp_server = smtp.gmail.com
+port = 587
+account_name = blahblahblah@gmail.com
+password = XxXxXxXxXxXxXxXxXx
+send_email_to = XxXxXxXxXxXxXxXxXxXxXxXx
+
+[bot_info]
+markov_map = various.txt.map
+depth = 3
+name = Scrambled Books
+regenerate = select 2
+source = various
+hashtags = #twitterbot #pythonbot #markov

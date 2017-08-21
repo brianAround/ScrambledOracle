@@ -1,0 +1,16 @@
+The tweet with ID {response.tweet_id}:
+<blockquote>
+<p style="text-align: justify;">{message}</p>
+</blockquote>
+Is composed of the following passages.
+<ol>
+    for passage in passages:
+	<li><strong>"{passage[5]}"</strong> - from source: <strong><em>{passage[0]}</em></strong> at position {passage[3]}</li>
+</ol>
+Raw Data:
+<p style="padding-left: 30px;">[Source, Position, Size, From Idx, To Idx, Text, Prefix(first)]</p>
+
+<ol>
+    for passage in passages:
+	<li>{passage}</li>
+</ol>
