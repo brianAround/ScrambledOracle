@@ -347,16 +347,19 @@ class WordChain:
             new_word = self.word_list[node.word_id]
             if len(sentence) == 0:
                 for word_id in node.prefix:
-                    if self.word_list[word_id] == "''":
+                    new_word = self.word_list[word_id]
+                    if new_word == "''":
                         if in_quote == 0:
                             add_to_front += '"'
                         else:
                             in_quote -= 1
-                    elif self.word_list[word_id] == "``":
+                    elif new_word == "``":
                         in_quote += 1
-                    sentence.append(self.word_list[word_id])
+                    if new_word != "''" and "'" in new_word[:min(len(new_word), 3)]:
+                        sentence[-1] += new_word
+                    else:
+                        sentence.append(self.word_list[word_id])
             else:
-
                 if new_word == "''":
                     if in_quote == 0:
                         add_to_front += '"'
