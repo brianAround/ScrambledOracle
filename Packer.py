@@ -1,25 +1,56 @@
+import sys
+
 from WordChain import *
 from Oracle import Oracle
 from ChainLinker import ChainLinker
 
+map_name = "pratchett.txt.map"
+target_depth = 3
+build_type = "F"
+target_dir = os.path.join("sources", "pratchett")
+# text_list = [os.path.join(target_dir, f) for f in text_list]
+text_list = ["sources\pratchett\Discworld 23_ Carpe Jugulum - Terry Pratchett.txtPP.txt"]
+
+# handle arguments
+# pass either no args or at least 4
+# arg 1 - map_name - destination filename
+if len(sys.argv) > 4:
+    map_name = sys.argv[1]
+    target_depth = int(sys.argv[2])
+    build_type = str(sys.argv[3]).upper()
+    if build_type == "F":
+        text_list = []
+        target_dir = ""
+        for arg_idx in range(4, len(sys.argv)):
+            source = sys.argv[arg_idx]
+            if not os.path.isfile(source) and os.path.isdir(source):
+                target_dir = source
+            else:
+                if not os.path.isfile(source):
+                    source = os.path.join(target_dir, source)
+                if not os.path.isfile(source):
+                    raise ValueError("This isn't a valid source value.")
+                text_list.append(source)
+    elif build_type == "P":
+        source = sys.argv[4]
+        if not os.path.isdir(source):
+            raise ValueError("This isn't a valid directory.")
+        target_dir = source
 
 linker = ChainLinker('Oracle.ini')
 # linker.initialize_chain()
-text_list = [
-    "carroll-hunting-100.txt"
-]
+
 
 o = Oracle()
 o.chain = WordChain()
 
-map_name = "snark.txt.map"
-target_dir = os.path.join("sources", "various")
-text_list = [os.path.join(target_dir, f) for f in text_list]
 
 
 print("Reading files and creating map file:", map_name)
-# o.build_and_save_chain_from_directory(target_dir, depth=3, target_filename=map_name)
-linker.build_and_save_chain_from_list(text_list, 3, map_name)
+if build_type == "D":
+    linker.build_and_save_chain_from_directory(target_dir, depth=target_depth, target_filename=map_name)
+elif build_type == "F":
+    linker.build_and_save_chain_from_list(text_list, target_depth, map_name)
 print("Reading", map_name, "from disk")
 o.chain.read_map(map_name)
 
