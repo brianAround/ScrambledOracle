@@ -355,7 +355,7 @@ class WordChain:
                             in_quote -= 1
                     elif new_word == "``":
                         in_quote += 1
-                    if new_word != "''" and "'" in new_word[:min(len(new_word), 3)]:
+                    if len(sentence) > 0 and new_word != "''" and "'" in new_word[:min(len(new_word), 3)]:
                         sentence[-1] += new_word
                     else:
                         sentence.append(self.word_list[word_id])
