@@ -128,7 +128,7 @@ class WordChain:
                                     last_prefix = last_prefix[1:] + (word_id, )
                                 else:
                                     last_prefix = last_prefix + (word_id, )
-                                   
+
     def convert_string_to_beats(self, src):
         beat_stream = []
         for beat in src.strip().split():
@@ -198,7 +198,7 @@ class WordChain:
         for prefix in self.nodes_by_prefix:
             if self.nodes_by_prefix[prefix].is_starter:
                 self.starters.append(prefix)
-            
+
     def read_sourcemap(self, src_filepath):
         with open(src_filepath, 'r', encoding='utf-8') as file_in:
             for line in file_in:
@@ -259,8 +259,8 @@ class WordChain:
                     if caseless not in self.words_lower:
                         self.words_lower[caseless] = []
                     self.words_lower[caseless].append(self.word_list[word_id])
-    
-        
+
+
     def select_start_node(self, word_id_set=[], starters_only=False, time_limit=60):
         start_time = time.time()
         start_node = None
@@ -355,7 +355,8 @@ class WordChain:
                             in_quote -= 1
                     elif new_word == "``":
                         in_quote += 1
-                    if new_word != "''" and "'" in new_word[:min(len(new_word), 3)]:
+                    if len(sentence) > 0 and new_word != "''" \
+                        and "'" in new_word[:min(len(new_word), 3)]:
                         sentence[-1] += new_word
                     else:
                         sentence.append(self.word_list[word_id])
@@ -611,7 +612,7 @@ class WordChain:
                         if items_allowed <= 0:
                             break
         return result_nodes
-    
+
 
         # <[^>]*>
 
@@ -621,7 +622,7 @@ class WordChain:
         message_path = self.build_message_path(break_at_fullstop=break_at_fullstop,
                                                char_limit=char_limit, word_count=word_count,
                                                prompt=prompt, sources=sources, time_limit=time_limit)
-        message = self.render_message_from_path(message_path)        
+        message = self.render_message_from_path(message_path)
         return message
 
         # <[^>]*>

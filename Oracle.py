@@ -92,7 +92,8 @@ class Oracle:
         # new_passages = self.identifyPassages(sources, 2)
         prime_source_len = self.get_primary_source_ratio(new_passages)
         while 140 < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
-                or response.lower() == prompt.lower() or response in self.sent_messages \
+                or response.lower() == prompt.lower() \
+                or self.strip_hash_tags(response) in self.sent_messages \
                 or prime_source_len > self.max_percent \
                 or 'nigger' in response:
             sources = []
@@ -112,6 +113,14 @@ class Oracle:
             print("----------")
         passages += new_passages
         return response
+
+    def strip_hash_tags(self, message):
+        result = message
+        words = message.split()
+        for word in words:
+            if word[0] == '#':
+                result = result.replace(word, '')
+        return result.strip()
 
     def select_new_prompt(self):
         prompt = ""
@@ -167,8 +176,8 @@ class Oracle:
         twitter = Twython(app_key, app_secret, acct_key, acct_secret)
         passages = []
         message = self.get_message(prompt, passages)
-        message = self.add_hashtag(message)
         self.sent_messages[message] = True
+        message = self.add_hashtag(message)
         twit_response = twitter.update_status(status=message)
         twit_id = twit_response['id']
         self.send_passages_email(message, passages, twit_id)
@@ -187,30 +196,29 @@ class Oracle:
     def send_passages_email(self, message, passages, tweet_id):
         try:
             email_config = self.config['email_account']
+            msg = "<h3>" + self.config['bot_info']['name'] + "</h3>\n"
+            msg += "<h4>The tweet with ID " + str(tweet_id) + ':</h4>\n\n'
+            msg += '<blockquote><h3>' + message
+            msg += "</h3></blockquote>\n\nIs composed of the following passages.\n"
+            msg += "<ol>\n"
+            for passage in passages:
+                full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+                msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
+                msg += "<strong><em>" + passage[0] + "</em></strong> at postion " + str(passage[3]) + "<br \>\n"
+                msg += "<strong>Full passage:</strong> <em>&quot;" + full_passage + "&quot;</em></li>\n"
+            msg += "</ol>\n"
+
+            msg += "<h3>Raw Data:</h3>"
+            msg += '<pre>[Source, Position, Size, From Idx, To Idx, Text, Prefix(first)]\n'
+            for passage in passages:
+                msg += str(passage) + '\n'
+            msg += "\n"
             if 'send_email' in email_config and email_config['send_email'] == 'True':
                 server = smtplib.SMTP(email_config['smtp_server'], int(email_config['port']))
                 server.ehlo()
                 server.starttls()
                 server.ehlo()
                 server.login(email_config['account_name'], email_config['password'])
-
-                msg = "<h3>" + self.config['bot_info']['name'] + "</h3>\n"
-                msg += "<h4>The tweet with ID " + str(tweet_id) + ':</h4>\n\n'
-                msg += '<blockquote><h3>' + message
-                msg += "</h3></blockquote>\n\nIs composed of the following passages.\n"
-                msg += "<ol>\n"
-                for passage in passages:
-                    full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
-                    msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
-                    msg += "<strong><em>" + passage[0] + "</em></strong> at postion " + str(passage[3]) + "<br \>\n"
-                    msg += "<strong>Full passage:</strong> <em>&quot;" + full_passage + "&quot;</em></li>\n"
-                msg += "</ol>\n"
-
-                msg += "<h3>Raw Data:</h3>"
-                msg += '<pre>[Source, Position, Size, From Idx, To Idx, Text, Prefix(first)]\n'
-                for passage in passages:
-                    msg += str(passage) + '\n'
-                msg += "\n"
 
                 eml = MIMEText(msg)
                 if len(message) > 70:
@@ -221,6 +229,11 @@ class Oracle:
                 eml['From'] = email_config['account_name']
                 eml['To'] = email_config['send_email_to']
                 server.send_message(eml)
+            else:
+                # open(outfile + '.srcmap', 'w', encoding="utf-8")
+                filename = os.path.join('tweets', 'Tweet' + str(tweet_id) + '.htm')
+                with open(filename, 'w', encoding='utf-8') as f_handle:
+                    f_handle.write(msg)
         except ValueError as err:
             print("Value Error on email send:", err)
             pass
