@@ -4,6 +4,7 @@ import os.path
 import smtplib
 from email.mime.text import MIMEText
 from twython import Twython
+from twython.exceptions import TwythonError
 from WordChain import *
 
 
@@ -178,10 +179,14 @@ class Oracle:
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
         message = self.add_hashtag(message)
-        twit_response = twitter.update_status(status=message)
-        twit_id = twit_response['id']
-        self.send_passages_email(message, passages, twit_id)
-        print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message)
+        try:
+            twit_response = twitter.update_status(status=message)
+            twit_id = twit_response['id']
+            self.send_passages_email(message, passages, twit_id)
+            print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message)
+        except TwythonError as twy_err:
+            print(type(twy_err))
+            print(twy_err.args)
         return message
 
     def add_hashtag(self, message):

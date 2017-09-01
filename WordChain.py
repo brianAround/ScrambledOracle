@@ -436,7 +436,6 @@ class WordChain:
             self.append_node_sources(node, sources)
         return message_path
 
-
     def build_pos_guided_message_path(self, struct_tree, char_limit=300, word_count=50, prompt='', sources=[], time_limit=60):
         # use pos_structures to restrict the possible results
         start_time = time.time()
