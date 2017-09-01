@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from twython import Twython
 from twython.exceptions import TwythonError
 from WordChain import *
+from WordChainScribe import Scribe
 
 
 def find_add_item_index(item, item_list):
@@ -133,7 +134,7 @@ class Oracle:
         target_file = self.filename
         self.chain = WordChain()
         self.chain.depth = self.depth
-        self.chain.read_map(target_file)
+        Scribe.read_map(target_file, chain=self.chain)
         if type(self.prompt_filter) is str:
             self.prompt_filter = self.read_filter_list(self.prompt_filter)
 

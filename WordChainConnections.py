@@ -1,14 +1,14 @@
 import time
 from UnionFind import UTUnionFind
 from WordChain import *
-
+from WordChainScribe import Scribe
 
 print(time.asctime())
 wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
 
-wc.read_map("douglasadams.pos.txt.map")
+wc = Scribe.read_map('douglasadams.pos.txt.map', chain=wc)
 print(time.asctime(), "Indexing terms")
 wc.index_terms()
 

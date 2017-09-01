@@ -3,6 +3,7 @@ import sys
 from WordChain import *
 from Oracle import Oracle
 from ChainLinker import ChainLinker
+from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
@@ -11,7 +12,7 @@ target_depth = 3
 build_type = "F"
 target_dir = os.path.join("sources", "pratchett")
 # text_list = [os.path.join(target_dir, f) for f in text_list]
-text_list = ["sources\pratchett\Discworld 23_ Carpe Jugulum - Terry Pratchett.txtPP.txt"]
+text_list = ["sources/pratchett/DW 036 Making Money.txt"]
 
 # handle arguments
 # pass either no args or at least 4
@@ -61,7 +62,8 @@ if build_type == "D":
 elif build_type == "F":
     linker.build_and_save_chain_from_list(text_list, target_depth, map_name)
 print("Reading", map_name, "from disk")
-o.chain.read_map(map_name)
+Scribe.read_map(map_name, chain=o.chain)
+
 
 a = ''
 b = ""

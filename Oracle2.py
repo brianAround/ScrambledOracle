@@ -5,6 +5,7 @@ import sys
 from WordChain import *
 from Oracle import Oracle
 from ChainLinker import ChainLinker
+from WordChainScribe import Scribe
 
 single_run = False
 
@@ -23,7 +24,7 @@ class Repeater:
             Repeater.target = Oracle()
             Repeater.target.chain = WordChain()
             Repeater.target.chain.depth = 3
-            Repeater.target.chain.read_map("current.txt.map")
+            Scribe.read_map("current.txt.map", chain=Repeater.target.chain)
 
         return Repeater.target.send_message(prompt)
 

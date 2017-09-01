@@ -1,14 +1,13 @@
 import time
 from WordChain import *
-
-
+from WordChainScribe import Scribe
 
 print(time.asctime())
 wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
 
-wc.read_map("douglasadams.txt.map")
+Scribe.read_map('douglasadams.txt.map', chain=wc)
 
 last_message = ''
 

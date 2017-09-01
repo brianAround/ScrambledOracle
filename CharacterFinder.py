@@ -5,10 +5,7 @@ import sys
 import nltk
 from WordChain import *
 from Oracle import Oracle
-
-
-
-
+from WordChainScribe import Scribe
 
 o = Oracle()
 text_list = [
@@ -25,7 +22,7 @@ o.build_and_save_chain_from_list(text_list, 3, map_name)
 # o.build_and_save_chain_from_list(shakes_files, 3, "Composite.txt.map")
 o.chain = WordChain()
 o.chain.depth = 3
-o.chain.read_map(map_name)
+Scribe.read_map(map_name, chain=o.chain)
 o.chain.index_terms()
 # Repeater.target = o
 
