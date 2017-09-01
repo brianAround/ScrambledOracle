@@ -4,6 +4,8 @@ from WordChain import *
 from Oracle import Oracle
 from ChainLinker import ChainLinker
 
+print('WordChain Packer Utility ver. 2.1')
+
 map_name = "pratchett.txt.map"
 target_depth = 3
 build_type = "F"
@@ -13,7 +15,9 @@ text_list = ["sources\pratchett\Discworld 23_ Carpe Jugulum - Terry Pratchett.tx
 
 # handle arguments
 # pass either no args or at least 4
-# arg 1 - map_name - destination filename
+# arg 1 - map_name - destination filename - I expect an extension of .map
+# arg 2 - build depth (3 is usual)
+# arg 3 - build type (F for list of files, and D to use a directory)
 if len(sys.argv) > 4:
     map_name = sys.argv[1]
     target_depth = int(sys.argv[2])
@@ -31,20 +35,25 @@ if len(sys.argv) > 4:
                 if not os.path.isfile(source):
                     raise ValueError("This isn't a valid source value.")
                 text_list.append(source)
-    elif build_type == "P":
+    elif build_type == "D":
         source = sys.argv[4]
         if not os.path.isdir(source):
             raise ValueError("This isn't a valid directory.")
         target_dir = source
 
+print('Build Type:', build_type)
+print('Destination file:', map_name)
+print('Prefix Length:', target_depth)
+if build_type == 'F':
+    print('Files:', ','.join([f for f in text_list]))
+elif build_type == 'D':
+    print('Source Directory:', target_dir)
+
 linker = ChainLinker('Oracle.ini')
 # linker.initialize_chain()
 
-
 o = Oracle()
 o.chain = WordChain()
-
-
 
 print("Reading files and creating map file:", map_name)
 if build_type == "D":
