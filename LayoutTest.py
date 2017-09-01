@@ -1,5 +1,6 @@
 import time
 from WordChain import *
+from WordChainScribe import Scribe
 from Layout import MessageVisualizer
 
 print(time.asctime())
@@ -7,7 +8,7 @@ print(time.asctime())
 wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
-wc.read_map("Composite.txt.map")
+Scribe.read_map("Composite.txt.map", False, chain=wc)
 last_message = ''
 mv = MessageVisualizer(wc)
 
