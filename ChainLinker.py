@@ -45,13 +45,11 @@ class ChainLinker:
                 self.regenerate_markov_chain(source_count, source_folder, target_file)
         self.chain = WordChain()
         self.chain.depth = self.depth
-        self.chain.read_map(target_file)
+        # self.chain.read_map(target_file)
 
     def regenerate_markov_chain(self, source_count, source_folder, target_file):
         source_files = []
-        dir_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
-        dir_listing = [os.path.join(source_folder, f) for f in dir_listing]
-        dir_listing = [f for f in dir_listing if os.path.isfile(f)]
+        dir_listing = self.get_relative_file_list(source_folder)
         for idx in range(source_count):
             new_file = dir_listing[random.randint(0, len(dir_listing) - 1)]
             while new_file in source_files and len(source_files) < len(dir_listing):
@@ -61,10 +59,20 @@ class ChainLinker:
                 break
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
 
+    def get_relative_file_list(self, source_folder):
+        file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
+        file_listing = [os.path.join(source_folder, f) for f in file_listing]
+        file_listing = [f for f in file_listing if os.path.isfile(f)]
+        return file_listing
+
     def build_and_save_chain_from_list(self, file_list, depth=2, target_filename="current.txt.map"):
         chain = self.build_chain_from_file_list(file_list, depth)
         self.write_chain(chain, target_filename)
         return chain
+
+    def build_and_save_chain_from_directory(self, source_folder, depth=2, target_filename='current.txt.map'):
+        file_listing = self.get_relative_file_list(source_folder)
+        return self.build_and_save_chain_from_list(file_listing, depth=depth, target_filename=target_filename)
 
     def build_and_save_chain_from_file(self, file_path, depth=2, target_filename=None):
         if target_filename is None:
