@@ -11,6 +11,7 @@ Scribe.read_map('douglasadams.txt.map', chain=wc)
 
 last_message = ''
 
+
 a = input("Prompt: ")
 print(time.asctime(), "Building messages")
 while len(a) == 0 or a[0] not in ('q', 'Q'):
@@ -32,7 +33,3 @@ while len(a) == 0 or a[0] not in ('q', 'Q'):
             print(p)
         print('----------------------------')
     a = input("Prompt:")
-
-
-
-
