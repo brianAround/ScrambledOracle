@@ -9,6 +9,12 @@ from StructTree import *
 
 full_stop_beats = [".", "!", "?"]
 
+# for the ZOMBIE RENDER HACK
+zombexicon = {
+    'm':('... MR', 'GH!'),
+    'b':('BRA','INS')
+}
+
 
 class ChainNode:
 
@@ -24,7 +30,6 @@ class ChainNode:
         self.inbound = [] if inbound is None else inbound
         self.sources = []
         self.parts_of_speech = []
-
 
 
 class WordChain:
@@ -47,6 +52,7 @@ class WordChain:
         self.articles = {"a", "but", "not", "one", "that", "the", "to"}
         if os.path.isfile('SearchIgnoreList.txt'):
             self.articles = self.load_dictionary('SearchIgnoreList.txt')
+        self.spoken_word = 0
 
     @staticmethod
     def load_dictionary(file_path):
@@ -271,24 +277,9 @@ class WordChain:
         add_to_front = ''
         add_to_end = ''
         in_quote = 0
+        first_node = True
         for node in message_path:
-            new_word = self.word_list[node.word_id]
-            if len(sentence) == 0:
-                for word_id in node.prefix:
-                    new_word = self.word_list[word_id]
-                    if new_word == "''":
-                        if in_quote == 0:
-                            add_to_front += '"'
-                        else:
-                            in_quote -= 1
-                    elif new_word == "``":
-                        in_quote += 1
-                    if len(sentence) > 0 and new_word != "''" \
-                        and "'" in new_word[:min(len(new_word), 3)]:
-                        sentence[-1] += new_word
-                    else:
-                        sentence.append(self.word_list[word_id])
-            else:
+            for new_word in self.render_words(node, first_node):
                 if new_word == "''":
                     if in_quote == 0:
                         add_to_front += '"'
@@ -296,13 +287,12 @@ class WordChain:
                         in_quote -= 1
                 elif new_word == "``":
                     in_quote += 1
-                if new_word != "''":
-                    if "'" in new_word[:min(len(new_word), 3)]:
-                        sentence[-1] = sentence[-1] + new_word
-                    else:
-                        sentence.append(new_word)
+                if len(sentence) > 0 and new_word != "''" \
+                    and "'" in new_word[:min(len(new_word), 3)]:
+                    sentence[-1] += new_word
                 else:
                     sentence.append(new_word)
+                first_node = False
         for end_idx in range(in_quote):
             add_to_end += '"'
         # regex to fix the ugly?
@@ -311,6 +301,26 @@ class WordChain:
             .replace(" ''", '"').replace("`` ", '"') + add_to_end
 
         return message
+
+    def render_words(self, node:ChainNode, getAll=False):
+        idx = len(node.prefix) - 1
+        if getAll:
+            idx = 0
+        while idx < len(node.prefix):
+            word_text = self.word_list[node.prefix[idx]]
+            # ZOMBIE RENDER HACK - this entire if statement
+            if word_text[0].isalpha():
+                key = word_text[0].lower()
+                if key in zombexicon:
+                    word_size = len(word_text)
+                    part_1, part_2 = zombexicon[key][0], zombexicon[key][1]
+                    filler = ''
+                    if word_size > len(part_1) + len(part_2):
+                        filler = "".join([part_1[-1] for idx in range(len(part_1) + len(part_2), word_size)])
+                    word_text = part_1 + filler + part_2
+
+            yield word_text
+            idx += 1
 
     def get_pos_list(self, messsage_path):
         prelen = len(messsage_path[0].prefix) - 1

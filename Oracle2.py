@@ -78,6 +78,7 @@ def send_for_config(prat_config, r, iterations=1, add_hashtags=[]):
         linker.initialize_chain()
         Repeater.target = Oracle(config_file=prat_config)
         Repeater.target.hashtags += add_hashtags
+        Repeater.tartet.character_limit = 132  # for '#zombie' hashtag
         Repeater.target.max_percent = Repeater.max_percent
         prompt = ''
         if channel in Repeater.message_buckets:

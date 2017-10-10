@@ -49,6 +49,7 @@ class Oracle:
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+        self.character_limit = 140
 
     @staticmethod
     def one_word_less(text):
@@ -88,12 +89,12 @@ class Oracle:
             if len(prompt) == 0:
                 prompt.append(self.select_new_prompt())
             prompt = " ".join(prompt)
-        response = self.chain.build_message(char_limit=140, prompt=prompt, sources=sources)
-        # response = self.build_message(char_limit=140, prompt=prompt,sources=sources)
+        response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
+        # response = self.build_message(char_limit=self.character_limit, prompt=prompt,sources=sources)
         new_passages = self.chain.identify_passages(sources, 2)
         # new_passages = self.identifyPassages(sources, 2)
         prime_source_len = self.get_primary_source_ratio(new_passages)
-        while 140 < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
+        while self.character_limit < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
                 or response.lower() == prompt.lower() \
                 or self.strip_hash_tags(response) in self.sent_messages \
                 or prime_source_len > self.max_percent \
@@ -102,7 +103,7 @@ class Oracle:
             if response == prompt or response in self.sent_messages or attempts > 1000:
                 prompt = self.select_new_prompt()
                 attempts = 0
-            response = self.chain.build_message(char_limit=140, prompt=prompt, sources=sources)
+            response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
             new_passages = self.chain.identify_passages(sources, 2)
             prime_source_len = self.get_primary_source_ratio(new_passages)
             attempts += 1
@@ -179,7 +180,8 @@ class Oracle:
         passages = []
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
-        message = self.add_hashtag(message)
+        message = self.add_hashtag(message) + ' #zombie'
+
         try:
             twit_response = twitter.update_status(status=message)
             twit_id = twit_response['id']
