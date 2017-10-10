@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show Item</title>
+    <script language="JavaScript">
+
+    var http;
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+    function createRequestObject() {
+    var obj;
+    var browser = navigator.appName;
+    if (browser == "Microsoft Internet Explorer") {
+        obj = new ActiveXObject("Microsoft.XMLHTTP");
+    } else {
+        obj = new XMLHttpRequest();
+    }
+    return obj;
+}
+
+function sendReq(req) {
+    http = createRequestObject();
+    http.open('get', req);
+    http.onreadystatechange = handleResponse;
+    http.send(null);
+}
+
+function handleResponse() {
+    if (http.readyState == 4) {
+        var response = http.responseText;
+        document.getElementById('display').innerHTML=response;
+    }
+}
+
+    </script>
+</head>
+<body>
+    This is a page to view an item.
+    <!-- Usage:   /web/ItemShow.html?tid=906249153117859843   -->
+    <div id="display">
+        Temp Content
+    </div>
+    <script language="JavaScript">
+        var tid = getParameterByName('tid')
+        if (tid) {
+            document.title = document.title + ' ' + tid;
+            file_name = '../tweets/Tweet' + tid + '.htm'
+            sendReq(file_name)
+        }
+
+    </script>
+</body>
+</html>
