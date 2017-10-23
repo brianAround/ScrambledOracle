@@ -10,11 +10,28 @@ from StructTree import *
 full_stop_beats = [".", "!", "?"]
 
 # for the ZOMBIE RENDER HACK
+# for the ZOMBIE RENDER HACK
 zombexicon = {
-    'm':('... MR', 'GH!'),
-    'b':('BRA','INS')
-}
+    'm':{'UH': ('... MR', 'GH!'),
+         'NNS': ('BRAA', 'INSS!')},
+    'b':{'NNP': ('BRA','INS'),
+         'NN': ('BRAI','N'),
+         'NNS': ('BRAA', 'INSs')
+         },
+    'h':{'UH': ('- GR','R -'),
+         'VB': ('HU', 'RTSs-')
+         },
+    'p':{'UH': ('AA','RG...'),
+         'VB': ('...e','at')
+         },
+    'y':{'UH': ('AR','RG...'),
+         'VB': ('...E','AT')
+         },
+    't':{'UH': ('GR','Rg-'),
+         'VB': ('..KI','ILL!')
+         }
 
+}
 
 class ChainNode:
 
@@ -312,13 +329,15 @@ class WordChain:
             if word_text[0].isalpha():
                 key = word_text[0].lower()
                 if key in zombexicon:
-                    word_size = len(word_text)
-                    part_1, part_2 = zombexicon[key][0], zombexicon[key][1]
-                    filler = ''
-                    if word_size > len(part_1) + len(part_2):
-                        filler = "".join([part_1[-1] for idx in range(len(part_1) + len(part_2), word_size)])
-                    word_text = part_1 + filler + part_2
-
+                    for pos in node.parts_of_speech:
+                        if pos in zombexicon[key]:
+                            word_size = len(word_text)
+                            part_1, part_2 = zombexicon[key][pos][0], zombexicon[key][pos][1]
+                            filler = ''
+                            if word_size > len(part_1) + len(part_2):
+                                filler = "".join([part_1[-1] for idx in range(len(part_1) + len(part_2), word_size)])
+                            word_text = part_1 + filler + part_2
+                            break
             yield word_text
             idx += 1
 
