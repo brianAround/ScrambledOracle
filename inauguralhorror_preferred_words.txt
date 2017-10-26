@@ -1,0 +1,280 @@
+Annihilate	NNP
+Anxiety	NN
+Anxious	JJ
+Communism	NN	NNP
+Communist	NNP
+Communists	NNPS
+Crime	NN
+Disease	NNP
+Illiteracy	NN
+Louisiana	NNP
+Lynchings	NNS
+Mars	NNP
+Mischievous	NNP
+Misled	VBN
+Prejudice	NNP
+Red	NNP
+Suicide	NNP
+abandoned	VBN
+abandonment	NN
+abnormal	JJ	VB
+addiction	NN
+adversaries	NNS
+adversary	NN	JJ
+alien	JJ
+alienate	VB
+alienated	VBN
+alienation	NN
+aliens	NNS
+anarchy	NN	VB
+anguish	JJ
+anguished	JJ
+animosities	NNS
+animosity	NN
+antipathies	NNS
+antiphilosophists	NNS
+antitrust	JJ
+anxiety	NN
+anxiously	RB
+apathy	JJ
+artificial	JJ
+atrocious	JJ
+atrocity	NN
+bankrupt	VB
+barbarian	NN
+barbarians	NNS
+barbarism	NN
+betray	VB	VBP
+bigoted	JJ
+bigotry	NN
+black	JJ
+blood	NN
+bloodiest	JJS
+bloodshed	NN	VBN	VBD
+bloody	JJ
+bodies	NNS
+brutal	JJ
+calamities	NNS
+calamitous	JJ
+calamity	NN
+child-labor	NN
+cocaine	NN
+crime	NN
+crimes	NNS
+criminal	JJ
+criminality	NN
+criminals	NNS
+cripple	VBP
+crisis	NN
+cruel	JJ	VB
+crushing	NN
+deadly	JJ
+debased	JJ
+debasement	NN
+decay	VB	NN
+decayed	VBN
+deceit	NN
+deceive	VB
+deceived	VBN
+degenerate	NN	VBP
+degeneration	NN
+degradation	NN
+degradations	NNS
+degrades	VBZ
+degrading	VBG
+demoralization	NN
+demoralizes	VBZ
+demoralizing	NN	VBG
+denial	NN
+deplorable	JJ
+despotic	JJ
+despotism	NN
+despots	NNS
+destroy	VB	VBP	VBZ	VBD
+destroyed	VBD	VBN
+destroying	VBG
+destroys	VBZ
+destruction	NN
+destructive	JJ	NN
+devastated	JJ
+devastates	VBZ
+devastation	NN
+dictator	NN
+dictators	NNS
+dictatorship	NN
+disaster	NN
+disasters	NNS
+doomed	VBN
+dooms	VBZ
+drugs	NNS
+envious	JJ
+eradicate	JJ
+eradication	NN
+erase	VB
+erode	NN
+eroded	VBN
+failed	VBN	VBD
+failing	VBG
+fallacy	NN
+fascism	NN
+feverish	JJ
+fragile	JJ
+frightened	VBD
+greed	NN
+hate	NN	VB	VBP
+hated	VBN
+hateful	JJ
+hatred	NN	VBN	VBD	JJ
+hatreds	NNS
+haunt	VBP
+hysteria	NNS
+kill	VB
+killed	VBN
+killing	VBG
+maimed	NNS	VBN	JJ
+murder	NN
+nuclear	JJ
+perversions	NNS
+pervert	VB
+perverts	VBZ
+polygamy	NN
+prejudice	NN
+prejudices	NNS
+revengeful	JJ
+scapegoats	NNS
+specter	NN
+spilled	VBN
+spirits	NNS
+stale	JJ
+sterile	JJ
+tearfully	RB
+tears	NNS
+tempest	NN
+terror	NN
+terrorism	NN
+terrors	NNS
+tragedy	NN
+treason	NN
+tyrannical	JJ
+tyranny	NN
+tyrant	NN
+tyrants	NNS
+unlawful	JJ
+unlawfulness	NN
+unnatural	JJ
+vicious	JJ
+Acherontic	JJ
+Azazel	NNP
+Beelzebub	NNP
+Belial	NNP
+Blasphemies	NNS
+Cthulhu	NNP
+Devil	NNP
+Dæmons	NNS
+Elder	NNP
+Groaning	NNP
+Hallowe'en	NNP	VBZ
+Hallowmass	NNP
+Harpies	NNP
+Hissing	NNP
+Inbreeding	NN
+Necronomicon	NNP
+Night-Fears	NNP
+Rites	NNP
+Salem	NNP
+Satan	NNP
+Satan-worship	NNP
+Shub-Niggurath	NN
+Yog-Sothoth	NNP	JJ	DT
+asphyxiate	VB
+blasphemous	JJ
+blasphemously	RB
+blasphemy	NN
+blood	NN
+bloodless-looking	JJ
+brain	NN
+brains	NNS
+chant	NN	VB
+chanting	NN
+chantings	NNS
+cults	NNS
+cursed	JJ	VBD
+darkness	NN
+decadence	NN
+decadent	NN
+decay	NN
+decayed	VBD
+deformed	JJ
+degeneracy	NN
+dementedly	RB
+demon	NN
+demoniac	JJ
+devil	NN
+diabolically	RB
+dread	NN
+eldritch	NN
+fear-numbed	JJ
+feared	VBN	VBD
+fearful	JJ
+fiendish	JJ
+frenziedly	RB
+frenzy	NN
+gargoyle	NN
+ghastly	NN
+gibbers	NNS
+grotesque	NN
+grotesquely	RB
+grotesqueness	NN
+half-human	JJ
+half-insane	JJ
+half-mad	JJ
+hideous	JJ
+hideously	RB
+horrible	JJ
+horror	NN
+hysterically	RB
+kill	VB	NN
+maddeningly	RB
+madman's	NN
+maimed	VBN
+malevolence	NN
+malign	NN
+mania	NN
+monster	NN
+monster's	NN
+monstrous	JJ
+mouths	NNS
+murders	NNS
+non-human	JJ
+scream	NN
+screamed	VBD	VBN
+screaming	NN	VBG
+shriek	NN
+shrieked	VBD	VBN
+shiver	VB
+sickly	NN	JJ
+skull	NN
+skulls	NNS
+spasmodically	RB
+stench-filled	JJ
+suicidal	VBN
+summon	JJ
+summoned	VBN	VBD
+symbols	NNS
+terror	NN
+terrors	NNS
+thflthkh'ngha	NN
+tortured	VBD
+tremors	NNS
+uncanny	JJ
+unhallowed	JJ
+unholy	JJ
+unnamable	JJ
+unnatural	JJ
+unnaturally	RB
+witch-blood	NN
+witch	VBP
+wizardry	NN
+wizards	NNS
+y'hah	JJ
+ygnaiih	NN
