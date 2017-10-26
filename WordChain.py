@@ -245,9 +245,10 @@ class WordChain:
                 for parent in tail_node.inbound:
                     if len(work_queue) >= max_queue:
                         break
-                    new_path = current[:]
-                    new_path.append(parent)
-                    work_queue.append(new_path)
+                    if parent not in current:
+                        new_path = current[:]
+                        new_path.append(parent)
+                        work_queue.append(new_path)
             if time_limit < time.time() - start_time:
                 break
         return result
@@ -484,7 +485,8 @@ class WordChain:
                 for entry in node.outbound:
                     if s < entry[0]:
                         node = entry[1]
-                        break
+                        if node not in message_path:
+                            break
             else:
                 break
             message_path.append(node)
