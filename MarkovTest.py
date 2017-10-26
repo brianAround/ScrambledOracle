@@ -1,6 +1,13 @@
+import random
+
 from Oracle import Oracle, WordChain
+from WordChainScribe import Scribe
 import os
 import os.path
+
+
+map_name = 'InauguralHorror.txt.map'
+# map_name = 'AdamsPoe.txt.map'
 
 # target_list = ["alice13a.txt", "carroll-hunting-100.txt"]
 # target_list = ['Leftovers.txt']
@@ -12,42 +19,20 @@ import os.path
 #        print(word_key, target.word_counts[word_key])
 
 
-# target.read_chain(out_file)
+
+
 target = Oracle()
 
 target.chain = WordChain()
 target.chain.depth = 3
+
+print("Reading", map_name, "from disk")
+Scribe.read_map(map_name, chain=target.chain)
+
+
 target.depth = target.chain.depth
-target.mchain = target.chain.mchain
-target.starters = target.chain.starters
+target.max_percent = 1/3
 
-text_list = [
-    "hhgttg.txt",
-    "alice13a.txt",
-    "rest.txt",
-    "sherlock.txt",
-    "expectations.txt",
-    "life.txt",
-    "fish.txt",
-    "wuthering.txt",
-    "janeeyre.txt",
-    "pandp12.txt",
-    "princessofmars.txt",
-    "stranger.txt"
-]
-
-pratchett_dir = os.path.join("sources", "pratchett")
-map_name = "pratchett.txt.map"  # "shakespeare.txt.map"
-
-target.build_and_save_chain_from_directory(pratchett_dir, depth=3, target_filename=map_name)
-# target.build_and_save_chain_from_list(text_list, 2, "Composite.2.map")
-# target.read_chain("Composite.2.map")
-
-# target.build_and_save_chain_from_list(text_list, 3, "pratchett.txt.map")
-
-target.chain.read_chain("pratchett.txt.map")
-# target.build_and_save_chain_from_list(["hhgttg.txt", "fish.txt", "harmless.txt", "life.txt", 'rest.txt'], 2, "hitch.2.map")
-# target.read_chain("hitch.2.map")
 
 a = input("Enter a prompt: ")
 b = ""
@@ -58,34 +43,30 @@ else:
     chain_response = False
 
 while a.lower() not in ["q", "quit", "stop", "end"]:
+    paragraph = []
     if a[0:5].lower() == "view:":
         for start in [text for text in target.chain.starting if a[5:].lower() in text.lower()]:
             print('"' + start + '"', target.chain.mchain[start])
     else:
         # target.chain.add_expression(a)
-        for i in range(0, 5):
+        for i in range(0, random.randint(1, 5)):
             sources = []
-            this_message = target.chain.build_message(char_limit=140, prompt=b + " " + a, sources=sources)
-            passages = target.chain.identify_passages(sources, min_length=2)
-            while len(this_message) < 50 or this_message[len(this_message) - 1] not in "?!.":
-                sources = []
-                this_message = target.chain.build_message(char_limit=140, prompt=b + " " + a, sources=sources)
-                passages = target.chain.indentify_passages(sources, min_length=2)
-            print(len(this_message), "\t", this_message)
-            print("---------------------------------------------")
-            quote_size = 0
-            if len(passages) > 0:
-                quote_size = passages[-1][1] + passages[-1][2]
-            for item in passages:
-                print(item, item[2] * 1000 // quote_size / 1000)
-            print("---------------------------------------------")
-            print("---------------------------------------------")
+            passages = []
+            target.max_percent = 1/(random.randint(2,5))
+            this_message = target.get_message(prompt=b + " " + a,passages=passages)
+            while len(this_message) < 5:
+                passages = []
+                this_message = target.get_message(prompt=b + " " + a, passages=passages)
+
+            print(this_message)
             if chain_response:
                 b = a
                 a = this_message
                 if a == b:
                     a = ""
                     b = ""
+            paragraph.append(this_message)
+    print(' '.join(paragraph).replace('. "','".\n"'))
     a = input("Enter a prompt: ")
 
 
