@@ -7,7 +7,7 @@ wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
 
-Scribe.read_map('douglasadams.txt.map', chain=wc)
+Scribe.read_map('pratchett.txt.map', chain=wc)
 
 last_message = ''
 
@@ -18,10 +18,10 @@ while len(a) == 0 or a[0] not in ('q', 'Q'):
     for i in range(10):
         attempts = 1
         sources = []
-        message = wc.build_message(break_at_fullstop=True, char_limit=140, word_count=25, prompt=a, sources=sources)
+        message = wc.build_message(break_at_fullstop=True, char_limit=280, word_count=25, prompt=a, sources=sources)
         while message[0] not in WordChain.capitals or message[-1] not in '.!?' or len(message) < 50:
             sources = []
-            message = wc.build_message(break_at_fullstop=True, char_limit=140, word_count=25, prompt=a, sources=sources)
+            message = wc.build_message(break_at_fullstop=True, char_limit=280, word_count=25, prompt=a, sources=sources)
             attempts += 1
             if attempts > 10:
                 a = ""

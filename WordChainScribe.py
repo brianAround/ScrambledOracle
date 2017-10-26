@@ -64,6 +64,8 @@ class Scribe:
                     text_index = int(text_index)
                     entry = (text_file, text_index)
                     node.sources.append(entry)
+    #structure of sources: [(file_name, index), ...]
+
 
     @staticmethod
     def read_posmap(src_filepath, chain:WordChain):

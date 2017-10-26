@@ -43,18 +43,18 @@ class Preprocess:
         return before + replacement + after
 
 byline = "by William Shakespeare"
-target_folder = os.path.join("sources", "pratchett")
-source_filename = os.path.join(target_folder, "alice13a.txt")
+target_folder = os.path.join("sources", "HorrorShow")
+source_filename = os.path.join(target_folder, "CallOfCthulhu.txt")
 end_marker = "THE END"
 
 sack = []
 
 title = ""
 
-folder_list = os.listdir(target_folder)
-folder_list = [f for f in folder_list if f.endswith(".txt") and os.path.isfile(os.path.join(target_folder, f))]
-file_list = [os.path.join(target_folder, f) for f in folder_list]
-# file_list = [source_filename]
+# folder_list = os.listdir(target_folder)
+# folder_list = [f for f in folder_list if f.endswith(".txt") and os.path.isfile(os.path.join(target_folder, f))]
+# file_list = [os.path.join(target_folder, f) for f in folder_list]
+file_list = [source_filename]
 # file_list = file_list[4:5]
 
 p = Preprocess()
