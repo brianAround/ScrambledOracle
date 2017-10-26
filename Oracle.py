@@ -49,6 +49,7 @@ class Oracle:
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+        self.character_limit = 280
 
     @staticmethod
     def one_word_less(text):
@@ -88,12 +89,12 @@ class Oracle:
             if len(prompt) == 0:
                 prompt.append(self.select_new_prompt())
             prompt = " ".join(prompt)
-        response = self.chain.build_message(char_limit=140, prompt=prompt, sources=sources)
+        response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
         # response = self.build_message(char_limit=140, prompt=prompt,sources=sources)
         new_passages = self.chain.identify_passages(sources, 2)
         # new_passages = self.identifyPassages(sources, 2)
         prime_source_len = self.get_primary_source_ratio(new_passages)
-        while 140 < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
+        while self.character_limit < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
                 or response.lower() == prompt.lower() \
                 or self.strip_hash_tags(response) in self.sent_messages \
                 or prime_source_len > self.max_percent \
@@ -102,7 +103,8 @@ class Oracle:
             if response == prompt or response in self.sent_messages or attempts > 1000:
                 prompt = self.select_new_prompt()
                 attempts = 0
-            response = self.chain.build_message(char_limit=140, prompt=prompt, sources=sources)
+            response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources,
+                                                )
             new_passages = self.chain.identify_passages(sources, 2)
             prime_source_len = self.get_primary_source_ratio(new_passages)
             attempts += 1
@@ -180,22 +182,71 @@ class Oracle:
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
         message = self.add_hashtag(message)
-        try:
-            twit_response = twitter.update_status(status=message)
-            twit_id = twit_response['id']
-            self.send_passages_email(message, passages, twit_id)
-            print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message)
-        except TwythonError as twy_err:
-            print(type(twy_err))
-            print(twy_err.args)
+        seq = self.get_message_sequence(message, 140)
+        twit_id = 0
+        for message_part in seq:
+            try:
+                if twit_id == 0:
+                    twit_response = twitter.update_status(status=message_part)
+                    twit_id = twit_response['id']
+                    self.send_passages_email(message, passages, twit_id)
+                else:
+                    twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=twit_id)
+                    twit_id = twit_response['id']
+                print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message_part)
+            except TwythonError as twy_err:
+                print(type(twy_err))
+                print(twy_err.args)
+                print('Message attempted: "' + message + '"')
         return message
+
+    @staticmethod
+    def get_message_sequence(src_text, max_length=140):
+        seq = []
+        if len(src_text) > max_length:
+            # for now just make it split in half, but reserve 6 characters
+            # in each sequence for " 11/20"
+            allow_length = max_length - 6
+            parts = []
+            partsizes = []
+            words = src_text.split()
+            midword = int(len(words) / 2)
+            parts.append(words[:midword])
+            partsizes.append(sum([len(w) for w in parts[0]]) + len(parts[0]))
+            parts.append(words[midword:])
+            partsizes.append(sum([len(w) for w in parts[1]]) + len(parts[1]))
+            while max(partsizes) > allow_length:
+                for widx in range(len(parts)):
+                    if partsizes[widx] > allow_length:
+                        if widx > 0 and partsizes[widx - 1] < allow_length - len(parts[widx][0]):
+                            # move to previous part
+                            move_text = parts[widx].pop(0)
+                            parts[widx - 1].append(move_text)
+                            partsizes[widx - 1] += len(move_text) + 1
+                            partsizes[widx] -= len(move_text) + 1
+                        else:
+                            # move to next part
+                            if len(parts) == widx + 1:
+                                parts.append([])
+                                partsizes.append(0)
+                            move_text = parts[widx].pop()
+                            parts[widx + 1].insert(0, move_text)
+                            partsizes[widx + 1] += len(move_text) + 1
+                            partsizes[widx] -= len(move_text) + 1
+            plen = len(parts)
+            for pidx in range(plen):
+                parts[pidx].insert(0, str(pidx + 1) + '/' + str(plen))
+            seq = [" ".join(part) for part in parts]
+        else:
+            seq.append(src_text)
+        return seq
 
     def add_hashtag(self, message):
         if len(self.hashtags) > 0:
             use_hashtag = self.hashtags[0]
             if len(self.hashtags) > 1:
                 use_hashtag = self.hashtags[random.randint(0, len(self.hashtags) - 1)]
-            if len(message) < 139 - len(use_hashtag):
+            if len(message) < self.character_limit - 1 - len(use_hashtag):
                 message += ' ' + use_hashtag
         return message
 
@@ -243,3 +294,4 @@ class Oracle:
         except ValueError as err:
             print("Value Error on email send:", err)
             pass
+
