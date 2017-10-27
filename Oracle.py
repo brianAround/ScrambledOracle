@@ -207,39 +207,48 @@ class Oracle:
             # for now just make it split in half, but reserve 6 characters
             # in each sequence for " 11/20"
             allow_length = max_length - 6
-            parts = []
-            partsizes = []
-            words = src_text.split()
+            parts = Oracle.split_by_width(src_text, allow_length)
+            plen = len(parts)
+            for pidx in range(plen):
+                seq.append(str(pidx + 1) + '/' + str(plen) + ') ' + parts[pidx])
+        else:
+            seq.append(src_text)
+        return seq
+
+    @staticmethod
+    def split_by_width(src_text, allow_length, try_balance=True):
+        parts = []
+        partsizes = []
+        words = src_text.split()
+        if try_balance:
             midword = int(len(words) / 2)
             parts.append(words[:midword])
             partsizes.append(sum([len(w) for w in parts[0]]) + len(parts[0]))
             parts.append(words[midword:])
             partsizes.append(sum([len(w) for w in parts[1]]) + len(parts[1]))
-            while max(partsizes) > allow_length:
-                for widx in range(len(parts)):
-                    if partsizes[widx] > allow_length:
-                        if widx > 0 and partsizes[widx - 1] < allow_length - len(parts[widx][0]):
-                            # move to previous part
-                            move_text = parts[widx].pop(0)
-                            parts[widx - 1].append(move_text)
-                            partsizes[widx - 1] += len(move_text) + 1
-                            partsizes[widx] -= len(move_text) + 1
-                        else:
-                            # move to next part
-                            if len(parts) == widx + 1:
-                                parts.append([])
-                                partsizes.append(0)
-                            move_text = parts[widx].pop()
-                            parts[widx + 1].insert(0, move_text)
-                            partsizes[widx + 1] += len(move_text) + 1
-                            partsizes[widx] -= len(move_text) + 1
-            plen = len(parts)
-            for pidx in range(plen):
-                parts[pidx].insert(0, str(pidx + 1) + '/' + str(plen))
-            seq = [" ".join(part) for part in parts]
         else:
-            seq.append(src_text)
-        return seq
+            parts.append(words)
+            partsizes.append(sum([len(w) for w in parts[0]]) + len(parts[0]))
+
+        while max(partsizes) > allow_length:
+            for widx in range(len(parts)):
+                if partsizes[widx] > allow_length:
+                    if widx > 0 and partsizes[widx - 1] < allow_length - len(parts[widx][0]):
+                        # move to previous part
+                        move_text = parts[widx].pop(0)
+                        parts[widx - 1].append(move_text)
+                        partsizes[widx - 1] += len(move_text) + 1
+                        partsizes[widx] -= len(move_text) + 1
+                    else:
+                        # move to next part
+                        if len(parts) == widx + 1:
+                            parts.append([])
+                            partsizes.append(0)
+                        move_text = parts[widx].pop()
+                        parts[widx + 1].insert(0, move_text)
+                        partsizes[widx + 1] += len(move_text) + 1
+                        partsizes[widx] -= len(move_text) + 1
+        return [" ".join(p) for p in parts]
 
     def add_hashtag(self, message):
         if len(self.hashtags) > 0:
