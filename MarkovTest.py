@@ -6,7 +6,7 @@ import os
 import os.path
 
 
-map_name = 'InauguralHorror.txt.map'
+map_name = 'PratchettStoker.txt.map'
 # map_name = 'AdamsPoe.txt.map'
 
 # target_list = ["alice13a.txt", "carroll-hunting-100.txt"]
@@ -17,8 +17,6 @@ map_name = 'InauguralHorror.txt.map'
 # for word_key in target.word_counts:
 #    if target.word_counts[word_key] > 500:
 #        print(word_key, target.word_counts[word_key])
-
-
 
 
 target = Oracle()
