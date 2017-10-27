@@ -3,6 +3,7 @@ import PIL.Image
 import PIL.ImageFont
 import PIL.ImageOps
 import PIL.ImageDraw
+from Oracle import Oracle
 
 # I'm considering this as a better way of dealing with long messages
 # perhaps in conjunction with the threaded tweets.
@@ -10,10 +11,22 @@ import PIL.ImageDraw
 PIXEL_ON = 0
 PIXEL_OFF = 255
 
-def text_image(text_path, font_path=None):
-    grayscale = 'L'
+def text_image_from_file(text_path, font_path=None):
     with open(text_path) as text_file:
         lines = tuple(l.rstrip() for l in text_file.readlines())
+
+
+    total_length = sum([len(l) for l in lines])
+    char_width = 60
+    sequence = []
+    print(lines)
+    for line in lines:
+        sequence.extend(Oracle.split_by_width(line, char_width, False))
+        sequence.append(" ")
+
+    lines = tuple(sequence)
+    print(lines)
+    grayscale = 'L'
 
     large_font = 20
     font_path = font_path or 'cour.ttf'
@@ -50,7 +63,7 @@ def text_image(text_path, font_path=None):
     return image
 
 def text_image_usage():
-    img = text_image('render_test.txt')
+    img = text_image_from_file('render_test.txt')
     img.show()
     img.save('render_test.png')
 
