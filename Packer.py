@@ -7,15 +7,15 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "InauguralHorror.txt.map"
+map_name = "various.txt.map"
 target_depth = 3
-build_type = "D"
-target_dir = os.path.join(os.path.join("sources", "HorrorShow"), "inaugural")
+build_type = "F"
+target_dir = os.path.join("sources", "various")
 
 # target_dir = os.path.join("sources", "pratchett")
 # text_list = [os.path.join(target_dir, f) for f in text_list]
 
-text_list = ['sources/HorrorShow/LovecraftShunnedHouse.txt']
+text_list = ['sources/various/alice13a.txt']
 
 # handle arguments
 # pass either no args or at least 4

@@ -14,6 +14,7 @@ sources/shakespeare
 sources/twain
 sources/inaugural
 sources/HorrorShow
+sources/thankful
 sources/various/stranger.txt
 sources/various/moonharshmistress.txt
 
@@ -26,6 +27,8 @@ sources/various/moonharshmistress.txt
 *.ini
 *.names.txt
 
+# Tweet logs
+tweets/*.htm
 
 
 # Windows image file caches

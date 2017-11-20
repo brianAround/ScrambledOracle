@@ -44,7 +44,7 @@ class Preprocess:
 
 byline = "by William Shakespeare"
 target_folder = os.path.join("sources", "HorrorShow")
-source_filename = os.path.join(target_folder, "CallOfCthulhu.txt")
+source_filename = os.path.join(target_folder, "Rocky_Horror.txt")
 end_marker = "THE END"
 
 sack = []

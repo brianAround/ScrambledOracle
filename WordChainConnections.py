@@ -17,7 +17,7 @@ wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
 
-wc = Scribe.read_map('InauguralHorror.txt.map', chain=wc)
+wc = Scribe.read_map('douglasadams.txt.map', chain=wc)
 print(time.asctime(), "Indexing terms")
 wc.index_terms()
 

@@ -6,7 +6,7 @@ import os
 import os.path
 
 
-map_name = 'PratchettStoker.txt.map'
+map_name = 'inaugural.txt.map'
 # map_name = 'AdamsPoe.txt.map'
 
 # target_list = ["alice13a.txt", "carroll-hunting-100.txt"]
