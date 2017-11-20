@@ -7,6 +7,7 @@ from twython import Twython
 from twython.exceptions import TwythonError
 from WordChain import *
 from WordChainScribe import Scribe
+import TextVisualizer
 
 
 def find_add_item_index(item, item_list):
@@ -49,6 +50,7 @@ class Oracle:
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+        self.long_tweet_as_image = False
         self.character_limit = 280
 
     @staticmethod
@@ -70,7 +72,7 @@ class Oracle:
                 encoding = 'utf-8'
         with open(file_path, 'r', encoding=encoding) as f_handle:
             for line in f_handle:
-                result[line] = True
+                result[line.strip()] = True
         return result
 
     def get_message(self, prompt="", passages=None, print_passages=True):
@@ -117,6 +119,28 @@ class Oracle:
             print("----------")
         passages += new_passages
         return response
+
+    @staticmethod
+    def skim_hash_tags(message, preserve_inline_hashtags=True):
+        result = {'text': [], 'hashtags': []}
+        words = message.split()
+        tag_run = 0
+        for idx in range(len(words)):
+            word = words[idx]
+            if word[0] == '#':
+                result['hashtags'].append(word)
+                tag_run += 1
+            else:
+                if len(result['text']) > 0 and tag_run > 0 and preserve_inline_hashtags:
+                    tag_count = len(result['hashtags'])
+                    for tag in result['hashtags'][tag_count - tag_run: tag_count]:
+                        result['text'].append(tag)
+                tag_run = 0
+                result['text'].append(word)
+        result['text'] = " ".join(result['text'])
+        return result
+
+
 
     def strip_hash_tags(self, message):
         result = message
@@ -181,23 +205,34 @@ class Oracle:
         passages = []
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
-        message = self.add_hashtag(message)
-        seq = self.get_message_sequence(message, 140)
-        twit_id = 0
-        for message_part in seq:
-            try:
-                if twit_id == 0:
-                    twit_response = twitter.update_status(status=message_part)
-                    twit_id = twit_response['id']
-                    self.send_passages_email(message, passages, twit_id)
-                else:
-                    twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=twit_id)
-                    twit_id = twit_response['id']
-                print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message_part)
-            except TwythonError as twy_err:
-                print(type(twy_err))
-                print(twy_err.args)
-                print('Message attempted: "' + message + '"')
+        message = self.add_hashtag(message) + " #zombie"
+        if len(message) > 140 and self.long_tweet_as_image:
+            clean_message = self.skim_hash_tags(message)
+            image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
+            image = open(image_path, 'rb')
+            img_response = twitter.upload_media(media=image)
+            caption = " ".join(clean_message['hashtags'])
+            twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
+            twit_id = twit_response['id']
+            self.send_passages_email(message, passages, twit_id)
+            print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted as Image:', message)
+        else:
+            seq = self.get_message_sequence(message, 140)
+            twit_id = 0
+            for message_part in seq:
+                try:
+                    if twit_id == 0:
+                        twit_response = twitter.update_status(status=message_part)
+                        twit_id = twit_response['id']
+                        self.send_passages_email(message, passages, twit_id)
+                    else:
+                        twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=twit_id)
+                        twit_id = twit_response['id']
+                    print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message_part)
+                except TwythonError as twy_err:
+                    print(type(twy_err))
+                    print(twy_err.args)
+                    print('Message attempted: "' + message + '"')
         return message
 
     @staticmethod
@@ -207,7 +242,7 @@ class Oracle:
             # for now just make it split in half, but reserve 6 characters
             # in each sequence for " 11/20"
             allow_length = max_length - 6
-            parts = Oracle.split_by_width(src_text, allow_length)
+            parts = TextVisualizer.split_by_width(src_text, allow_length)
             plen = len(parts)
             for pidx in range(plen):
                 seq.append(str(pidx + 1) + '/' + str(plen) + ') ' + parts[pidx])
