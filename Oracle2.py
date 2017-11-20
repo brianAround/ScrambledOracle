@@ -79,6 +79,7 @@ def send_for_config(prat_config, r, iterations=1, add_hashtags=[]):
         Repeater.target = Oracle(config_file=prat_config)
         Repeater.target.hashtags += add_hashtags
         Repeater.target.max_percent = Repeater.max_percent
+        Repeater.target.long_tweet_as_image = False
         prompt = ''
         if channel in Repeater.message_buckets:
             prompt = Repeater.message_buckets[channel]
@@ -99,7 +100,7 @@ def check():
 
 send()
 if not single_run:
-    schedule.every(120).minutes.do(send)
+    schedule.every(30).minutes.do(send)
     while 1:
         schedule.run_pending()
         time.sleep(60)
