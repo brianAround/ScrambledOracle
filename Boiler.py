@@ -2,17 +2,17 @@ import codecs
 import os
 import nltk
 
-term_file = 'inauguralhorror_preferred_words.txt'
+term_file = 'data/classification/thankful.txt'
 source_file = 'sources/HorrorShow/Poe.txt'
 output_file = 'sources/HorrorShow/Poe_GoodParts.txt'
 
-source_folder = "sources/inaugural"
-destination_folder = "sources/HorrorShow/inaugural"
+source_folder = "sources/dougadams"
+destination_folder = "sources/thankful/dougadams"
 file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
 file_listing = [os.path.join(source_folder, f) for f in file_listing]
 file_listing = [f for f in file_listing if os.path.isfile(f)]
 preferred_terms = {}
-file_listing = ['sources/HorrorShow/CallOfCthulhu.txt']
+
 # read preferred terms
 if os.path.isfile(term_file):
     with open(term_file, mode='r') as ff:
