@@ -10,6 +10,16 @@ from StructTree import *
 full_stop_beats = [".", "!", "?"]
 
 
+class SourceCorpus:
+
+    def __init__(self):
+        self.key = 0
+        self.name = ""
+        self.description = ""
+        self.path = ""
+        self.instances = 0
+
+
 class ChainNode:
 
     def __init__(self, word_id, prefix=[], is_starter=False, outbound=None, inbound=None):
@@ -23,13 +33,14 @@ class ChainNode:
         self.outbound = [] if outbound is None else outbound
         self.inbound = [] if inbound is None else inbound
         self.sources = []
+        self.corpora = {}
         self.parts_of_speech = []
-
-
 
 class WordChain:
 
+    engine_version = "1.1"
     capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 
     def __init__(self):
         self.mchain = {}
@@ -47,6 +58,7 @@ class WordChain:
         self.articles = {"a", "but", "not", "one", "that", "the", "to"}
         if os.path.isfile('SearchIgnoreList.txt'):
             self.articles = self.load_dictionary('SearchIgnoreList.txt')
+        self.easy_going = True
 
     @staticmethod
     def load_dictionary(file_path):
@@ -480,7 +492,10 @@ class WordChain:
             if len(down_path) > 0:
                 node = down_path.pop()
             elif len(node.outbound) > 0:
-                s = random.random()
+                if self.easy_going:
+                    s = 0
+                else:
+                    s = random.random()
                 # print(time.asctime(), "Roll d100 for next node:", s)
                 for entry in node.outbound:
                     if s < entry[0]:

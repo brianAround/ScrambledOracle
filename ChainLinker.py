@@ -15,7 +15,7 @@ class ChainLinker:
         self.chain = None
         self.mchain = None
         self.starters = []
-        self.data_refresh_time = 43200
+        self.data_refresh_time = 10 # 43200
         self.depth = 1
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
@@ -48,6 +48,7 @@ class ChainLinker:
         # self.chain.read_map(target_file)
 
     def regenerate_markov_chain(self, source_count, source_folder, target_file):
+        print("Regenerating markov chain with", source_count, "files from", source_folder)
         source_files = []
         dir_listing = self.get_relative_file_list(source_folder)
         for idx in range(source_count):
@@ -57,6 +58,7 @@ class ChainLinker:
             source_files.append(new_file)
             if len(source_files) >= len(dir_listing):
                 break
+        print("Building markov chain from sources:", source_files)
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
 
     def get_relative_file_list(self, source_folder):
@@ -92,6 +94,7 @@ class ChainLinker:
     def write_chain(self, chain: WordChain, outfile):
         has_source_map = False
         self.filename = outfile
+
         with open(outfile, 'w', encoding="utf-8") as target:
             for key in chain.mchain:
                 if not has_source_map and len(chain.mchain[key]) >= 5:
@@ -106,6 +109,13 @@ class ChainLinker:
 
         if has_source_map:
             with open(outfile + '.srcmap', 'w', encoding="utf-8") as srcmap:
+                # write the header row
+                srcmap.write("SRCMAP|Engine:")
+                srcmap.write(WordChain.engine_version + "Dev")
+                srcmap.write("\n")
+                """srcmap.write('{"name":"Sources", ')
+                srcmap.write('"documents":[')
+                doclist = {}"""
                 for key in chain.mchain:
                     entry = chain.mchain[key]
                     if len(entry) >= 5:
@@ -313,3 +323,13 @@ class ChainLinker:
             self.mchain = chain.mchain
             self.starters = chain.starters
             self.depth = chain.depth
+
+
+notes = """Ideas for optimizing the file structure:
+    Replace the words with numbers:
+        Sort the terms in descending order of frequency, then assign numbers sequentially, to minimize space.
+        Provide a term map as a separate file.
+        Create a header row for all data files that includes a engine version and a date stamp.
+    In .srcmap, enumerate sources to keep from repeating source name t1 times.
+    In the header for the .srcmap add a listing for each source to enable more rich metadata.
+    """

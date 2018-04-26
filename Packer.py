@@ -11,9 +11,18 @@ map_name = "various.txt.map"
 target_depth = 3
 build_type = "F"
 target_dir = os.path.join("sources", "various")
+select_count = 2
 
 # target_dir = os.path.join("sources", "pratchett")
 # text_list = [os.path.join(target_dir, f) for f in text_list]
+
+def get_relative_file_list(source_folder):
+    file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
+    file_listing = [os.path.join(source_folder, f) for f in file_listing]
+    file_listing = [f for f in file_listing if os.path.isfile(f)]
+    return file_listing
+
+
 
 text_list = ['sources/various/alice13a.txt']
 
@@ -21,7 +30,7 @@ text_list = ['sources/various/alice13a.txt']
 # pass either no args or at least 4
 # arg 1 - map_name - destination filename - I expect an extension of .map
 # arg 2 - build depth (3 is usual)
-# arg 3 - build type (F for list of files, and D to use a directory)
+# arg 3 - build type (F for list of files, and D to use a directory, S to randomly select files)
 if len(sys.argv) > 4:
     map_name = sys.argv[1]
     target_depth = int(sys.argv[2])
@@ -44,14 +53,32 @@ if len(sys.argv) > 4:
         if not os.path.isdir(source):
             raise ValueError("This isn't a valid directory.")
         target_dir = source
+    elif build_type == "S":
+        text_list = []
+        source = sys.argv[4]
+        if not os.path.isdir(source):
+            raise ValueError("This isn't a valid directory.")
+        target_dir = source
+        if len(sys.argv) > 5:
+            select_count = int(sys.argv[5])
+        dir_list = get_relative_file_list(target_dir)
+        use_file_list = 'N'
+        while use_file_list[0].lower() != 'y':
+            text_list = random.choices(dir_list, k=select_count)
+            print('Files to use:')
+            for idx, f in enumerate(text_list):
+                print(idx + 1, '.', f)
+            use_file_list = input('Use this list? (Y/N)')
 
 print('Build Type:', build_type)
 print('Destination file:', map_name)
 print('Prefix Length:', target_depth)
-if build_type == 'F':
-    print('Files:', ','.join([f for f in text_list]))
-elif build_type == 'D':
+if build_type == 'S':
+    print('Select', select_count, 'files')
+if build_type in ['D','S']:
     print('Source Directory:', target_dir)
+if build_type in ['F','S']:
+    print('Files:', ','.join([f for f in text_list]))
 
 linker = ChainLinker('Oracle.ini')
 # linker.initialize_chain()
@@ -62,7 +89,7 @@ o.chain = WordChain()
 print("Reading files and creating map file:", map_name)
 if build_type == "D":
     linker.build_and_save_chain_from_directory(target_dir, depth=target_depth, target_filename=map_name)
-elif build_type == "F":
+elif build_type in ["F", "S"]:
     linker.build_and_save_chain_from_list(text_list, target_depth, map_name)
 print("Reading", map_name, "from disk")
 Scribe.read_map(map_name, chain=o.chain)
