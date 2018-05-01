@@ -52,6 +52,7 @@ class Oracle:
         # self.initialize_chain()
         self.long_tweet_as_image = False
         self.character_limit = 280
+        self.max_twitter_char = 280
 
     @staticmethod
     def one_word_less(text):
@@ -205,8 +206,8 @@ class Oracle:
         passages = []
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
-        message = self.add_hashtag(message) + " #zombie"
-        if len(message) > 140 and self.long_tweet_as_image:
+        message = self.add_hashtag(message)
+        if len(message) > self.max_twitter_char and self.long_tweet_as_image:
             clean_message = self.skim_hash_tags(message)
             image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
             image = open(image_path, 'rb')
@@ -217,7 +218,7 @@ class Oracle:
             self.send_passages_email(message, passages, twit_id)
             print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted as Image:', message)
         else:
-            seq = self.get_message_sequence(message, 140)
+            seq = self.get_message_sequence(message, self.max_twitter_char)
             twit_id = 0
             for message_part in seq:
                 try:
@@ -236,7 +237,7 @@ class Oracle:
         return message
 
     @staticmethod
-    def get_message_sequence(src_text, max_length=140):
+    def get_message_sequence(src_text, max_length=280):
         seq = []
         if len(src_text) > max_length:
             # for now just make it split in half, but reserve 6 characters
@@ -304,9 +305,11 @@ class Oracle:
             msg += "<ol>\n"
             for passage in passages:
                 full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+                full_passage = full_passage.replace(passage[5],'<span style="text-decoration: underline;">' + passage[5] + '</span>')
                 msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
-                msg += "<strong><em>" + passage[0] + "</em></strong> at postion " + str(passage[3]) + "<br \>\n"
-                msg += "<strong>Full passage:</strong> <em>&quot;" + full_passage + "&quot;</em></li>\n"
+                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> at postion " + str(passage[3]) + "<br \>\n"
+                msg += "<strong>Full passage:</strong> <blockquote><em>&quot;" + full_passage + \
+                       "&quot;</em></blockquote></li>\n"
             msg += "</ol>\n"
 
             msg += "<h3>Raw Data:</h3>"
@@ -338,4 +341,20 @@ class Oracle:
         except ValueError as err:
             print("Value Error on email send:", err)
             pass
+
+    @staticmethod
+    def clean_source(source_text):
+        working = source_text.replace('.txt','')
+        last_slash = max(working.find("/"), working.find("\\"))
+        while last_slash > -1:
+            working = working[last_slash + 1:]
+            last_slash = max(working.find("/"), working.find("\\"))
+        working = working.replace("DW 0", "Discworld #").replace("#0","#")
+        result = []
+        for idx in range(len(working)):
+            if working[idx].isupper() and idx > 0:
+                result.append(" ")
+            result.append(working[idx])
+        return "".join(result)
+
 

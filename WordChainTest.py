@@ -7,7 +7,7 @@ wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
 
-Scribe.read_map('pratchett.txt.map', chain=wc)
+Scribe.read_map('various.txt.map', chain=wc)
 
 last_message = ''
 

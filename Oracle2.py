@@ -64,6 +64,7 @@ def send():
             send_for_config('ScrambledDouglasAdams' + adjustment + '.ini', r, iterations, add_hashtags=hash_tags)
             send_for_config('oracle' + adjustment + '.ini', r, iterations, add_hashtags=hash_tags)
             Repeater.target = Oracle()
+
             print("Time taken:", time.time() - start_time)
         else:
             print(time.ctime(int(time.time())), "Tick!")
@@ -75,16 +76,21 @@ def send_for_config(prat_config, r, iterations=1, add_hashtags=[]):
         if prat_config.startswith('ScrambledPratchett'):
             channel = 'ScrambledPratchett'
         linker = ChainLinker(config_file=prat_config)
+        # linker.data_refresh_time = 10
+        linker.verbose = True
         linker.initialize_chain()
         Repeater.target = Oracle(config_file=prat_config)
         Repeater.target.hashtags += add_hashtags
         Repeater.target.max_percent = Repeater.max_percent
-        Repeater.target.long_tweet_as_image = False
+        Repeater.target.character_limit = 560
+        Repeater.target.long_tweet_as_image = True
         prompt = ''
         if channel in Repeater.message_buckets:
             prompt = Repeater.message_buckets[channel]
         for idx in range(iterations):
             Repeater.message_buckets[channel] = r.send_message(prompt)
+        linker = None
+
     except ValueError:
         pass
     else:

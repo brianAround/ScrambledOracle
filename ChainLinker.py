@@ -15,7 +15,7 @@ class ChainLinker:
         self.chain = None
         self.mchain = None
         self.starters = []
-        self.data_refresh_time = 10 # 43200
+        self.data_refresh_time = 43200
         self.depth = 1
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
@@ -29,12 +29,17 @@ class ChainLinker:
         self.regenerate = self.config['bot_info']['regenerate']
         self.source_subdirectory = self.config['bot_info']['source']
         self.prompt_filter = None
+        self.verbose = False
         if 'prompt_filter' in self.config['bot_info']:
             self.prompt_filter = self.config['bot_info']['prompt_filter']
         self.hashtags = []
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+
+    def say(self, message):
+        if self.verbose:
+            print(message)
 
     def initialize_chain(self):
         target_file = self.filename
@@ -48,7 +53,7 @@ class ChainLinker:
         # self.chain.read_map(target_file)
 
     def regenerate_markov_chain(self, source_count, source_folder, target_file):
-        print("Regenerating markov chain with", source_count, "files from", source_folder)
+        self.say("Regenerating markov chain with " + str(source_count) + " files from " + source_folder)
         source_files = []
         dir_listing = self.get_relative_file_list(source_folder)
         for idx in range(source_count):
@@ -58,7 +63,7 @@ class ChainLinker:
             source_files.append(new_file)
             if len(source_files) >= len(dir_listing):
                 break
-        print("Building markov chain from sources:", source_files)
+        self.say("Building markov chain from sources:" + str(source_files))
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
 
     def get_relative_file_list(self, source_folder):
@@ -102,9 +107,15 @@ class ChainLinker:
                 target.write(key + "\t")
                 target.write(str(chain.mchain[key][1]) + "\t")
                 prev_p = 0
+                item_list = []
                 for entry in chain.mchain[key][0]:
-                    target.write(str(entry[0] - prev_p) + '|"' + entry[1] + '"\t')
+                    new_item = (entry[0] - prev_p, entry[1])
+                    item_list.append(new_item)
                     prev_p = entry[0]
+                item_list.sort(key = lambda x : -1 * x[0])
+                for entry in item_list:
+                    target.write(str(entry[0]) + '|"' + entry[1] + '"\t')
+                    # prev_p = entry[0]
                 target.write("\n")
 
         if has_source_map:
@@ -135,7 +146,13 @@ class ChainLinker:
                             posmap.write(str(pos) + "\t")
                         posmap.write("\n")
 
+    def tag_text(self, source_text):
+        # sentences = nltk.sent_tokenize(source_text)
+        sentence = nltk.word_tokenize(source_text)
+        return nltk.pos_tag(sentence)
+
     def compile_word_tally(self, file_path, depth, word_tally, use_pos_tags=True):
+        self.say("Compiling word tally from " + file_path)
         last_beat = ""
         beat_list = []
         if len(word_tally) == 0:
@@ -308,12 +325,18 @@ class ChainLinker:
                     incidents += word_tally[key][key2]
             if is_starter:
                 chain.starters.append(key)
-            total = 0
             for key2 in word_tally[key]:
                 if key2[0] != '_':
-                    total += word_tally[key][key2] * 10000 // incidents / 10000
+                    total = word_tally[key][key2] * 10000 // incidents / 10000    # one day, just store the count
                     entry = [total, key2]
                     suffixes.append(entry)
+            # although I want to use int values here, don't upset the apple cart just yet, sort the suffixes
+            suffixes.sort(key = lambda x: -1 * x[0])
+            # and then make it a cumulative list.
+            total = 0
+            for entry in suffixes:
+                entry[0] += total
+                total = entry[0]
             chain.mchain[key] = [suffixes, incidents, is_spoken, source_text, source_index, is_starter, parts_of_speech]
         return chain
 

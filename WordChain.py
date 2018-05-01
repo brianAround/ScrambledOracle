@@ -33,7 +33,6 @@ class ChainNode:
         self.outbound = [] if outbound is None else outbound
         self.inbound = [] if inbound is None else inbound
         self.sources = []
-        self.corpora = {}
         self.parts_of_speech = []
 
 class WordChain:
@@ -58,7 +57,8 @@ class WordChain:
         self.articles = {"a", "but", "not", "one", "that", "the", "to"}
         if os.path.isfile('SearchIgnoreList.txt'):
             self.articles = self.load_dictionary('SearchIgnoreList.txt')
-        self.easy_going = True
+        self.corpora = {}
+        self.easy_going = False
 
     @staticmethod
     def load_dictionary(file_path):
@@ -150,7 +150,7 @@ class WordChain:
     def splay_beat(self, beat_text):
         splayed = []
         first_word_idx = 0
-        while beat_text[first_word_idx] in string.punctuation:
+        while first_word_idx < len(beat_text) and beat_text[first_word_idx] in string.punctuation:
             splayed.append(beat_text[first_word_idx])
             first_word_idx += 1
         last_word_idx = len(beat_text) - 1
@@ -496,6 +496,7 @@ class WordChain:
                     s = 0
                 else:
                     s = random.random()
+                    s = s ** 4
                 # print(time.asctime(), "Roll d100 for next node:", s)
                 for entry in node.outbound:
                     if s < entry[0]:
@@ -517,6 +518,18 @@ class WordChain:
 
     def append_node_sources(self, node, sources):
         sources.append([node.prefix, self.convert_prefix_to_text(node.prefix), node.sources[:]])
+
+
+    def find_path_for_tagged(self, tagged, allow_partial=False):
+        message_path = []
+        offset = self.depth - 1
+        beat_list = [item[0] for item in tagged]
+        for i in range(offset, len(beat_list)):
+            key = " ".join(beat_list[i - offset:i + 1])
+            prefix = self.convert_key_to_prefix(key)
+            node = self.nodes_by_prefix[prefix]
+            message_path.append(node)
+        return message_path
 
     def find_path_for_message(self, message, allow_partial=False):
         message_path = []

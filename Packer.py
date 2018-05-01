@@ -24,8 +24,23 @@ def get_relative_file_list(source_folder):
 
 
 
-text_list = ['sources/various/alice13a.txt']
+#text_list = ['sources/various/alice13a.txt']
 
+text_list = []
+text_list.extend(get_relative_file_list('sources/dougadams'))
+text_list.extend(get_relative_file_list('sources/inaugural'))
+text_list.extend(get_relative_file_list('sources/pratchett'))
+text_list.extend(get_relative_file_list('sources/shakespeare'))
+text_list.extend(get_relative_file_list('sources/twain'))
+text_list.extend(get_relative_file_list('sources/various'))
+
+print('Starting document list has ', len(text_list))
+target_len = len(text_list) / 6
+while len(text_list) > target_len:
+	idx = random.randint(0, len(text_list) - 1)
+	text_list.pop(idx)
+print('Using list of', len(text_list))
+	
 # handle arguments
 # pass either no args or at least 4
 # arg 1 - map_name - destination filename - I expect an extension of .map
@@ -82,6 +97,7 @@ if build_type in ['F','S']:
 
 linker = ChainLinker('Oracle.ini')
 # linker.initialize_chain()
+linker.verbose = True
 
 o = Oracle()
 o.chain = WordChain()
