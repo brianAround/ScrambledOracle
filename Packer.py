@@ -7,11 +7,11 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "various.txt.map"
-target_depth = 3
+map_name = "pratchett.5.all.txt.map"
+target_depth = 6
 build_type = "F"
 target_dir = os.path.join("sources", "various")
-select_count = 2
+select_count = 7
 
 # target_dir = os.path.join("sources", "pratchett")
 # text_list = [os.path.join(target_dir, f) for f in text_list]
@@ -27,15 +27,16 @@ def get_relative_file_list(source_folder):
 #text_list = ['sources/various/alice13a.txt']
 
 text_list = []
-text_list.extend(get_relative_file_list('sources/dougadams'))
-text_list.extend(get_relative_file_list('sources/inaugural'))
+# text_list.extend(get_relative_file_list('sources/dougadams'))
+# text_list.extend(get_relative_file_list('sources/inaugural'))
 text_list.extend(get_relative_file_list('sources/pratchett'))
-text_list.extend(get_relative_file_list('sources/shakespeare'))
-text_list.extend(get_relative_file_list('sources/twain'))
-text_list.extend(get_relative_file_list('sources/various'))
+# text_list.extend(get_relative_file_list('sources/shakespeare'))
+# text_list.extend(get_relative_file_list('sources/twain'))
+# text_list.extend(get_relative_file_list('sources/various'))
 
 print('Starting document list has ', len(text_list))
-target_len = len(text_list) / 6
+# target_len = len(text_list) / 6
+target_len = len(text_list)
 while len(text_list) > target_len:
 	idx = random.randint(0, len(text_list) - 1)
 	text_list.pop(idx)

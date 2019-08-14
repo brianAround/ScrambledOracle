@@ -56,6 +56,7 @@ class Scribe:
     @staticmethod
     def read_sourcemap(src_filepath, chain:WordChain):
         with open(src_filepath, 'r', encoding='utf-8') as file_in:
+            src_lookup = {}
             for line in file_in:
                 if line.startswith("SRCMAP|"):
                     print('SRCMAP header row detected:', line)
@@ -72,7 +73,10 @@ class Scribe:
                     for i in range(3, len(values)):
                         text_file, text_index = values[i].split('|')
                         text_index = int(text_index)
-                        entry = (text_file, text_index)
+                        if text_file not in chain.text_source:
+                            src_lookup[text_file] = len(chain.text_source)
+                            chain.text_source.append(text_file)
+                        entry = (src_lookup[text_file], text_index)
                         node.sources.append(entry)
     #structure of sources: [(file_name, index), ...]
 

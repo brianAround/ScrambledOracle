@@ -7,6 +7,7 @@ from twython import Twython
 from twython.exceptions import TwythonError
 from WordChain import *
 from WordChainScribe import Scribe
+import SequenceAlignment
 import TextVisualizer
 
 
@@ -53,6 +54,8 @@ class Oracle:
         self.long_tweet_as_image = False
         self.character_limit = 280
         self.max_twitter_char = 280
+        self.banned_words = ['nigger']
+        self.is_verbose = False
 
     @staticmethod
     def one_word_less(text):
@@ -73,14 +76,66 @@ class Oracle:
                 encoding = 'utf-8'
         with open(file_path, 'r', encoding=encoding) as f_handle:
             for line in f_handle:
-                result[line.strip()] = True
+                work_line = line.strip()
+                if '\t' in work_line:
+                    bucket_key, bucket_value = work_line.split('\t')
+                    result[bucket_key] = bucket_value
+                else:
+                    result[line.strip()] = True
         return result
 
+    def message_is_okay(self, message, passages, prompt, is_verbose=False):
+        is_okay = True
+        minimum_length = 50
+        minimum_passages = 2
+        errors = []
+        if message[0] not in WordChain.capitals and message[0] not in '"-':
+            errors.append('The first character is not capitalized.')
+        if message[-1] not in '.!?"\'':
+            errors.append("The message doesn't end with a sentence terminator.")
+        if len(message) > self.character_limit:
+            errors.append('The message exceeds ' + str(self.character_limit) + ' characters.')
+        if len(message) < 50:
+            errors.append("The message is less than " + str(minimum_length) + " characters long.")
+        prime_source_len = self.get_primary_source_ratio(passages)
+        if prime_source_len > self.max_percent:
+            errors.append("The message consists of " + str(prime_source_len * 100) + "% nodes from a single source, more than " + str(self.max_percent * 100) + "% limit.")
+        if len(passages) < minimum_passages:
+            errors.append("There are fewer than " + str(minimum_passages) + " passages used in this message.")
+        for block_word in self.banned_words:
+            if block_word in message.lower():
+                errors.append("Message contains banned word: " + block_word)
+        if message.lower() == prompt.lower():
+            errors.append("The message is the same as the prompt.")
+        elif self.strip_hash_tags(message) in self.sent_messages:
+            errors.append("The message is identical to a previous message.")
+        else:
+            if len(prompt) > minimum_length:
+                seq_align = SequenceAlignment.get_alignment(message, prompt)
+                raw_compare = 'Seq Align Score: ' + str(seq_align['score']) + ' "' + "".join(
+                    seq_align['result_1']) + '/' + "".join(seq_align['result_2']) + '"'
+                if len(errors) == 0:
+                    print("Messg:" + "".join(seq_align['result_1']))
+                    print("Prmpt:" + "".join(seq_align['result_2']))
+                    print(raw_compare)
+                if seq_align['score'] < 80:
+                    errors.append('Message too similar to prompt. ' + raw_compare)
+        if len(errors) > 0:
+            is_okay = False
+            if is_verbose:
+                print("Rejecting completed message:", message)
+                print("Reasons:", errors)
+        return is_okay
+
+
     def get_message(self, prompt="", passages=None, print_passages=True):
+        if self.is_verbose:
+            print("running get_message for prompt '" + prompt + "'")
         if passages is None:
             passages = []
         if self.chain is None:
             self.initialize_chain()
+        print_details = False
         attempts = 1
         sources = []
         if self.prompt_filter is not None:
@@ -93,15 +148,10 @@ class Oracle:
                 prompt.append(self.select_new_prompt())
             prompt = " ".join(prompt)
         response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
-        # response = self.build_message(char_limit=140, prompt=prompt,sources=sources)
         new_passages = self.chain.identify_passages(sources, 2)
-        # new_passages = self.identifyPassages(sources, 2)
-        prime_source_len = self.get_primary_source_ratio(new_passages)
-        while self.character_limit < len(response) or len(response) < 50 or response[len(response) - 1] not in "?!." \
-                or response.lower() == prompt.lower() \
-                or self.strip_hash_tags(response) in self.sent_messages \
-                or prime_source_len > self.max_percent \
-                or 'nigger' in response:
+        # prime_source_len = self.get_primary_source_ratio(new_passages)
+        is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
+        while not is_valid:
             sources = []
             if response == prompt or response in self.sent_messages or attempts > 1000:
                 prompt = self.select_new_prompt()
@@ -109,7 +159,7 @@ class Oracle:
             response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources,
                                                 )
             new_passages = self.chain.identify_passages(sources, 2)
-            prime_source_len = self.get_primary_source_ratio(new_passages)
+            is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
             attempts += 1
 
         if print_passages:
@@ -196,6 +246,8 @@ class Oracle:
         return prompt_filter
 
     def send_message(self, prompt=""):
+        if self.is_verbose:
+            print("running send_message for prompt '" + prompt + "'")
         twit_config = self.config['twitter']
         app_key = twit_config['app_key']
         app_secret = twit_config['app_secret']
@@ -305,11 +357,14 @@ class Oracle:
             msg += "<ol>\n"
             for passage in passages:
                 full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
-                full_passage = full_passage.replace(passage[5],'<span style="text-decoration: underline;">' + passage[5] + '</span>')
+                full_passage = self.wrap_a_substring(full_passage, passage[5],
+                                                     '<strong>',
+                                                     '</strong>')
                 msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
-                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> at postion " + str(passage[3]) + "<br \>\n"
+                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> at position " + str(passage[3]) + "<br \>\n"
                 msg += "<strong>Full passage:</strong> <blockquote><em>&quot;" + full_passage + \
                        "&quot;</em></blockquote></li>\n"
+                # print(full_passage)
             msg += "</ol>\n"
 
             msg += "<h3>Raw Data:</h3>"
@@ -333,11 +388,11 @@ class Oracle:
                 eml['From'] = email_config['account_name']
                 eml['To'] = email_config['send_email_to']
                 server.send_message(eml)
-            else:
-                # open(outfile + '.srcmap', 'w', encoding="utf-8")
-                filename = os.path.join('tweets', 'Tweet' + str(tweet_id) + '.htm')
-                with open(filename, 'w', encoding='utf-8') as f_handle:
-                    f_handle.write(msg)
+            # else:
+            # open(outfile + '.srcmap', 'w', encoding="utf-8")
+            filename = os.path.join('tweets', 'Tweet' + str(tweet_id) + '.htm')
+            with open(filename, 'w', encoding='utf-8') as f_handle:
+                f_handle.write(msg)
         except ValueError as err:
             print("Value Error on email send:", err)
             pass
@@ -355,6 +410,21 @@ class Oracle:
             if working[idx].isupper() and idx > 0:
                 result.append(" ")
             result.append(working[idx])
+        if result[0].islower():
+            result[0] = result[0].upper()
+        if result[-1] == '"':
+            result.pop()
         return "".join(result)
 
+
+    @staticmethod
+    def wrap_a_substring(source_text, subtext, prefix, suffix):
+        align = SequenceAlignment.get_alignment(source_text, subtext,penalty_blank=5)
+        prefix_idx = align['match_starts_in_1']
+        suffix_idx = align['match_ends_in_1'] + 1
+        if suffix_idx - prefix_idx > len(subtext) + 5:
+            suffix_idx = prefix_idx + len(subtext) + 1
+
+
+        return source_text[:prefix_idx] + prefix + source_text[prefix_idx:suffix_idx] + suffix + source_text[suffix_idx:]
 
