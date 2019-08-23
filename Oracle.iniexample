@@ -19,3 +19,4 @@ name = Scrambled Books
 regenerate = select 2
 source = various
 hashtags = #twitterbot #pythonbot #markov
+announce_new_build = False

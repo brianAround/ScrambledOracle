@@ -50,12 +50,18 @@ class Oracle:
         self.hashtags = []
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
+        self.announce_new_build = False
+        if 'announce_new_build' in self.config['bot_info']:
+            self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
         # self.initialize_chain()
         self.long_tweet_as_image = False
         self.character_limit = 280
         self.max_twitter_char = 280
         self.banned_words = ['nigger']
         self.is_verbose = False
+        self.is_new_build = False
+        self.last_tweet_id = 0
+        self.prompt_reset = False
 
     @staticmethod
     def one_word_less(text):
@@ -83,6 +89,44 @@ class Oracle:
                 else:
                     result[line.strip()] = True
         return result
+
+
+
+
+    def create_name_file(self, filename: str):
+        name_list = []
+
+        self.chain.index_terms()
+        # identify the possessive 's, use adjacency to that
+        pos_s_id = self.chain.words["'s"]['id']
+
+        # identify the "said" adjacency
+        said_ids = [self.chain.words[term]['id'] for term in self.chain.word_list if term.lower() in ['said','asked','yelled','whispered']]
+        for word in [item for item in self.chain.words if
+                     len(item) > 1 and item[0] in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" and item[
+                         1] in "abcdefghijklmnopqrstuvwxyz"]:
+            score = 1  # grant 1 for starting with a capital letter
+            word_id = self.chain.words[word]['id']
+            for prefix in self.chain.words[word]['nodes']:
+                for idx in range(len(prefix)):
+                    if prefix[idx] == word_id:
+                        if idx < len(prefix) - 1 and prefix[idx + 1] == pos_s_id:
+                            score += 1  # add one for being shown as possessive.
+                        if idx > 0 and prefix[idx - 1] in said_ids:
+                            score += 1
+                        if idx < len(prefix) - 1 and prefix[idx + 1] in said_ids:
+                            score += 1
+            if 'NNP' in self.chain.words[word]['pos']:
+                score += 1
+
+                # if 'said' in self.chain.words_lower:
+                # adj_nodes = self.chain.find_word_adjacent_nodes("said", word, same_case=False, same_order=False)
+                # score += len(adj_nodes) // 2
+            if score > 2 * self.chain.depth:
+                name_list.append(word)
+        with open(filename, 'w') as file_handle:
+            for name in name_list:
+                file_handle.write(name + '\n')
 
     def message_is_okay(self, message, passages, prompt, is_verbose=False):
         is_okay = True
@@ -114,11 +158,11 @@ class Oracle:
                 seq_align = SequenceAlignment.get_alignment(message, prompt)
                 raw_compare = 'Seq Align Score: ' + str(seq_align['score']) + ' "' + "".join(
                     seq_align['result_1']) + '/' + "".join(seq_align['result_2']) + '"'
-                if len(errors) == 0:
+                if is_verbose and len(errors) == 0:
                     print("Messg:" + "".join(seq_align['result_1']))
                     print("Prmpt:" + "".join(seq_align['result_2']))
                     print(raw_compare)
-                if seq_align['score'] < 80:
+                if seq_align['score'] < len(prompt) + len(message):
                     errors.append('Message too similar to prompt. ' + raw_compare)
         if len(errors) > 0:
             is_okay = False
@@ -128,16 +172,46 @@ class Oracle:
         return is_okay
 
 
-    def get_message(self, prompt="", passages=None, print_passages=True):
+    def get_message(self, prompt="", passages=None, print_passages=True, char_limit=None):
         if self.is_verbose:
             print("running get_message for prompt '" + prompt + "'")
         if passages is None:
             passages = []
         if self.chain is None:
             self.initialize_chain()
+        if char_limit is None:
+            char_limit = self.character_limit
         print_details = False
         attempts = 1
         sources = []
+        prompt = self.apply_prompt_filter(prompt)
+        response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
+        new_passages = self.chain.identify_passages(sources, 2)
+        # prime_source_len = self.get_primary_source_ratio(new_passages)
+        is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
+        while not is_valid:
+            sources = []
+            if attempts > 10000:
+                prompt = self.select_new_prompt()
+                attempts = 0
+            response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
+            new_passages = self.chain.identify_passages(sources, 2)
+            is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
+            attempts += 1
+
+        response = response.replace('" "','"\n\n"')
+
+        if print_passages:
+            print("----------")
+            for entry in new_passages:
+                print(self.chain.render_message_from_path(self.chain.find_passage_nodes(entry)))
+                print(entry)
+            print("----------")
+        passages += new_passages
+        self.prompt_reset = self.prompt_reset or self.chain.prompt_reset
+        return response
+
+    def apply_prompt_filter(self, prompt):
         if self.prompt_filter is not None:
             prompt_items = prompt.split()
             prompt = []
@@ -147,29 +221,7 @@ class Oracle:
             if len(prompt) == 0:
                 prompt.append(self.select_new_prompt())
             prompt = " ".join(prompt)
-        response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
-        new_passages = self.chain.identify_passages(sources, 2)
-        # prime_source_len = self.get_primary_source_ratio(new_passages)
-        is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
-        while not is_valid:
-            sources = []
-            if response == prompt or response in self.sent_messages or attempts > 1000:
-                prompt = self.select_new_prompt()
-                attempts = 0
-            response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources,
-                                                )
-            new_passages = self.chain.identify_passages(sources, 2)
-            is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
-            attempts += 1
-
-        if print_passages:
-            print("----------")
-            for entry in new_passages:
-                print(self.chain.render_message_from_path(self.chain.find_passage_nodes(entry)))
-                print(entry)
-            print("----------")
-        passages += new_passages
-        return response
+        return prompt
 
     @staticmethod
     def skim_hash_tags(message, preserve_inline_hashtags=True):
@@ -202,6 +254,7 @@ class Oracle:
         return result.strip()
 
     def select_new_prompt(self):
+        self.prompt_reset = True
         prompt = ""
         if self.prompt_filter is not None and len(self.prompt_filter) > 0:
             prompt = [word for word in self.prompt_filter][random.randint(0, len(self.prompt_filter) - 1)]
@@ -212,7 +265,9 @@ class Oracle:
         self.chain = WordChain()
         self.chain.depth = self.depth
         Scribe.read_map(target_file, chain=self.chain)
-        if type(self.prompt_filter) is str:
+        if type(self.prompt_filter) is str and self.prompt_filter != '':
+            if not os.path.isfile(self.prompt_filter):
+                self.create_name_file(self.prompt_filter)
             self.prompt_filter = self.read_filter_list(self.prompt_filter)
 
     @staticmethod
@@ -248,45 +303,120 @@ class Oracle:
     def send_message(self, prompt=""):
         if self.is_verbose:
             print("running send_message for prompt '" + prompt + "'")
+        passages = []
+        message = self.get_message(prompt, passages)
+        self.sent_messages[message] = True
+        message = self.add_hashtag(message)
+
+        while '" "' in message and len(message) < self.max_twitter_char - 1:
+            message = message.replace('" "', '"\n\n"', 1)
+
+        if self.announce_new_build and self.is_new_build:
+            self.send_build_announcement()
+            self.is_new_build = False
+
+        twit_id = self.send_tweet(message)
+        if twit_id > 0:
+            self.send_passages_email(message, passages, twit_id)
+        return message
+
+    def send_reply(self, original_tweet_id=0, prompt=""):
+        if self.is_verbose:
+            print("running send_reply for tweet_id " + str(original_tweet_id) + " with prompt '" + prompt + "'")
+        if original_tweet_id == 0:
+            return self.send_message(prompt)
+
+        # I have two thoughts here.
+        # First: It may be nice that if the prompt is thrown out or fundamentally recreated, it is not done as a reply, or is aborted.
+        # Second: What if instead of selecting ONE message and trying to reply, we selected a list and the first one
+        #           to generate a viable message gets the response instead.
+        target_message = self.get_tweet(original_tweet_id)
+        username = '@' + target_message['user']['screen_name']
+
+        passages = []
+        reply_limit = self.character_limit - len(username) - 1
+        message = self.get_message(prompt, passages, char_limit=reply_limit)
+        self.sent_messages[message] = True
+        if self.announce_new_build and self.is_new_build:
+            self.send_build_announcement()
+            self.is_new_build = False
+        if self.prompt_reset:
+            message = self.add_hashtag(message)
+            twit_id = self.send_tweet(message)
+        else:
+            message = username + ' ' + self.get_message(prompt, passages, char_limit=reply_limit)
+            message = self.add_hashtag(message)
+            twit_id = self.send_tweet(message, respond_to_tweet=original_tweet_id)
+        if twit_id > 0:
+            self.send_passages_email(message, passages, twit_id)
+        return message
+
+
+    def send_build_announcement(self):
+        build_time = time.time()
+        if os.path.isfile(self.filename):
+            build_time = os.path.getmtime(self.filename)
+        build_message = "Markov rebuilt " + time.ctime(build_time)
+        build_message += '\n' + self.chain.get_chain_description()
+        self.send_tweet(build_message)
+
+    def send_tweet(self, message, respond_to_tweet=0):
+        twit_id = 0
+        last_twit_id = 0
         twit_config = self.config['twitter']
         app_key = twit_config['app_key']
         app_secret = twit_config['app_secret']
         acct_key = twit_config['acct_key']
         acct_secret = twit_config['acct_secret']
-
         twitter = Twython(app_key, app_secret, acct_key, acct_secret)
-        passages = []
-        message = self.get_message(prompt, passages)
-        self.sent_messages[message] = True
-        message = self.add_hashtag(message)
         if len(message) > self.max_twitter_char and self.long_tweet_as_image:
             clean_message = self.skim_hash_tags(message)
             image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
             image = open(image_path, 'rb')
             img_response = twitter.upload_media(media=image)
             caption = " ".join(clean_message['hashtags'])
-            twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
+            if respond_to_tweet == 0:
+                twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
+            else:
+                twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet, media_ids=[img_response['media_id']])
             twit_id = twit_response['id']
-            self.send_passages_email(message, passages, twit_id)
             print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted as Image:', message)
         else:
             seq = self.get_message_sequence(message, self.max_twitter_char)
-            twit_id = 0
             for message_part in seq:
                 try:
                     if twit_id == 0:
-                        twit_response = twitter.update_status(status=message_part)
-                        twit_id = twit_response['id']
-                        self.send_passages_email(message, passages, twit_id)
+                        if respond_to_tweet == 0:
+                            twit_response = twitter.update_status(status=message_part)
+                        else:
+                            twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=respond_to_tweet)
+                        last_twit_id = twit_response['id']
+                        twit_id = last_twit_id
+
                     else:
-                        twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=twit_id)
-                        twit_id = twit_response['id']
+                        twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=last_twit_id)
+                        last_twit_id = twit_response['id']
                     print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message_part)
                 except TwythonError as twy_err:
                     print(type(twy_err))
                     print(twy_err.args)
                     print('Message attempted: "' + message + '"')
-        return message
+                    twit_id = 0
+                    last_twit_id = 0
+        self.last_tweet_id = twit_id
+        self.last_tweet_message = message
+        return twit_id
+
+    def get_tweet(self, tweet_id):
+        twit_config = self.config['twitter']
+        app_key = twit_config['app_key']
+        app_secret = twit_config['app_secret']
+        acct_key = twit_config['acct_key']
+        acct_secret = twit_config['acct_secret']
+        twitter = Twython(app_key, app_secret, acct_key, acct_secret)
+        raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
+        return raw_tweet[0]
+
 
     @staticmethod
     def get_message_sequence(src_text, max_length=280):

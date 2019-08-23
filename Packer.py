@@ -7,8 +7,8 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "pratchett.5.all.txt.map"
-target_depth = 6
+map_name = "pratchett.4.alt.txt.map"
+target_depth = 4
 build_type = "F"
 target_dir = os.path.join("sources", "various")
 select_count = 7
@@ -26,10 +26,10 @@ def get_relative_file_list(source_folder):
 
 #text_list = ['sources/various/alice13a.txt']
 
-text_list = []
+text_list = ['sources\\pratchett\\DW 013 SmallGods.txt','sources\\pratchett\\DW 028 AmazingMaurice.txt','sources\\pratchett\\DW 011 ReaperMan.txt']
 # text_list.extend(get_relative_file_list('sources/dougadams'))
 # text_list.extend(get_relative_file_list('sources/inaugural'))
-text_list.extend(get_relative_file_list('sources/pratchett'))
+# text_list.extend(get_relative_file_list('sources/pratchett'))
 # text_list.extend(get_relative_file_list('sources/shakespeare'))
 # text_list.extend(get_relative_file_list('sources/twain'))
 # text_list.extend(get_relative_file_list('sources/various'))

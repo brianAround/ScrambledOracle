@@ -7,6 +7,7 @@ import time
 import nltk
 from WordChain import WordChain, full_stop_beats
 from Oracle import Oracle
+import CharacterFinder
 
 
 class ChainLinker:
@@ -16,6 +17,7 @@ class ChainLinker:
         self.mchain = None
         self.starters = []
         self.data_refresh_time = 43200
+        self.file_rebuilt = False
         self.depth = 1
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
@@ -36,6 +38,8 @@ class ChainLinker:
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+        self.sources = []
+
 
     def say(self, message):
         if self.verbose:
@@ -43,11 +47,16 @@ class ChainLinker:
 
     def initialize_chain(self):
         target_file = self.filename
+        self.file_rebuilt = False
         if not os.path.isfile(target_file) or os.path.getmtime(target_file) < time.time() - self.data_refresh_time:
             if self.regenerate is not None and self.regenerate.startswith('select'):
                 source_count = int(self.regenerate.split()[1])
                 source_folder = os.path.join('sources', self.source_subdirectory)
                 self.regenerate_markov_chain(source_count, source_folder, target_file)
+                if self.prompt_filter is not None and type(self.prompt_filter) is str:
+                    # remove prompt filter file
+                    if os.path.isfile(self.prompt_filter):
+                        os.remove(self.prompt_filter)
         self.chain = WordChain()
         self.chain.depth = self.depth
         # self.chain.read_map(target_file)
@@ -65,6 +74,7 @@ class ChainLinker:
                 break
         self.say("Building markov chain from sources:" + str(source_files))
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
+        self.file_rebuilt = True
 
     def get_relative_file_list(self, source_folder):
         file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
@@ -92,7 +102,11 @@ class ChainLinker:
         word_tally = {}
         for file_path in file_list:
             self.compile_word_tally(file_path, depth, word_tally)
-        chain = self.convert_tally_to_chain(word_tally, depth)
+        source_names = WordChain.normalize_text(file_list)
+        src_map = {}
+        for idx in range(len(file_list)):
+            src_map[file_list[idx]] = source_names[idx]
+        chain = self.convert_tally_to_chain(word_tally, depth, src_map)
         self.set_chain(chain)
         return chain
 
@@ -157,6 +171,7 @@ class ChainLinker:
         beat_list = []
         if len(word_tally) == 0:
             self.word_counts = {}
+            self.sources = []
         file_size = min(32, os.path.getsize(file_path))
         quotes = []
         with open(file_path, 'rb') as f_enc:
@@ -171,6 +186,7 @@ class ChainLinker:
         current_speech = []
         source_beat = 0
         with open(file_path, 'r', encoding=encoding) as f_handle:
+            self.sources.append(file_path)
             if use_pos_tags:
                 source_text = f_handle.readlines()
                 source_text = source_text[3:]
@@ -305,16 +321,20 @@ class ChainLinker:
             word_tally[last_beat]['_pos'] = []
 
     @staticmethod
-    def convert_tally_to_chain(word_tally, depth=2):
+    def convert_tally_to_chain(word_tally, depth=2,src_map:dict=None):
         word_list = [key_word for key_word in word_tally]
         word_list.sort()
         parts_of_speech = []
         chain = WordChain()
+        # sources_clean = chain.normalize_text(self.sources)
         chain.depth = depth
         for key in word_list:
             is_spoken = word_tally[key]['_is_spoken']
             is_starter = word_tally[key]['_is_starter']
-            source_text = word_tally[key]['_source_text']
+            if src_map is None:
+                source_text = word_tally[key]['_source_text']
+            else:
+                source_text = [src_map[filename] for filename in word_tally[key]['_source_text']]
             source_index = word_tally[key]['_source_index']
             if '_pos' in word_tally[key]:
                 parts_of_speech = word_tally[key]['_pos']

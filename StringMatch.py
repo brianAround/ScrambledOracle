@@ -3,6 +3,8 @@ import SequenceAlignment
 
 
 
+
+
 if __name__ == "__main__":
     s1 = 'ABCDEFGHIJKLMNOP'
     s2 = 'BCEFKHJ'

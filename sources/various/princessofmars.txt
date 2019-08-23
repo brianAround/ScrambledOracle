@@ -3,10 +3,10 @@ by Edgar Rice Burroughs
 
 
 
-FOREWORD
+#FOREWORD
 
 
-To the Reader of this Work:
+#To the Reader of this Work:
 
 In submitting Captain Carter's strange manuscript to you in book form,
 I believe that a few words relative to this remarkable personality will
@@ -181,7 +181,7 @@ The old man sat and talked with me for hours.
 
 
 
-CHAPTER I
+#CHAPTER I
 
 ON THE ARIZONA HILLS
 
@@ -449,7 +449,7 @@ against a side wall, and from there slip prone upon the floor.
 
 
 
-CHAPTER II
+#CHAPTER II
 
 THE ESCAPE OF THE DEAD
 
@@ -616,7 +616,7 @@ space.  There was an instant of extreme cold and utter darkness.
 
 
 
-CHAPTER III
+#CHAPTER III
 
 MY ADVENT ON MARS
 
@@ -885,7 +885,7 @@ hills in the distance.
 
 
 
-CHAPTER IV
+#CHAPTER IV
 
 A PRISONER
 
@@ -1107,7 +1107,7 @@ equipped with three rows of long, sharp tusks.
 
 
 
-CHAPTER V
+#CHAPTER V
 
 I ELUDE MY WATCH DOG
 
@@ -1260,7 +1260,7 @@ its head.
 
 
 
-CHAPTER VI
+#CHAPTER VI
 
 A FIGHT THAT WON FRIENDS
 
@@ -1426,7 +1426,7 @@ Martians who rove the deserted cities and dead sea bottoms of Mars.
 
 
 
-CHAPTER VII
+#CHAPTER VII
 
 CHILD-RAISING ON MARS
 
@@ -1631,7 +1631,7 @@ undoubted advantage over the Martians.
 
 
 
-CHAPTER VIII
+#CHAPTER VIII
 
 A FAIR CAPTIVE FROM THE SKY
 
@@ -1839,7 +1839,7 @@ sight into the depths of the deserted edifice.
 
 
 
-CHAPTER IX
+#CHAPTER IX
 
 I LEARN THE LANGUAGE
 
@@ -1988,7 +1988,7 @@ and refreshing sleep of Mars.
 
 
 
-CHAPTER X
+#CHAPTER X
 
 CHAMPION AND CHIEF
 
@@ -2347,7 +2347,7 @@ of Lorquas Ptomel, Jed among the Tharks of Barsoom.
 
 
 
-CHAPTER XI
+#CHAPTER XI
 
 WITH DEJAH THORIS
 
@@ -2606,7 +2606,7 @@ rostrum.
 
 
 
-CHAPTER XII
+#CHAPTER XII
 
 A PRISONER WITH POWER
 
@@ -2811,7 +2811,7 @@ I care to.
 
 
 
-CHAPTER XIII
+#CHAPTER XIII
 
 LOVE-MAKING ON MARS
 
@@ -3056,7 +3056,7 @@ the plaza of the dead city of Korad.
 
 
 
-CHAPTER XIV
+#CHAPTER XIV
 
 A DUEL TO THE DEATH
 
@@ -3406,7 +3406,7 @@ giving beneath me.
 
 
 
-CHAPTER XV
+#CHAPTER XV
 
 SOLA TELLS ME HER STORY
 
@@ -3720,7 +3720,7 @@ Tarkas."
 
 
 
-CHAPTER XVI
+#CHAPTER XVI
 
 WE PLAN ESCAPE
 
@@ -4090,7 +4090,7 @@ your carcasses to the cold bosom of Iss."
 
 
 
-CHAPTER XVII
+#CHAPTER XVII
 
 A COSTLY RECAPTURE
 
@@ -4380,7 +4380,7 @@ swam; all was black, and I went down beneath them to oblivion.
 
 
 
-CHAPTER XVIII
+#CHAPTER XVIII
 
 CHAINED IN WARHOON
 
@@ -4548,7 +4548,7 @@ disappeared in some black and distant recess of my dungeon.
 
 
 
-CHAPTER XIX
+#CHAPTER XIX
 
 BATTLING IN THE ARENA
 
@@ -4732,7 +4732,7 @@ hills beyond.
 
 
 
-CHAPTER XX
+#CHAPTER XX
 
 IN THE ATMOSPHERE FACTORY
 
@@ -5074,7 +5074,7 @@ of sight upon the broad white turnpike.
 
 
 
-CHAPTER XXI
+#CHAPTER XXI
 
 AN AIR SCOUT FOR ZODANGA
 
@@ -5448,7 +5448,7 @@ palace to guide me I reported to the officer in charge of the palace.
 
 
 
-CHAPTER XXII
+#CHAPTER XXII
 
 I FIND DEJAH
 
@@ -5838,7 +5838,7 @@ palace grounds.
 
 
 
-CHAPTER XXIII
+#CHAPTER XXIII
 
 LOST IN THE SKY
 
@@ -6079,7 +6079,7 @@ her sister.
 
 
 
-CHAPTER XXIV
+#CHAPTER XXIV
 
 TARS TARKAS FINDS A FRIEND
 
@@ -6369,7 +6369,7 @@ and the guards at both gates followed them in silence.
 
 
 
-CHAPTER XXV
+#CHAPTER XXV
 
 THE LOOTING OF ZODANGA
 
@@ -6563,7 +6563,7 @@ Gentleman of Virginia.
 
 
 
-CHAPTER XXVI
+#CHAPTER XXVI
 
 THROUGH CARNAGE TO JOY
 
@@ -6818,7 +6818,7 @@ escaped without deep emotion.
 
 
 
-CHAPTER XXVII
+#CHAPTER XXVII
 
 FROM JOY TO DEATH
 
@@ -7044,7 +7044,7 @@ last doorway I sank unconscious upon the ground.
 
 
 
-CHAPTER XXVIII
+#CHAPTER XXVIII
 
 AT THE ARIZONA CAVE
 

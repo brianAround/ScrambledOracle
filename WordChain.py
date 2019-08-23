@@ -60,6 +60,7 @@ class WordChain:
         self.corpora = {}
         self.easy_going = False
         self.text_source = []
+        self.prompt_reset = False
 
 
     @staticmethod
@@ -81,6 +82,39 @@ class WordChain:
                 else:
                     result[line.strip()] = True
         return result
+
+
+    @staticmethod
+    def normalize_text(items: list):
+        if len(items) < 2:
+            return items[:]
+        else:
+            clean_list = []
+            front_clip = -1
+            back_clip = 0
+            for idx in range(min([len(item) for item in items])):
+                front_candidate = items[0][idx]
+                back_candidate = items[0][idx * -1 - 1]
+                for item in items:
+                    if front_clip == -1 and item[idx] != front_candidate:
+                        front_clip = idx
+                    if back_clip == 0 and item[idx * -1 -1] != back_candidate:
+                        back_clip = idx * -1
+                if front_clip > -1 and back_clip < 0:
+                    break
+            # replace alphabet characters in the back clip
+            while back_clip < 0 and items[0][back_clip - 1].isalpha():
+                back_clip += 1
+            if front_clip > -1 or back_clip < 0:
+                for item in items:
+                    clean_list.append(item[front_clip:len(item) + back_clip])
+            return clean_list
+
+    def get_chain_description(self):
+        description = "Chain build to depth " + str(self.depth) + ". With source texts:"
+        for text_name in self.normalize_text(self.text_source):
+            description += '\n' + text_name
+        return description
 
     def add_incident(self, prefix, suffix_text, count=1):
         parent = self.get_node_by_prefix(prefix)
@@ -199,14 +233,41 @@ class WordChain:
 
     def index_terms(self):
         if len(self.words_lower) == 0:
-            for prefix in self.nodes_by_prefix:
+            for prefix, node in self.nodes_by_prefix.items():
                 for word_id in prefix:
                     self.words[self.word_list[word_id]]['nodes'].append(prefix)
                     caseless = self.word_list[word_id].lower()
                     if caseless not in self.words_lower:
                         self.words_lower[caseless] = []
                     self.words_lower[caseless].append(self.word_list[word_id])
+                current_word = self.words[self.word_list[node.word_id]]
+                if 'pos' not in current_word:
+                    current_word['pos'] = []
+                for part_of_speech in node.parts_of_speech:
+                    if part_of_speech not in current_word['pos']:
+                        current_word['pos'].append(part_of_speech)
 
+    def select_initial_node_array(self, word_id_set=[], starters_only=False, time_limit=360, matches_only=False):
+        target_min_len = 5
+        start_time = time.time()
+        initial_array = []
+        if len(word_id_set) > 0:
+            for word_id in word_id_set:
+                current_candidates = []
+                for prefix in self.words[self.word_list[word_id]]['nodes']:
+                    if not starters_only or self.nodes_by_prefix[prefix].is_starter:
+                        if prefix not in current_candidates:
+                            current_candidates.append(prefix)
+                initial_array.append(random.choice(current_candidates))
+
+        while len(initial_array) < target_min_len and not matches_only:
+            start_node = self.starters[random.randint(0, len(self.starters) - 1)]
+            if isinstance(start_node, str):
+                start_node = self.convert_key_to_prefix(start_node)
+            if starters_only and len(start_node) > 1:
+                start_node = start_node[:1]
+            initial_array.append(start_node)
+        return initial_array
 
     def select_start_node(self, word_id_set=[], starters_only=False, time_limit=60):
         start_time = time.time()
@@ -279,7 +340,7 @@ class WordChain:
                 break
         return result
 
-    def convert_text_to_id_set(self, text, minimum_word_length=4, remove_articles=True):
+    def convert_text_to_id_set(self, text, minimum_word_length=4, remove_articles=True, pos_filter=['NN','NNP','NNS']):
         raw_words = text.replace(".", "").replace("?", "").replace(",", "").lower().strip().split()
         clean_words = [word.strip(string.punctuation) for word in raw_words]
         long_words = [long_word for long_word in clean_words if len(long_word) >= minimum_word_length]
@@ -289,7 +350,8 @@ class WordChain:
         for w in long_words:
             if w in self.words_lower:
                 for term in self.words_lower[w]:
-                    if self.words[term]['id'] not in id_set:
+                    if self.words[term]['id'] not in id_set \
+                            and len([pos for pos in self.words[term]['pos'] if pos in pos_filter]) > 0:
                         id_set.append(self.words[term]['id'])
         return id_set
 
@@ -466,8 +528,100 @@ class WordChain:
                     struct_path = None
         return message_path
 
-    def build_message_path(self, break_at_fullstop=True, char_limit=300, word_count=50, prompt='', sources=[], time_limit=60):
-        max_nodes = 50
+    def build_message_path(self, break_at_fullstop=True, char_limit=300, word_count=150, prompt='', sources=[], time_limit=60):
+        self.promp_reset = False
+        max_nodes = 20
+        start_time = time.time()
+        self.index_terms()
+        # select a node and work your way from there out
+        message_path = []
+        down_path = []
+        possible_starts = []
+        prompt_ids = self.convert_text_to_id_set(prompt)
+        wait_for_match = (len(prompt_ids) > 0)
+        # print("Prompt terms:", [self.word_list[pid] for pid in prompt_ids])
+        lead_nodes = 5
+        this_time_limit = (time_limit - (time.time() - start_time))/2
+        initial_nodes = self.select_initial_node_array(prompt_ids, time_limit=this_time_limit, matches_only=wait_for_match)
+        # node = self.select_start_node(prompt_ids, time_limit=(time_limit - (time.time() - start_time)))
+        random.shuffle(initial_nodes)
+        for prefix in initial_nodes:
+            start_node = self.nodes_by_prefix[prefix]
+            this_time_limit = (time_limit - (time.time() - start_time))/len(initial_nodes)
+            possible_starts.extend(self.find_starter_paths(start_node, allow_hops=lead_nodes, time_limit=this_time_limit))
+
+        while len(possible_starts) == 0:
+            if time.time() - start_time > time_limit:
+                break
+            lead_nodes += 2
+            if lead_nodes > max_nodes:
+                self.prompt_reset = True
+                prompt_ids = []
+                wait_for_match = False
+            initial_nodes = self.select_initial_node_array(prompt_ids,
+                                                           time_limit=(time_limit - (time.time() - start_time)) / 2,
+                                                           matches_only=wait_for_match)
+            # node = self.select_start_node(prompt_ids, time_limit=(time_limit - (time.time() - start_time)))
+            random.shuffle(initial_nodes)
+            for prefix in initial_nodes:
+                start_node = self.nodes_by_prefix[prefix]
+                this_time_limit = (time_limit - (time.time() - start_time)) / len(initial_nodes)
+                possible_starts.extend(self.find_starter_paths(start_node, allow_hops=lead_nodes, time_limit=this_time_limit))
+        if len(prompt_ids) == 0:
+            # selecting starter randomly - there are no criteria for the others.
+            down_path = possible_starts[random.randint(0, len(possible_starts) - 1)]
+        else:
+            top_score = 0
+            for p in possible_starts:
+                temp_score = sum([len(self.word_list[n.word_id]) for n in p if n.word_id in prompt_ids])
+                if len([n.word_id for n in p if self.word_list[n.word_id].lower() == 'said']) > 1:
+                    temp_score = 0
+                if temp_score >= top_score:
+                    down_path = p
+                    top_score = temp_score
+        character_count = 0
+        node = down_path.pop()
+        message_path.append(node)
+        self.append_node_sources(node, sources)
+        # at some point we will have to consider using a breadth-first search
+        # to build a sentence of the right width
+        old_word = self.word_list[node.word_id]
+        has_said = False
+
+        while len(message_path) < word_count and character_count < char_limit and time.time() - start_time < time_limit:
+            if len(down_path) > 0:
+                node = down_path.pop()
+            elif len(node.outbound) > 0:
+                if self.easy_going:
+                    s = 0
+                else:
+                    s = random.random()
+                    # s = s ** 4
+                # print(time.asctime(), "Roll d100 for next node:", s)
+
+                for entry in node.outbound:
+                    if s < entry[0] and (self.word_list[entry[1].word_id].lower() != 'said' or not has_said):
+                        node = entry[1]
+                        if node not in message_path:
+                            break
+            else:
+                break
+            if not has_said and len([wid for wid in node.prefix if self.word_list[wid].lower() == 'said']) > 0:
+                has_said = True
+            message_path.append(node)
+            new_word = self.word_list[node.word_id]  # keep, so we can check abbreviations... further convert?
+            character_count += len(new_word)
+            self.append_node_sources(node, sources)
+            # testing whether we even care about full stop beats
+            if new_word in full_stop_beats and len(message_path) > 1 and old_word.lower() not in self.abbreviations:
+                if len(down_path) == 0 and break_at_fullstop:
+                    break
+            old_word = new_word
+        return message_path
+
+
+    def build_message_path_optimistic(self, break_at_fullstop=True, char_limit=300, word_count=50, prompt='', sources=[], time_limit=60):
+        max_nodes = 20
         start_time = time.time()
         self.index_terms()
         # select a node and work your way from there out
@@ -475,7 +629,7 @@ class WordChain:
         down_path = []
         prompt_ids = self.convert_text_to_id_set(prompt)
         # print("Prompt terms:", [self.word_list[pid] for pid in prompt_ids])
-        lead_nodes = 20
+        lead_nodes = 10
         node = self.select_start_node(prompt_ids, time_limit=(time_limit - (time.time() - start_time)))
         possible_starts = self.find_starter_paths(node, allow_hops=lead_nodes,
                                                   time_limit=(time_limit - (time.time() - start_time)))
@@ -494,6 +648,8 @@ class WordChain:
             top_score = 0
             for p in possible_starts:
                 temp_score = sum([len(self.word_list[n.word_id]) for n in p if n.word_id in prompt_ids])
+                if len([n.word_id for n in p if self.word_list[n.word_id].lower() == 'said']) > 1:
+                    temp_score = 0
                 if temp_score >= top_score:
                     down_path = p
                     top_score = temp_score
@@ -504,6 +660,7 @@ class WordChain:
         # at some point we will have to consider using a breadth-first search
         # to build a sentence of the right width
         old_word = self.word_list[node.word_id]
+        has_said = False
 
         while len(message_path) < word_count and character_count < char_limit and time.time() - start_time < time_limit:
             if len(down_path) > 0:
@@ -515,13 +672,16 @@ class WordChain:
                     s = random.random()
                     # s = s ** 4
                 # print(time.asctime(), "Roll d100 for next node:", s)
+
                 for entry in node.outbound:
-                    if s < entry[0]:
+                    if s < entry[0] and (self.word_list[entry[1].word_id].lower() != 'said' or not has_said):
                         node = entry[1]
                         if node not in message_path:
                             break
             else:
                 break
+            if not has_said and len([wid for wid in node.prefix if self.word_list[wid].lower() == 'said']) > 0:
+                has_said = True
             message_path.append(node)
             new_word = self.word_list[node.word_id]  # keep, so we can check abbreviations... further convert?
             character_count += len(new_word)
@@ -590,7 +750,7 @@ class WordChain:
 
         # <[^>]*>
 
-    def build_message(self, break_at_fullstop=True, char_limit=300, word_count=50, prompt='', sources=[],
+    def build_message(self, break_at_fullstop=True, char_limit=300, word_count=500, prompt='', sources=[],
                       time_limit=60):
 
         message_path = self.build_message_path(break_at_fullstop=break_at_fullstop,

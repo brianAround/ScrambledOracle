@@ -9,12 +9,14 @@ wc.depth = 3
 print(time.asctime(), "Reading map")
 
 
-repetitions = 1
-is_verbose = True
-max_characters = 280
-single_sentence = False
+repetitions = 4
+is_verbose = False
+max_characters = 840
+single_sentence = True
 
-Scribe.read_map('pratchett.txt.map', chain=wc)
+Scribe.read_map('pratchett.4.alt.txt.map', chain=wc)
+
+# print(wc.get_chain_description())
 
 last_message = ''
 
@@ -41,7 +43,7 @@ def message_is_okay(message, passages, prompt, is_verbose=False):
                 print("Messg:" + "".join(seq_align['result_1']))
                 print("Prmpt:" + "".join(seq_align['result_2']))
                 print(raw_compare)
-            if seq_align['score'] < 80:
+            if seq_align['score'] < len(message) + len(prompt):
                 errors.append('Message too similar to prompt. ' + raw_compare)
     if len(errors) > 0:
         is_okay = False
@@ -58,6 +60,8 @@ while len(a) == 0 or a[0] not in ('q', 'Q'):
         attempts = 1
         sources = []
         message = wc.build_message(break_at_fullstop=single_sentence, char_limit=max_characters, word_count=150, prompt=a, sources=sources, time_limit=6000)
+        prompt_list = [wc.word_list[wid] for wid in wc.convert_text_to_id_set(a)]
+        print("Initial filtered prompt:", " ".join(prompt_list))
         passages = wc.identify_passages(sources, min_length=2)
         while not message_is_okay(message, passages, prompt=a, is_verbose=is_verbose):
             if attempts > 30:
