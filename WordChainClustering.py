@@ -11,9 +11,11 @@ list_nodes_in_components = False
 list_source_texts_in_components = True
 show_word_disconnects = False
 find_paths = False
-find_trees = True
+find_trees = False
 save_component_graph = True
-significant_component_size = 1000
+significant_component_size = 200
+component_save_limit = 20
+
 
 degree_by_prefix = {}
 con_fact_by_prefix = {}
@@ -64,6 +66,16 @@ def get_con_factor(prefix, chain:WordChain, include_inbound=True, include_outbou
     con_fact_by_prefix[prefix] = con_factor
     return con_factor
 
+
+def identify_components(prefix_list):
+    components = {}
+    for local_prefix in prefix_list:
+        comp_id = uf.find(local_prefix)
+        if comp_id not in components:
+            components[comp_id] = []
+        components[comp_id].append(local_prefix)
+    return components
+
 print(time.asctime())
 wc = WordChain()
 wc.depth = 4
@@ -84,8 +96,8 @@ uf = UTUnionFind(prefix_list)
 print('Word count:', len(wc.word_list))
 print('Node count:', len(prefix_list))
 
-max_con_factor = 1
-subgraph_id = 0
+max_con_factor = 0
+subgraph_id = 1
 
 for prefix in prefix_list:
     node = wc.nodes_by_prefix[prefix]
@@ -93,12 +105,7 @@ for prefix in prefix_list:
     connectivity_factor = con_fact_by_prefix[prefix]
     # print('Node:', prefix, '"', wc.convert_prefix_to_text(prefix),'" - degree:',degree)
     if connectivity_factor != max_con_factor:
-        comps = {}
-        for prefix in prefix_list:
-            component = uf.find(prefix)
-            if component not in comps:
-                comps[component] = []
-            comps[component].append(prefix)
+        comps = identify_components(prefix_list)
 
         Comp_1 = 0
         Comp_10 = 0
@@ -130,16 +137,17 @@ for prefix in prefix_list:
                 print(text_name, cname, ":", len(comps[cname]), 'nodes')
                 words = {}
                 source_texts = {}
-                for prefix in comps[cname]:
+
+                for node_prefix in comps[cname]:
                     if list_nodes_in_components:
-                        print("[", " ".join([wc.word_list[id] for id in prefix]), "]", )
+                        print("[", " ".join([wc.word_list[id] for id in node_prefix]), "]", )
                     if list_source_texts_in_components:
-                        node = wc.nodes_by_prefix[prefix]
-                        for src in node.sources:
+                        srcs_node = wc.nodes_by_prefix[node_prefix]
+                        for src in srcs_node.sources:
                             if src[0] not in source_texts:
                                 source_texts[src[0]] = 0
                             source_texts[src[0]] += 1
-                    for id in prefix:
+                    for id in node_prefix:
                         if wc.word_list[id] not in words:
                             words[wc.word_list[id]] = 0
                         words[wc.word_list[id]] += 1
@@ -147,18 +155,19 @@ for prefix in prefix_list:
                 print("Sources:",
                       [(wc.text_source[src_text], src_count) for src_text, src_count in source_texts.items()])
                 word_lists[text_name] = words
-                filename = 'various_component_subgraph' + str(subgraph_id) + '.txt.map'
-                if save_component_graph:
+                filename = os.path.join('subgraphs', 'various_component_subgraph' + str(subgraph_id) + '.txt.map')
+
+                if save_component_graph and max_con_factor >= stop_at_con_factor and subgraph_id <= component_save_limit:
                     with open(filename, 'w') as comp_file:
                         comps[cname] = sorted(comps[cname], key=lambda x: wc.convert_prefix_to_text(x))
-                        for prefix in comps[cname]:
-                            node = wc.nodes_by_prefix[prefix]
-                            comp_file.write(wc.convert_prefix_to_text(prefix) + '\t')
-                            comp_file.write(str(len(node.outbound)) + '\t')
-                            for entry in node.outbound:
+                        for store_prefix in comps[cname]:
+                            save_node = wc.nodes_by_prefix[store_prefix]
+                            comp_file.write(wc.convert_prefix_to_text(store_prefix) + '\t')
+                            comp_file.write(str(len(save_node.outbound)) + '\t')
+                            for entry in save_node.outbound:
                                 comp_file.write(str(entry[0]) + '|"' + wc.word_list[entry[1].word_id] + '"\t')
                             comp_file.write('\n')
-                subgraph_id += 1
+                    subgraph_id += 1
 
         print("Component Breakdown-------------------------------")
         print("1-9 Nodes:", Comp_1)
