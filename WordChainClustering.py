@@ -12,7 +12,7 @@ list_source_texts_in_components = True
 show_word_disconnects = False
 find_paths = False
 find_trees = True
-save_component_graph = False
+save_component_graph = True
 significant_component_size = 1000
 
 degree_by_prefix = {}
@@ -20,7 +20,7 @@ con_fact_by_prefix = {}
 
 max_con_factor = 0
 
-stop_at_con_factor = 7
+stop_at_con_factor = 4
 use_inbound_links = True
 use_outbound_links = True
 

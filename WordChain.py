@@ -103,7 +103,7 @@ class WordChain:
                 if front_clip > -1 and back_clip < 0:
                     break
             # replace alphabet characters in the back clip
-            while back_clip < 0 and items[0][back_clip - 1].isalpha():
+            while back_clip < 0 and items[0][back_clip].isalpha():
                 back_clip += 1
             if front_clip > -1 or back_clip < 0:
                 for item in items:
@@ -115,6 +115,12 @@ class WordChain:
         for text_name in self.normalize_text(self.text_source):
             description += '\n' + text_name
         return description
+
+    def get_source_names(self, normalized=True):
+        if normalized:
+            return self.normalize_text(self.text_source)
+        else:
+            return self.text_source
 
     def add_incident(self, prefix, suffix_text, count=1):
         parent = self.get_node_by_prefix(prefix)

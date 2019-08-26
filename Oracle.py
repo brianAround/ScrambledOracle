@@ -44,6 +44,7 @@ class Oracle:
         self.max_percent = 1/2
         self.regenerate = self.config['bot_info']['regenerate']
         self.source_subdirectory = self.config['bot_info']['source']
+        self.bot_name = self.config['bot_info']['name']
         self.prompt_filter = None
         if 'prompt_filter' in self.config['bot_info']:
             self.prompt_filter = self.config['bot_info']['prompt_filter']
@@ -62,6 +63,7 @@ class Oracle:
         self.is_new_build = False
         self.last_tweet_id = 0
         self.prompt_reset = False
+        self.use_source_as_hashtag = True
 
     @staticmethod
     def one_word_less(text):
@@ -89,9 +91,6 @@ class Oracle:
                 else:
                     result[line.strip()] = True
         return result
-
-
-
 
     def create_name_file(self, filename: str):
         name_list = []
@@ -270,6 +269,7 @@ class Oracle:
                 self.create_name_file(self.prompt_filter)
             self.prompt_filter = self.read_filter_list(self.prompt_filter)
 
+
     @staticmethod
     def get_primary_source_ratio(passages):
         ps = 0
@@ -306,7 +306,9 @@ class Oracle:
         passages = []
         message = self.get_message(prompt, passages)
         self.sent_messages[message] = True
-        message = self.add_hashtag(message)
+        source_hashtag = []
+        source_hashtag = self.get_source_hashtag(passages, source_hashtag)
+        message = self.add_hashtag(message, additional_hashtags=source_hashtag)
 
         while '" "' in message and len(message) < self.max_twitter_char - 1:
             message = message.replace('" "', '"\n\n"', 1)
@@ -319,6 +321,14 @@ class Oracle:
         if twit_id > 0:
             self.send_passages_email(message, passages, twit_id)
         return message
+
+    def get_source_hashtag(self, passages, source_hashtag):
+        if self.use_source_as_hashtag:
+            primary_source = self.get_primary_source([passages])
+            source_name = primary_source[0][0]
+            source_name = ''.join([ch for ch in source_name if ch.isalnum()])
+            source_hashtag = ['#' + source_name]
+        return source_hashtag
 
     def send_reply(self, original_tweet_id=0, prompt=""):
         if self.is_verbose:
@@ -356,7 +366,8 @@ class Oracle:
         build_time = time.time()
         if os.path.isfile(self.filename):
             build_time = os.path.getmtime(self.filename)
-        build_message = "Markov rebuilt " + time.ctime(build_time)
+
+        build_message = self.bot_name + " rebuilt " + time.ctime(build_time)
         build_message += '\n' + self.chain.get_chain_description()
         self.send_tweet(build_message)
 
@@ -468,11 +479,14 @@ class Oracle:
                         partsizes[widx] -= len(move_text) + 1
         return [" ".join(p) for p in parts]
 
-    def add_hashtag(self, message):
-        if len(self.hashtags) > 0:
-            use_hashtag = self.hashtags[0]
-            if len(self.hashtags) > 1:
-                use_hashtag = self.hashtags[random.randint(0, len(self.hashtags) - 1)]
+    def add_hashtag(self, message, additional_hashtags=None):
+        candidates = self.hashtags[:]
+        if additional_hashtags is not None:
+            candidates.extend(additional_hashtags)
+        if len(candidates) > 0:
+            use_hashtag = candidates[0]
+            if len(candidates) > 1:
+                use_hashtag = candidates[random.randint(0, len(candidates) - 1)]
             if len(message) < self.character_limit - 1 - len(use_hashtag):
                 message += ' ' + use_hashtag
         return message

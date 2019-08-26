@@ -10,7 +10,7 @@ from WordChainScribe import Scribe
 single_run = False
 
 # ini_stems = ['Oracle']
-ini_stems = ['ScrambledPratchett', 'ScrambledDouglasAdams', 'Oracle']
+ini_stems = ['OracleJaneEyre']
 
 message_buckets = {}
 make_response = False
