@@ -2,13 +2,14 @@ import time
 from WordChain import *
 from WordChainScribe import Scribe
 from Layout import MessageVisualizer
+import ChainLinker
 
 print(time.asctime())
 
 wc = WordChain()
 wc.depth = 3
 print(time.asctime(), "Reading map")
-Scribe.read_map("Composite.txt.map", False, chain=wc)
+Scribe.read_map("douglasadams.txt.map", True, chain=wc)
 last_message = ''
 mv = MessageVisualizer(wc)
 
@@ -31,7 +32,9 @@ while len(a) == 0 or a[0] not in ('q', 'Q'):
                     a = ""
         else:
             message = a
-            mpath = wc.find_path_for_message(message)
+            linker = ChainLinker.ChainLinker()
+            tagged = linker.tag_text(a)
+            mpath = wc.find_path_for_tagged(tagged)
             sources = []
             for set_node in mpath:
                 wc.append_node_sources(set_node, sources)

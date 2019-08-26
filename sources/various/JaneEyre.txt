@@ -1,7 +1,7 @@
 ﻿JANE EYRE  AN AUTOBIOGRAPHY
 BY CHARLOTTE BRONTE
 
-PREFACE
+#PREFACE
 
 
 A preface to the first edition of "Jane Eyre" being unnecessary, I gave
@@ -115,7 +115,7 @@ _April_ 13_th_, 1848.
 
 
 
-CHAPTER I
+#Chapter I
 
 
 There was no possibility of taking a walk that day.  We had been
@@ -337,7 +337,7 @@ immediately laid upon me, and I was borne upstairs.
 
 
 
-CHAPTER II
+#CHAPTER II
 
 
 I resisted all the way: a new thing for me, and a circumstance which
@@ -617,7 +617,7 @@ I suppose I had a species of fit: unconsciousness closed the scene.
 
 
 
-CHAPTER III
+#CHAPTER III
 
 
 The next thing I remember is, waking up with a feeling as if I had had a
@@ -1004,7 +1004,7 @@ rabbit for supper."
 
 
 
-CHAPTER IV
+#CHAPTER IV
 
 
 From my discourse with Mr. Lloyd, and from the above reported conference
@@ -1648,7 +1648,7 @@ sweetest songs.  Even for me life had its gleams of sunshine.
 
 
 
-CHAPTER V
+#CHAPTER V
 
 
 Five o'clock had hardly struck on the morning of the 19th of January,
@@ -2213,7 +2213,7 @@ first day at Lowood.
 
 
 
-CHAPTER VI
+#CHAPTER VI
 
 
 The next day commenced as before, getting up and dressing by rushlight;
@@ -2539,7 +2539,7 @@ without reply as without delay.
 
 
 
-CHAPTER VII
+#CHAPTER VII
 
 
 My first quarter at Lowood seemed an age; and not the golden age either;
@@ -2905,7 +2905,7 @@ the full brightness of the orb.
 
 
 
-CHAPTER VIII
+#CHAPTER VIII
 
 
 Ere the half-hour ended, five o'clock struck; school was dismissed, and
@@ -3230,7 +3230,7 @@ Gateshead and its daily luxuries.
 
 
 
-CHAPTER IX
+#CHAPTER IX
 
 
 But the privations, or rather the hardships, of Lowood lessened.  Spring
@@ -3579,7 +3579,7 @@ marks the spot, inscribed with her name, and the word "Resurgam."
 
 
 
-CHAPTER X
+#CHAPTER X
 
 
 Hitherto I have recorded in detail the events of my insignificant
@@ -4047,7 +4047,7 @@ duties and a new life in the unknown environs of Millcote.
 
 
 
-CHAPTER XI
+#CHAPTER XI
 
 
 A new chapter in a novel is something like a new scene in a play; and
@@ -4734,7 +4734,7 @@ We found dinner ready, and waiting for us in Mrs. Fairfax's room.
 
 
 
-CHAPTER XII
+#CHAPTER XII
 
 
 The promise of a smooth career, which my first calm introduction to
@@ -5165,7 +5165,7 @@ upstairs to take off my things.
 
 
 
-CHAPTER XIII
+#CHAPTER XIII
 
 
 Mr. Rochester, it seems, by the surgeon's orders, went to bed early that
@@ -5689,7 +5689,7 @@ subject, which I did accordingly.
 
 
 
-CHAPTER XIV
+#CHAPTER XIV
 
 
 For several subsequent days I saw little of Mr. Rochester.  In the
@@ -6237,7 +6237,7 @@ Good-night."
 
 
 
-CHAPTER XV
+#CHAPTER XV
 
 
 Mr. Rochester did, on a future occasion, explain it.  It was one
@@ -6742,7 +6742,7 @@ would warn passion.  Too feverish to rest, I rose as soon as day dawned.
 
 
 
-CHAPTER XVI
+#CHAPTER XVI
 
 
 I both wished and feared to see Mr. Rochester on the day which followed
@@ -7158,7 +7158,7 @@ maintain, even externally.
 
 
 
-CHAPTER XVII
+#CHAPTER XVII
 
 
 A week passed, and no news arrived of Mr. Rochester: ten days, and still
@@ -8025,7 +8025,7 @@ bit his lip, and abruptly left me.
 
 
 
-CHAPTER XVIII
+#CHAPTER XVIII
 
 
 Merry days were these at Thornfield Hall; and busy days too: how
@@ -8653,7 +8653,7 @@ I; but I was a good deal interested and excited.
 
 
 
-CHAPTER XIX
+#CHAPTER XIX
 
 
 The library looked tranquil enough as I entered it, and the Sibyl--if
@@ -9161,7 +9161,7 @@ asleep.
 
 
 
-CHAPTER XX
+#CHAPTER XX
 
 
 I had forgotten to draw my curtain, which I usually did, and also to let
@@ -9870,7 +9870,7 @@ I rose at four to see him off."
 
 
 
-CHAPTER XXI
+#CHAPTER XXI
 
 
 Presentiments are strange things! and so are sympathies; and so are
@@ -10834,7 +10834,7 @@ Neither of us had dropt a tear.
 
 
 
-CHAPTER XXII
+#CHAPTER XXII
 
 
 Mr. Rochester had given me but one week's leave of absence: yet a month
@@ -11110,7 +11110,7 @@ to me when there--and, alas! never had I loved him so well.
 
 
 
-CHAPTER XXIII
+#CHAPTER XXIII
 
 
 A splendid Midsummer shone over England: skies so pure, suns so radiant
@@ -11587,7 +11587,7 @@ struck by lightning in the night, and half of it split away.
 
 
 
-CHAPTER XXIV
+#CHAPTER XXIV
 
 
 As I rose and dressed, I thought over what had happened, and wondered if
@@ -12425,7 +12425,7 @@ His creature: of whom I had made an idol.
 
 
 
-CHAPTER XXV
+#CHAPTER XXV
 
 
 The month of courtship had wasted: its very last hours were being
@@ -12977,7 +12977,7 @@ day.
 
 
 
-CHAPTER XXVI
+#CHAPTER XXVI
 
 
 Sophie came at seven to dress me: she was very long indeed in
@@ -13453,7 +13453,7 @@ floods overflowed me."
 
 
 
-CHAPTER XXVII
+#CHAPTER XXVII
 
 
 Some time in the afternoon I raised my head, and looking round and seeing
@@ -14544,7 +14544,7 @@ instrument of evil to what you wholly love.
 
 
 
-CHAPTER XXVIII
+#CHAPTER XXVIII
 
 
 Two days are passed.  It is a summer evening; the coachman has set me
@@ -15294,7 +15294,7 @@ joy--and slept.
 
 
 
-CHAPTER XXIX
+#CHAPTER XXIX
 
 
 The recollection of about three days and nights succeeding this is very
@@ -15831,7 +15831,7 @@ present strength would permit.
 
 
 
-CHAPTER XXX
+#CHAPTER XXX
 
 
 The more I knew of the inmates of Moor House, the better I liked them.  In
@@ -16238,7 +16238,7 @@ and so the old grange was abandoned.
 
 
 
-CHAPTER XXXI
+#CHAPTER XXXI
 
 
 My home, then, when I at last find a home,--is a cottage; a little room
@@ -16563,7 +16563,7 @@ exclusive meditation on my own.  Diana Rivers had designated her brother
 
 
 
-CHAPTER XXXII
+#CHAPTER XXXII
 
 
 I continued the labours of the village-school as actively and faithfully
@@ -17036,7 +17036,7 @@ forgot it.
 
 
 
-CHAPTER XXXIII
+#CHAPTER XXXIII
 
 
 When Mr. St. John went, it was beginning to snow; the whirling storm
@@ -17630,7 +17630,7 @@ out: St. John, Diana, Mary, and I, each became possessed of a competency.
 
 
 
-CHAPTER XXXIV
+#CHAPTER XXXIV
 
 
 It was near Christmas by the time all was settled: the season of general
@@ -18586,7 +18586,7 @@ down.
 
 
 
-CHAPTER XXXV
+#CHAPTER XXXV
 
 
 He did not leave for Cambridge the next day, as he had said he would.  He
@@ -19063,7 +19063,7 @@ unscared, enlightened--eager but for the daylight.
 
 
 
-CHAPTER XXXVI
+#CHAPTER XXXVI
 
 
 The daylight came.  I rose at dawn.  I busied myself for an hour or two
@@ -19488,7 +19488,7 @@ you usually demand."
 
 
 
-CHAPTER XXXVII
+#CHAPTER XXXVII
 
 
 The manor-house of Ferndean was a building of considerable antiquity,
@@ -20457,7 +20457,7 @@ entered the wood, and wended homeward.
 
 
 
-CHAPTER XXXVIII--CONCLUSION
+#CHAPTER XXXVIII--CONCLUSION
 
 
 Reader, I married him.  A quiet wedding we had: he and I, the parson and

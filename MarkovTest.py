@@ -6,7 +6,7 @@ import os
 import os.path
 
 
-map_name = 'inaugural.txt.map'
+map_name = 'douglasadams.5.txt.map'
 # map_name = 'AdamsPoe.txt.map'
 
 # target_list = ["alice13a.txt", "carroll-hunting-100.txt"]
@@ -22,7 +22,7 @@ map_name = 'inaugural.txt.map'
 target = Oracle()
 
 target.chain = WordChain()
-target.chain.depth = 3
+target.chain.depth = 5
 
 print("Reading", map_name, "from disk")
 Scribe.read_map(map_name, chain=target.chain)

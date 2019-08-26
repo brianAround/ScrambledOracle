@@ -21,10 +21,17 @@ class Scribe:
                     if beats[0][0] in WordChain.capitals:
                         node.is_starter = True
                 node.quantity = int(values[1])
-                total = 0
+                entries = []
                 for map_item in values[2:]:
                     new_path = map_item.strip().split('|', 1)
                     p = float(new_path[0])
+                    entry = (p, new_path)
+                    entries.append(entry)
+                entries.sort(key= lambda x: -1 * x[0])
+                total = 0
+                for entry in entries:
+                    new_path = entry[1]
+                    p = entry[0]
                     total += p
                     next_word = new_path[1].strip('"')
                     next_word_id = chain.get_word_id(next_word)
@@ -49,21 +56,28 @@ class Scribe:
     @staticmethod
     def read_sourcemap(src_filepath, chain:WordChain):
         with open(src_filepath, 'r', encoding='utf-8') as file_in:
+            src_lookup = {}
             for line in file_in:
-                values = line.strip().split('\t')
-                key = values[0]
-                prefix = chain.convert_key_to_prefix(key)
-                if prefix not in chain.nodes_by_prefix:
-                    node = ChainNode(prefix[-1], prefix=prefix)
-                    chain.nodes_by_prefix[prefix] = node
-                node = chain.nodes_by_prefix[prefix]
-                node.is_quote = values[1] == 'True'
-                node.is_starter = values[2] == 'True'
-                for i in range(3, len(values)):
-                    text_file, text_index = values[i].split('|')
-                    text_index = int(text_index)
-                    entry = (text_file, text_index)
-                    node.sources.append(entry)
+                if line.startswith("SRCMAP|"):
+                    print('SRCMAP header row detected:', line)
+                else:
+                    values = line.strip().split('\t')
+                    key = values[0]
+                    prefix = chain.convert_key_to_prefix(key)
+                    if prefix not in chain.nodes_by_prefix:
+                        node = ChainNode(prefix[-1], prefix=prefix)
+                        chain.nodes_by_prefix[prefix] = node
+                    node = chain.nodes_by_prefix[prefix]
+                    node.is_quote = values[1] == 'True'
+                    node.is_starter = values[2] == 'True'
+                    for i in range(3, len(values)):
+                        text_file, text_index = values[i].split('|')
+                        text_index = int(text_index)
+                        if text_file not in chain.text_source:
+                            src_lookup[text_file] = len(chain.text_source)
+                            chain.text_source.append(text_file)
+                        entry = (src_lookup[text_file], text_index)
+                        node.sources.append(entry)
     #structure of sources: [(file_name, index), ...]
 
 

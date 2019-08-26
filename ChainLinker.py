@@ -7,6 +7,7 @@ import time
 import nltk
 from WordChain import WordChain, full_stop_beats
 from Oracle import Oracle
+import CharacterFinder
 
 
 class ChainLinker:
@@ -16,6 +17,7 @@ class ChainLinker:
         self.mchain = None
         self.starters = []
         self.data_refresh_time = 43200
+        self.file_rebuilt = False
         self.depth = 1
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
@@ -29,25 +31,37 @@ class ChainLinker:
         self.regenerate = self.config['bot_info']['regenerate']
         self.source_subdirectory = self.config['bot_info']['source']
         self.prompt_filter = None
+        self.verbose = False
         if 'prompt_filter' in self.config['bot_info']:
             self.prompt_filter = self.config['bot_info']['prompt_filter']
         self.hashtags = []
         if 'hashtags' in self.config['bot_info']:
             self.hashtags = self.config['bot_info']['hashtags'].split()
         # self.initialize_chain()
+        self.sources = []
+
+    def say(self, message):
+        if self.verbose:
+            print(message)
 
     def initialize_chain(self):
         target_file = self.filename
+        self.file_rebuilt = False
         if not os.path.isfile(target_file) or os.path.getmtime(target_file) < time.time() - self.data_refresh_time:
             if self.regenerate is not None and self.regenerate.startswith('select'):
                 source_count = int(self.regenerate.split()[1])
                 source_folder = os.path.join('sources', self.source_subdirectory)
                 self.regenerate_markov_chain(source_count, source_folder, target_file)
+                if self.prompt_filter is not None and type(self.prompt_filter) is str:
+                    # remove prompt filter file
+                    if os.path.isfile(self.prompt_filter):
+                        os.remove(self.prompt_filter)
         self.chain = WordChain()
         self.chain.depth = self.depth
         # self.chain.read_map(target_file)
 
     def regenerate_markov_chain(self, source_count, source_folder, target_file):
+        self.say("Regenerating markov chain with " + str(source_count) + " files from " + source_folder)
         source_files = []
         dir_listing = self.get_relative_file_list(source_folder)
         for idx in range(source_count):
@@ -57,9 +71,12 @@ class ChainLinker:
             source_files.append(new_file)
             if len(source_files) >= len(dir_listing):
                 break
+        self.say("Building markov chain from sources:" + str(source_files))
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
+        self.file_rebuilt = True
 
-    def get_relative_file_list(self, source_folder):
+    @staticmethod
+    def get_relative_file_list(source_folder):
         file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
         file_listing = [os.path.join(source_folder, f) for f in file_listing]
         file_listing = [f for f in file_listing if os.path.isfile(f)]
@@ -85,13 +102,18 @@ class ChainLinker:
         word_tally = {}
         for file_path in file_list:
             self.compile_word_tally(file_path, depth, word_tally)
-        chain = self.convert_tally_to_chain(word_tally, depth)
+        source_names = WordChain.normalize_text(file_list)
+        src_map = {}
+        for idx in range(len(file_list)):
+            src_map[file_list[idx]] = source_names[idx]
+        chain = self.convert_tally_to_chain(word_tally, depth, src_map)
         self.set_chain(chain)
         return chain
 
     def write_chain(self, chain: WordChain, outfile):
         has_source_map = False
         self.filename = outfile
+
         with open(outfile, 'w', encoding="utf-8") as target:
             for key in chain.mchain:
                 if not has_source_map and len(chain.mchain[key]) >= 5:
@@ -99,13 +121,26 @@ class ChainLinker:
                 target.write(key + "\t")
                 target.write(str(chain.mchain[key][1]) + "\t")
                 prev_p = 0
+                item_list = []
                 for entry in chain.mchain[key][0]:
-                    target.write(str(entry[0] - prev_p) + '|"' + entry[1] + '"\t')
+                    new_item = (entry[0] - prev_p, entry[1])
+                    item_list.append(new_item)
                     prev_p = entry[0]
+                item_list.sort(key=lambda x: -1 * x[0])
+                for entry in item_list:
+                    target.write(str(entry[0]) + '|"' + entry[1] + '"\t')
+                    # prev_p = entry[0]
                 target.write("\n")
 
         if has_source_map:
             with open(outfile + '.srcmap', 'w', encoding="utf-8") as srcmap:
+                # write the header row
+                srcmap.write("SRCMAP|Engine:")
+                srcmap.write(WordChain.engine_version + "Dev")
+                srcmap.write("\n")
+                """srcmap.write('{"name":"Sources", ')
+                srcmap.write('"documents":[')
+                doclist = {}"""
                 for key in chain.mchain:
                     entry = chain.mchain[key]
                     if len(entry) >= 5:
@@ -125,11 +160,19 @@ class ChainLinker:
                             posmap.write(str(pos) + "\t")
                         posmap.write("\n")
 
+    @staticmethod
+    def tag_text(source_text):
+        # sentences = nltk.sent_tokenize(source_text)
+        sentence = nltk.word_tokenize(source_text)
+        return nltk.pos_tag(sentence)
+
     def compile_word_tally(self, file_path, depth, word_tally, use_pos_tags=True):
+        self.say("Compiling word tally from " + file_path)
         last_beat = ""
         beat_list = []
         if len(word_tally) == 0:
             self.word_counts = {}
+            self.sources = []
         file_size = min(32, os.path.getsize(file_path))
         quotes = []
         with open(file_path, 'rb') as f_enc:
@@ -144,6 +187,7 @@ class ChainLinker:
         current_speech = []
         source_beat = 0
         with open(file_path, 'r', encoding=encoding) as f_handle:
+            self.sources.append(file_path)
             if use_pos_tags:
                 source_text = f_handle.readlines()
                 source_text = source_text[3:]
@@ -191,10 +235,7 @@ class ChainLinker:
                     if len(beat_list) == 0:
                         is_starter = True
                     if line == "" or line[0] == '#':
-                        beat_stream = []
-                        last_word = ""
                         is_spoken = False
-                        last_of_quote = False
                         if len(current_speech) > 0:
                             quotes.append(' '.join(current_speech))
                             current_speech = []
@@ -263,7 +304,6 @@ class ChainLinker:
                                             is_starter = True
                             if last_of_quote:
                                 is_spoken = False
-                                last_of_quote = False
                                 quotes.append(' '.join(current_speech))
                                 current_speech = []
 
@@ -278,16 +318,20 @@ class ChainLinker:
             word_tally[last_beat]['_pos'] = []
 
     @staticmethod
-    def convert_tally_to_chain(word_tally, depth=2):
+    def convert_tally_to_chain(word_tally, depth=2, src_map: dict=None):
         word_list = [key_word for key_word in word_tally]
         word_list.sort()
         parts_of_speech = []
         chain = WordChain()
+        # sources_clean = chain.normalize_text(self.sources)
         chain.depth = depth
         for key in word_list:
             is_spoken = word_tally[key]['_is_spoken']
             is_starter = word_tally[key]['_is_starter']
-            source_text = word_tally[key]['_source_text']
+            if src_map is None:
+                source_text = word_tally[key]['_source_text']
+            else:
+                source_text = [src_map[filename] for filename in word_tally[key]['_source_text']]
             source_index = word_tally[key]['_source_index']
             if '_pos' in word_tally[key]:
                 parts_of_speech = word_tally[key]['_pos']
@@ -298,12 +342,18 @@ class ChainLinker:
                     incidents += word_tally[key][key2]
             if is_starter:
                 chain.starters.append(key)
-            total = 0
             for key2 in word_tally[key]:
                 if key2[0] != '_':
-                    total += word_tally[key][key2] * 10000 // incidents / 10000
+                    total = word_tally[key][key2] * 10000 // incidents / 10000    # one day, just store the count
                     entry = [total, key2]
                     suffixes.append(entry)
+            # although I want to use int values here, don't upset the apple cart just yet, sort the suffixes
+            suffixes.sort(key=lambda x: -1 * x[0])
+            # and then make it a cumulative list.
+            total = 0
+            for entry in suffixes:
+                entry[0] += total
+                total = entry[0]
             chain.mchain[key] = [suffixes, incidents, is_spoken, source_text, source_index, is_starter, parts_of_speech]
         return chain
 
@@ -313,3 +363,13 @@ class ChainLinker:
             self.mchain = chain.mchain
             self.starters = chain.starters
             self.depth = chain.depth
+
+
+notes = """Ideas for optimizing the file structure:
+    Replace the words with numbers:
+        Sort the terms in descending order of frequency, then assign numbers sequentially, to minimize space.
+        Provide a term map as a separate file.
+        Create a header row for all data files that includes a engine version and a date stamp.
+    In .srcmap, enumerate sources to keep from repeating source name t1 times.
+    In the header for the .srcmap add a listing for each source to enable more rich metadata.
+    """
