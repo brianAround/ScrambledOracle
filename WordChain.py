@@ -40,7 +40,6 @@ class WordChain:
     engine_version = "1.1"
     capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-
     def __init__(self):
         self.mchain = {}
         self.starters = []
@@ -62,7 +61,6 @@ class WordChain:
         self.text_source = []
         self.prompt_reset = False
 
-
     @staticmethod
     def load_dictionary(file_path):
         result = {}
@@ -83,10 +81,9 @@ class WordChain:
                     result[line.strip()] = True
         return result
 
-
     @staticmethod
     def normalize_text(items: list):
-        working_items = [os.path.basename(item).replace('.txt','') for item in items]
+        working_items = [os.path.basename(item).replace('.txt', '').replace('"', '') for item in items]
 
         if len(working_items) < 2:
             return working_items[:]
