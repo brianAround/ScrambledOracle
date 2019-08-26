@@ -40,7 +40,6 @@ class ChainLinker:
         # self.initialize_chain()
         self.sources = []
 
-
     def say(self, message):
         if self.verbose:
             print(message)
@@ -76,7 +75,8 @@ class ChainLinker:
         self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
         self.file_rebuilt = True
 
-    def get_relative_file_list(self, source_folder):
+    @staticmethod
+    def get_relative_file_list(source_folder):
         file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
         file_listing = [os.path.join(source_folder, f) for f in file_listing]
         file_listing = [f for f in file_listing if os.path.isfile(f)]
@@ -126,7 +126,7 @@ class ChainLinker:
                     new_item = (entry[0] - prev_p, entry[1])
                     item_list.append(new_item)
                     prev_p = entry[0]
-                item_list.sort(key = lambda x : -1 * x[0])
+                item_list.sort(key=lambda x: -1 * x[0])
                 for entry in item_list:
                     target.write(str(entry[0]) + '|"' + entry[1] + '"\t')
                     # prev_p = entry[0]
@@ -160,7 +160,8 @@ class ChainLinker:
                             posmap.write(str(pos) + "\t")
                         posmap.write("\n")
 
-    def tag_text(self, source_text):
+    @staticmethod
+    def tag_text(source_text):
         # sentences = nltk.sent_tokenize(source_text)
         sentence = nltk.word_tokenize(source_text)
         return nltk.pos_tag(sentence)
@@ -234,10 +235,7 @@ class ChainLinker:
                     if len(beat_list) == 0:
                         is_starter = True
                     if line == "" or line[0] == '#':
-                        beat_stream = []
-                        last_word = ""
                         is_spoken = False
-                        last_of_quote = False
                         if len(current_speech) > 0:
                             quotes.append(' '.join(current_speech))
                             current_speech = []
@@ -306,7 +304,6 @@ class ChainLinker:
                                             is_starter = True
                             if last_of_quote:
                                 is_spoken = False
-                                last_of_quote = False
                                 quotes.append(' '.join(current_speech))
                                 current_speech = []
 
@@ -321,7 +318,7 @@ class ChainLinker:
             word_tally[last_beat]['_pos'] = []
 
     @staticmethod
-    def convert_tally_to_chain(word_tally, depth=2,src_map:dict=None):
+    def convert_tally_to_chain(word_tally, depth=2, src_map: dict=None):
         word_list = [key_word for key_word in word_tally]
         word_list.sort()
         parts_of_speech = []
@@ -351,7 +348,7 @@ class ChainLinker:
                     entry = [total, key2]
                     suffixes.append(entry)
             # although I want to use int values here, don't upset the apple cart just yet, sort the suffixes
-            suffixes.sort(key = lambda x: -1 * x[0])
+            suffixes.sort(key=lambda x: -1 * x[0])
             # and then make it a cumulative list.
             total = 0
             for entry in suffixes:
