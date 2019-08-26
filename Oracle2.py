@@ -9,11 +9,10 @@ from WordChainScribe import Scribe
 
 single_run = False
 
-# ini_stems = ['Oracle']
-ini_stems = ['Oracle','ScrambledPratchett','ScrambledDouglasAdams']
+ini_stems = ['ScrambledPratchett', 'ScrambledDouglasAdams']
+# ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
 
 message_buckets = {}
-make_response = False
 last_messages_filename = "message_buckets.txt"
 
 
@@ -40,7 +39,8 @@ def load_dictionary(file_path):
 def save_message_buckets():
     with open(last_messages_filename, 'w') as sent_file:
         for key, message in message_buckets.items():
-            sent_file.write(key + '\t' + str(message['id']) + '\t' + message['text'].replace('\n', '<newline />') + '\n')
+            sent_file.write(key + '\t' + str(message['id']) + '\t'
+                            + message['text'].replace('\n', '<newline />') + '\n')
 
 
 # if the message_buckets file exists, load it.
@@ -67,7 +67,8 @@ class Repeater:
         self.init_target()
         return Repeater.target.send_reply(message_id, prompt)
 
-    def init_target(self):
+    @staticmethod
+    def init_target():
         if Repeater.target is None:
             Repeater.target = Oracle()
             Repeater.target.chain = WordChain()
@@ -116,7 +117,8 @@ def send():
             random.shuffle(ini_stems)
             for ini_stem in ini_stems:
                 prat_config = ini_stem + adjustment + '.ini'
-                send_for_config(prat_config, r, iterations, add_hashtags=hash_tags, send_response=make_response)
+                send_for_config(prat_config, r, iterations, max_length=max_size,
+                                add_hashtags=hash_tags, send_response=make_response)
 
             save_message_buckets()
 
@@ -127,8 +129,10 @@ def send():
             print(time.ctime(int(time.time())), "Tick!")
 
 
-def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=[], send_response=False):
+def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=None, send_response=False):
     try:
+        if add_hashtags is None:
+            add_hashtags = []
         channel = config_file.split('.')[0]
         linker = ChainLinker(config_file=config_file)
         # linker.data_refresh_time = 10
@@ -171,6 +175,7 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=[
 def check():
     pass
 
+
 # cool idea: Set a specific day and/or time that pulls tweets related to a specific
 # hashtag, adding them to a fresh (or generic base) word selection matrix, and during
 # the course of the day/hour, tweets responses based on this data.
@@ -181,4 +186,3 @@ if not single_run:
     while 1:
         schedule.run_pending()
         time.sleep(110)
-

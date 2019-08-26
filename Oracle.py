@@ -41,19 +41,22 @@ class Oracle:
         self.is_new_build = False
         self.is_verbose = False
         self.last_tweet_id = 0
+        self.last_tweet_message = ''
         self.long_tweet_as_image = False
         self.max_percent = 1 / 2
         self.max_twitter_char = 280
         self.prompt_reset = False
-        self.tweet_queue_path = os.path.join('datafile','tweet_queue.txt')
+        self.tweet_queue_path = os.path.join('datafile', 'tweet_queue.txt')
         self.word_counts = {}
 
         # bot configuration
+        self.config = None
         self.announce_new_build = False
         self.bot_name = 'Southern Oracle'
         self.depth = 1
         self.filename = "Leftovers.txt.map"
         self.hashtags = []
+        self.prompt_filter_filename = None
         self.prompt_filter = None
         self.regenerate = 'None'
         self.source_subdirectory = ''
@@ -90,12 +93,11 @@ class Oracle:
                 self.twitter_handle = twit_config['acct_handle']
 
             if 'prompt_filter' in self.config['bot_info']:
-                self.prompt_filter = self.config['bot_info']['prompt_filter']
+                self.prompt_filter_filename = self.config['bot_info']['prompt_filter']
             if 'hashtags' in self.config['bot_info']:
                 self.hashtags = self.config['bot_info']['hashtags'].split()
             if 'announce_new_build' in self.config['bot_info']:
                 self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
-
 
     @staticmethod
     def one_word_less(text):
@@ -132,10 +134,11 @@ class Oracle:
         pos_s_id = self.chain.words["'s"]['id']
 
         # identify the "said" adjacency
-        said_ids = [self.chain.words[term]['id'] for term in self.chain.word_list if term.lower() in ['said','asked','yelled','whispered']]
-        for word in [item for item in self.chain.words if
-                     len(item) > 1 and item[0] in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" and item[
-                         1] in "abcdefghijklmnopqrstuvwxyz"]:
+        said_ids = [self.chain.words[term]['id']
+                    for term in self.chain.word_list
+                    if term.lower() in ['said', 'asked', 'yelled', 'whispered']]
+        for word in [item for item in self.chain.words
+                     if len(item) > 1 and item[0].isupper() and item[1].islower()]:
             score = 1  # grant 1 for starting with a capital letter
             word_id = self.chain.words[word]['id']
             for prefix in self.chain.words[word]['nodes']:
@@ -174,7 +177,8 @@ class Oracle:
             errors.append("The message is less than " + str(minimum_length) + " characters long.")
         prime_source_len = self.get_primary_source_ratio(passages)
         if prime_source_len > self.max_percent:
-            errors.append("The message consists of " + str(prime_source_len * 100) + "% nodes from a single source, more than " + str(self.max_percent * 100) + "% limit.")
+            errors.append("The message consists of " + str(prime_source_len * 100) +
+                          "% nodes from a single source, more than " + str(self.max_percent * 100) + "% limit.")
         if len(passages) < minimum_passages:
             errors.append("There are fewer than " + str(minimum_passages) + " passages used in this message.")
         for block_word in self.banned_words:
@@ -202,7 +206,6 @@ class Oracle:
                 print("Reasons:", errors)
         return is_okay
 
-
     def get_message(self, prompt="", passages=None, print_passages=True, char_limit=None):
         if self.is_verbose:
             print("running get_message for prompt '" + prompt + "'")
@@ -216,7 +219,7 @@ class Oracle:
         attempts = 1
         sources = []
         prompt = self.apply_prompt_filter(prompt)
-        response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
+        response = self.chain.build_message(char_limit=char_limit, prompt=prompt, sources=sources)
         new_passages = self.chain.identify_passages(sources, 2)
         # prime_source_len = self.get_primary_source_ratio(new_passages)
         is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
@@ -225,12 +228,12 @@ class Oracle:
             if attempts > 10000:
                 prompt = self.select_new_prompt()
                 attempts = 0
-            response = self.chain.build_message(char_limit=self.character_limit, prompt=prompt, sources=sources)
+            response = self.chain.build_message(char_limit=char_limit, prompt=prompt, sources=sources)
             new_passages = self.chain.identify_passages(sources, 2)
             is_valid = self.message_is_okay(response, passages=new_passages, prompt=prompt, is_verbose=print_details)
             attempts += 1
 
-        response = response.replace('" "','"\n\n"')
+        response = response.replace('" "', '"\n\n"')
 
         if print_passages:
             print("----------")
@@ -274,9 +277,8 @@ class Oracle:
         result['text'] = " ".join(result['text'])
         return result
 
-
-
-    def strip_hash_tags(self, message):
+    @staticmethod
+    def strip_hash_tags(message):
         result = message
         words = message.split()
         for word in words:
@@ -296,11 +298,10 @@ class Oracle:
         self.chain = WordChain()
         self.chain.depth = self.depth
         Scribe.read_map(target_file, chain=self.chain)
-        if type(self.prompt_filter) is str and self.prompt_filter != '':
-            if not os.path.isfile(self.prompt_filter):
-                self.create_name_file(self.prompt_filter)
-            self.prompt_filter = self.read_filter_list(self.prompt_filter)
-
+        if type(self.prompt_filter_filename) is str and self.prompt_filter_filename != '':
+            if not os.path.isfile(self.prompt_filter_filename):
+                self.create_name_file(self.prompt_filter_filename)
+            self.prompt_filter = self.read_filter_list(self.prompt_filter_filename)
 
     @staticmethod
     def get_primary_source_ratio(passages):
@@ -369,7 +370,8 @@ class Oracle:
             return self.send_message(prompt)
 
         # I have two thoughts here.
-        # First: It may be nice that if the prompt is thrown out or fundamentally recreated, it is not done as a reply, or is aborted.
+        # First: It may be nice that if the prompt is thrown out or fundamentally recreated,
+        #           it is not done as a reply, or is aborted.
         # Second: What if instead of selecting ONE message and trying to reply, we selected a list and the first one
         #           to generate a viable message gets the response instead.
         target_message = self.get_tweet(original_tweet_id)
@@ -393,7 +395,6 @@ class Oracle:
             self.send_passages_email(message, passages, twit_id)
         return message
 
-
     def send_build_announcement(self):
         build_time = time.time()
         if os.path.isfile(self.filename):
@@ -416,7 +417,8 @@ class Oracle:
             if respond_to_tweet == 0:
                 twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
             else:
-                twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet, media_ids=[img_response['media_id']])
+                twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet,
+                                                      media_ids=[img_response['media_id']])
             twit_id = twit_response['id']
             print(time.ctime(int(time.time())), self.bot_name + ' Tweeted as Image:', message)
         else:
@@ -427,7 +429,8 @@ class Oracle:
                         if respond_to_tweet == 0:
                             twit_response = twitter.update_status(status=message_part)
                         else:
-                            twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=respond_to_tweet)
+                            twit_response = twitter.update_status(status=message_part,
+                                                                  in_reply_to_status_id=respond_to_tweet)
                         last_twit_id = twit_response['id']
                         twit_id = last_twit_id
 
@@ -465,7 +468,6 @@ class Oracle:
         twitter = self.get_twitter_client()
         raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
         return raw_tweet[0]
-
 
     @staticmethod
     def get_message_sequence(src_text, max_length=280):
@@ -543,7 +545,8 @@ class Oracle:
                                                      '<strong>',
                                                      '</strong>')
                 msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
-                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> at position " + str(passage[3]) + "<br \>\n"
+                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> "
+                msg += "at position " + str(passage[3]) + "<br \>\n"
                 msg += "<strong>Full passage:</strong> <blockquote><em>&quot;" + full_passage + \
                        "&quot;</em></blockquote></li>\n"
                 # print(full_passage)
@@ -579,14 +582,26 @@ class Oracle:
             print("Value Error on email send:", err)
             pass
 
+    # def write_passages_data(self, message, passages, tweet_id):
+        # write tweet_id
+        # write message (remove newline characters)
+
+        # for passage in passages:
+            # full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+            # write position_id
+            # write clean source - self.clean_source(passage[0])
+            # write source position. - str(passage[3])
+            # write passage text - passage(5)
+            # write full_passage text - self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+
     @staticmethod
     def clean_source(source_text):
-        working = source_text.replace('.txt','')
+        working = source_text.replace('.txt', '')
         last_slash = max(working.find("/"), working.find("\\"))
         while last_slash > -1:
             working = working[last_slash + 1:]
             last_slash = max(working.find("/"), working.find("\\"))
-        working = working.replace("DW 0", "Discworld #").replace("#0","#")
+        working = working.replace("DW 0", "Discworld #").replace("#0", "#")
         result = []
         for idx in range(len(working)):
             if working[idx].isupper() and idx > 0:
@@ -598,15 +613,13 @@ class Oracle:
             result.pop()
         return "".join(result)
 
-
     @staticmethod
     def wrap_a_substring(source_text, subtext, prefix, suffix):
-        align = SequenceAlignment.get_alignment(source_text, subtext,penalty_blank=5)
+        align = SequenceAlignment.get_alignment(source_text, subtext, penalty_blank=5)
         prefix_idx = align['match_starts_in_1']
         suffix_idx = align['match_ends_in_1'] + 1
         if suffix_idx - prefix_idx > len(subtext) + 5:
             suffix_idx = prefix_idx + len(subtext) + 1
 
-
-        return source_text[:prefix_idx] + prefix + source_text[prefix_idx:suffix_idx] + suffix + source_text[suffix_idx:]
-
+        return source_text[:prefix_idx] + prefix + source_text[prefix_idx:suffix_idx] +\
+            suffix + source_text[suffix_idx:]
