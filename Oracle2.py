@@ -127,16 +127,14 @@ def send():
             print(time.ctime(int(time.time())), "Tick!")
 
 
-def send_for_config(prat_config, r, iterations=1, max_length=270, add_hashtags=[], send_response=False):
+def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=[], send_response=False):
     try:
-        channel = prat_config
-        if prat_config.startswith('ScrambledPratchett'):
-            channel = 'ScrambledPratchett'
-        linker = ChainLinker(config_file=prat_config)
+        channel = config_file.split('.')[0]
+        linker = ChainLinker(config_file=config_file)
         # linker.data_refresh_time = 10
         linker.verbose = True
         linker.initialize_chain()
-        Repeater.target = Oracle(config_file=prat_config)
+        Repeater.target = Oracle(config_file=config_file)
         Repeater.target.hashtags += add_hashtags
         Repeater.target.max_percent = Repeater.max_percent
         Repeater.target.character_limit = max_length
