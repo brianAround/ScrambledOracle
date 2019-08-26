@@ -86,16 +86,18 @@ class WordChain:
 
     @staticmethod
     def normalize_text(items: list):
-        if len(items) < 2:
-            return items[:]
+        working_items = [os.path.basename(item).replace('.txt','') for item in items]
+
+        if len(working_items) < 2:
+            return working_items[:]
         else:
             clean_list = []
             front_clip = -1
             back_clip = 0
-            for idx in range(min([len(item) for item in items])):
-                front_candidate = items[0][idx]
-                back_candidate = items[0][idx * -1 - 1]
-                for item in items:
+            for idx in range(min([len(item) for item in working_items])):
+                front_candidate = working_items[0][idx]
+                back_candidate = working_items[0][idx * -1 - 1]
+                for item in working_items:
                     if front_clip == -1 and item[idx] != front_candidate:
                         front_clip = idx
                     if back_clip == 0 and item[idx * -1 -1] != back_candidate:
@@ -103,10 +105,10 @@ class WordChain:
                 if front_clip > -1 and back_clip < 0:
                     break
             # replace alphabet characters in the back clip
-            while back_clip < 0 and items[0][back_clip].isalpha():
+            while back_clip < 0 and working_items[0][back_clip].isalpha():
                 back_clip += 1
             if front_clip > -1 or back_clip < 0:
-                for item in items:
+                for item in working_items:
                     clean_list.append(item[front_clip:len(item) + back_clip])
             return clean_list
 

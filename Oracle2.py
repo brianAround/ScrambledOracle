@@ -10,7 +10,7 @@ from WordChainScribe import Scribe
 single_run = False
 
 # ini_stems = ['Oracle']
-ini_stems = ['OracleJaneEyre']
+ini_stems = ['Oracle','ScrambledPratchett','ScrambledDouglasAdams']
 
 message_buckets = {}
 make_response = False
@@ -46,7 +46,6 @@ def save_message_buckets():
 # if the message_buckets file exists, load it.
 if os.path.isfile(last_messages_filename):
     message_buckets = load_dictionary(last_messages_filename)
-
 
 
 class Repeater:
@@ -114,6 +113,7 @@ def send():
         if random.randint(1, 1) == 1:
             start_time = time.time()
             r = Repeater()
+            random.shuffle(ini_stems)
             for ini_stem in ini_stems:
                 prat_config = ini_stem + adjustment + '.ini'
                 send_for_config(prat_config, r, iterations, add_hashtags=hash_tags, send_response=make_response)

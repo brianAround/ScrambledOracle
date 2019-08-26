@@ -3,6 +3,7 @@ app_key = XxXxXxXxXxXxXxXxXxXxXxXx
 app_secret = XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
 acct_key = XxXxXxXxXxXxXxXxXx-XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
 acct_secret = XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxX
+acct_handle = @FakeAccount
 
 [email_account]
 send_email = True
@@ -20,3 +21,4 @@ regenerate = select 2
 source = various
 hashtags = #twitterbot #pythonbot #markov
 announce_new_build = False
+use_source_as_hashtag = True

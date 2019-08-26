@@ -32,38 +32,70 @@ class Oracle:
         self.mchain = None
         self.starters = []
         self.data_refresh_time = 43200
-        self.depth = 1
+
+        # other attributes
+        self.abbreviations = {}
+        self.articles = {}
+        self.banned_words = ['nigger']
+        self.character_limit = 280
+        self.is_new_build = False
+        self.is_verbose = False
+        self.last_tweet_id = 0
+        self.long_tweet_as_image = False
+        self.max_percent = 1 / 2
+        self.max_twitter_char = 280
+        self.prompt_reset = False
+        self.tweet_queue_path = os.path.join('datafile','tweet_queue.txt')
         self.word_counts = {}
+
+        # bot configuration
+        self.announce_new_build = False
+        self.bot_name = 'Southern Oracle'
+        self.depth = 1
         self.filename = "Leftovers.txt.map"
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file)
-        self.filename = self.config['bot_info']['markov_map']
-        self.depth = int(self.config['bot_info']['depth'])
+        self.hashtags = []
+        self.prompt_filter = None
+        self.regenerate = 'None'
+        self.source_subdirectory = ''
+        self.use_source_as_hashtag = True
+
+        # twitter configuration
+        self.app_key = None
+        self.app_secret = None
+        self.acct_key = None
+        self.acct_secret = None
+        self.twitter_handle = '@SouthernOracle4'
+
+        # automated configuration
+        self.configure_from_file(config_file)
         self.abbreviations = self.load_dictionary('KnownAbbreviations.txt')
         self.articles = self.load_dictionary('SearchIgnoreList.txt')
-        self.max_percent = 1/2
-        self.regenerate = self.config['bot_info']['regenerate']
-        self.source_subdirectory = self.config['bot_info']['source']
-        self.bot_name = self.config['bot_info']['name']
-        self.prompt_filter = None
-        if 'prompt_filter' in self.config['bot_info']:
-            self.prompt_filter = self.config['bot_info']['prompt_filter']
-        self.hashtags = []
-        if 'hashtags' in self.config['bot_info']:
-            self.hashtags = self.config['bot_info']['hashtags'].split()
-        self.announce_new_build = False
-        if 'announce_new_build' in self.config['bot_info']:
-            self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
-        # self.initialize_chain()
-        self.long_tweet_as_image = False
-        self.character_limit = 280
-        self.max_twitter_char = 280
-        self.banned_words = ['nigger']
-        self.is_verbose = False
-        self.is_new_build = False
-        self.last_tweet_id = 0
-        self.prompt_reset = False
-        self.use_source_as_hashtag = True
+
+    def configure_from_file(self, config_file):
+        if os.path.isfile(config_file):
+            self.config = configparser.ConfigParser()
+            self.config.read(config_file)
+            bot_info = self.config['bot_info']
+            self.filename = bot_info['markov_map']
+            self.depth = int(bot_info['depth'])
+            self.regenerate = bot_info['regenerate']
+            self.source_subdirectory = bot_info['source']
+            self.bot_name = bot_info['name']
+            twit_config = self.config['twitter']
+            self.app_key = twit_config['app_key']
+            self.app_secret = twit_config['app_secret']
+            self.acct_key = twit_config['acct_key']
+            self.acct_secret = twit_config['acct_secret']
+            if 'acct_handle' in twit_config:
+                self.twitter_handle = twit_config['acct_handle']
+
+            if 'prompt_filter' in self.config['bot_info']:
+                self.prompt_filter = self.config['bot_info']['prompt_filter']
+            if 'hashtags' in self.config['bot_info']:
+                self.hashtags = self.config['bot_info']['hashtags'].split()
+            if 'announce_new_build' in self.config['bot_info']:
+                self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
+
 
     @staticmethod
     def one_word_less(text):
@@ -374,12 +406,7 @@ class Oracle:
     def send_tweet(self, message, respond_to_tweet=0):
         twit_id = 0
         last_twit_id = 0
-        twit_config = self.config['twitter']
-        app_key = twit_config['app_key']
-        app_secret = twit_config['app_secret']
-        acct_key = twit_config['acct_key']
-        acct_secret = twit_config['acct_secret']
-        twitter = Twython(app_key, app_secret, acct_key, acct_secret)
+        twitter = self.get_twitter_client()
         if len(message) > self.max_twitter_char and self.long_tweet_as_image:
             clean_message = self.skim_hash_tags(message)
             image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
@@ -391,7 +418,7 @@ class Oracle:
             else:
                 twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet, media_ids=[img_response['media_id']])
             twit_id = twit_response['id']
-            print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted as Image:', message)
+            print(time.ctime(int(time.time())), self.bot_name + ' Tweeted as Image:', message)
         else:
             seq = self.get_message_sequence(message, self.max_twitter_char)
             for message_part in seq:
@@ -407,24 +434,35 @@ class Oracle:
                     else:
                         twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=last_twit_id)
                         last_twit_id = twit_response['id']
-                    print(time.ctime(int(time.time())), self.config['bot_info']['name'] + ' Tweeted:', message_part)
+                    print(time.ctime(int(time.time())), self.bot_name + ' Tweeted:', message_part)
                 except TwythonError as twy_err:
                     print(type(twy_err))
                     print(twy_err.args)
                     print('Message attempted: "' + message + '"')
+                    self.add_tweet_to_queue(message_part, respond_to_tweet)
                     twit_id = 0
                     last_twit_id = 0
         self.last_tweet_id = twit_id
         self.last_tweet_message = message
         return twit_id
 
-    def get_tweet(self, tweet_id):
+    def get_twitter_client(self):
         twit_config = self.config['twitter']
         app_key = twit_config['app_key']
         app_secret = twit_config['app_secret']
         acct_key = twit_config['acct_key']
         acct_secret = twit_config['acct_secret']
         twitter = Twython(app_key, app_secret, acct_key, acct_secret)
+        return twitter
+
+    def add_tweet_to_queue(self, message_part, respond_to_tweet):
+        with open(self.tweet_queue_path, mode='a+') as queue_file:
+            queue_file.write(self.bot_name + '\t')
+            queue_file.write(str(respond_to_tweet) + '\t')
+            queue_file.write(message_part.replace('\n', '<newline />') + '\n')
+
+    def get_tweet(self, tweet_id):
+        twitter = self.get_twitter_client()
         raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
         return raw_tweet[0]
 
