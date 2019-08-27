@@ -208,8 +208,10 @@ class WordChain:
         splayed.insert(first_word_idx, beat_text[first_word_idx:last_word_idx + 1])
         return splayed
 
-    def convert_key_to_prefix(self, key):
-        beats = key.split()
+    def convert_key_to_prefix(self, key, beats=None):
+        if beats is None:
+            beats = []
+        beats.extend(key.split())
         if self.depth < len(beats):
             self.depth = len(beats)
         prefix = []
