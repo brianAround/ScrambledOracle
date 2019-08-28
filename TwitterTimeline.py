@@ -47,8 +47,7 @@ def get_mentions(use_config_path=None, target_user='brianAround', mentions_file=
                     full_tweet = result_entry
 
                 mentions[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':posted_by, 'posted_date': final_date, 'reaction_status': 'pending'}
-        max_avail_id -= 1
-        mention_result = twitter.get_mentions_timeline(since_id=str(min_seen_id), max_id=max_avail_id, tweet_mode='extended')
+        mention_result = twitter.get_mentions_timeline(count=page_size, since_id=str(min_seen_id), max_id=max_avail_id, tweet_mode='extended')
 
     return mentions
 
@@ -60,7 +59,8 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
     tweets = {}
     page_size = 200
     page_number = 1
-    min_seen_id = 9148322953504989184
+    min_seen_id = 10000000000000
+    max_avail_id = 0
     current_date = datetime.now()
     max_page = 50
 
@@ -76,24 +76,20 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
                                               count='1',
                                               trim_user='True')
     if len(tweets_result) > 0:
-        min_seen_id = int(tweets_result[0]['id'])
+        max_avail_id = int(tweets_result[0]['id'])
 
     previous_count = -1
-    while page_number <= max_page and len(tweets) > previous_count:
-
-        tweets_result = twitter.get_user_timeline(screen_name=target_user, max_id=str(int(min_seen_id)+1), count=str(page_size),
-                                                  trim_user='True', tweet_mode='extended')
-
-        if len(tweets_result) == 0:
-            break
-
-        previous_count = len(tweets)
-
+    tweets_result = twitter.get_user_timeline(screen_name=target_user,
+                                              since_id=min_seen_id,
+                                              max_id=max_avail_id,
+                                              count=page_size,
+                                              trim_user='True', tweet_mode='extended')
+    while page_number <= max_page and len(tweets_result) > 0:
         for item in tweets_result:
             item_is_retweet = False
             original_user = '@' + target_user
             final_date = item['created_at']
-            min_seen_id = min(min_seen_id, item['id'])
+            max_avail_id = min(max_avail_id, item['id'])
             if item['full_text'].startswith('RT '):
                 item_is_retweet = True
                 original_user = item['full_text'].split(' ')[1]
@@ -103,11 +99,14 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
                 full_tweet = twitter.lookup_status(id=item['id_str'], tweet_mode='extended')[0]
             else:
                 full_tweet = item
-
             tweets[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':original_user, 'posted_date': final_date}
 
+        tweets_result = twitter.get_user_timeline(screen_name=target_user,
+                                                  since_id=min_seen_id,
+                                                  max_id=max_avail_id,
+                                                  count=page_size,
+                                                  trim_user='True', tweet_mode='extended')
         page_number += 1
-
     return tweets
 
 def store_tweets(filename, tweets):
