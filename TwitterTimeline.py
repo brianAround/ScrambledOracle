@@ -1,8 +1,9 @@
 import os
 import json
 from queue import PriorityQueue
-
 from TwitterRepository import TwitterRepository
+from twython.exceptions import TwythonError
+from twython.exceptions import TwythonRateLimitError
 from datetime import datetime
 from collections import namedtuple
 
@@ -27,28 +28,30 @@ def get_mentions(use_config_path=None, target_user='brianAround', mentions_file=
 
     mention_result = twitter.get_mentions_timeline(count=1)
     max_avail_id = mention_result[0]['id']
+    try:
+        mention_result = twitter.get_mentions_timeline(count=page_size, since_id=min_seen_id, max_id=max_avail_id, tweet_mode='extended')
+        while len(mention_result) > 0:
+            for result_entry in mention_result:
+                if result_entry['id_str'] not in mentions:
+                    item_is_retweet = False
+                    final_date = result_entry['created_at']
+                    max_avail_id = min(max_avail_id, result_entry['id'])
+                    posted_by = result_entry['user']['screen_name']
+                    if result_entry['full_text'].startswith('RT '):
+                        item_is_retweet = True
+                        original_user = result_entry['full_text'].split(' ')[1]
+                        full_tweet = result_entry['retweeted_status']
+                    elif result_entry['truncated']:
+                        print('Calling to look up the full text for', result_entry['id_str'])
+                        full_tweet = twitter.lookup_status(id=result_entry['id_str'], tweet_mode='extended')[0]
+                    else:
+                        full_tweet = result_entry
 
-    mention_result = twitter.get_mentions_timeline(count=page_size, since_id=min_seen_id, max_id=max_avail_id, tweet_mode='extended')
-    while len(mention_result) > 0:
-        for result_entry in mention_result:
-            if result_entry['id_str'] not in mentions:
-                item_is_retweet = False
-                final_date = result_entry['created_at']
-                max_avail_id = min(max_avail_id, result_entry['id'])
-                posted_by = result_entry['user']['screen_name']
-                if result_entry['full_text'].startswith('RT '):
-                    item_is_retweet = True
-                    original_user = result_entry['full_text'].split(' ')[1]
-                    full_tweet = result_entry['retweeted_status']
-                elif result_entry['truncated']:
-                    print('Calling to look up the full text for', result_entry['id_str'])
-                    full_tweet = twitter.lookup_status(id=result_entry['id_str'], tweet_mode='extended')[0]
-                else:
-                    full_tweet = result_entry
-
-                mentions[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':posted_by, 'posted_date': final_date, 'reaction_status': 'pending'}
-        mention_result = twitter.get_mentions_timeline(count=page_size, since_id=str(min_seen_id), max_id=max_avail_id, tweet_mode='extended')
-
+                    mentions[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':posted_by, 'posted_date': final_date, 'reaction_status': 'pending'}
+            mention_result = twitter.get_mentions_timeline(count=page_size, since_id=str(min_seen_id), max_id=max_avail_id, tweet_mode='extended')
+    except TwythonError as twy_err:
+        print(type(twy_err))
+        print(twy_err.msg)
     return mentions
 
 # use the max_id to know what's been handled and what hasn't.
@@ -78,35 +81,39 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
     if len(tweets_result) > 0:
         max_avail_id = int(tweets_result[0]['id'])
 
-    previous_count = -1
-    tweets_result = twitter.get_user_timeline(screen_name=target_user,
-                                              since_id=min_seen_id,
-                                              max_id=max_avail_id,
-                                              count=page_size,
-                                              trim_user='True', tweet_mode='extended')
-    while page_number <= max_page and len(tweets_result) > 0:
-        for item in tweets_result:
-            item_is_retweet = False
-            original_user = '@' + target_user
-            final_date = item['created_at']
-            max_avail_id = min(max_avail_id, item['id'])
-            if item['full_text'].startswith('RT '):
-                item_is_retweet = True
-                original_user = item['full_text'].split(' ')[1]
-                full_tweet = item['retweeted_status']
-            elif item['truncated']:
-                print('Calling to look up the full text for', item['id_str'])
-                full_tweet = twitter.lookup_status(id=item['id_str'], tweet_mode='extended')[0]
-            else:
-                full_tweet = item
-            tweets[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':original_user, 'posted_date': final_date}
-
+    try:
         tweets_result = twitter.get_user_timeline(screen_name=target_user,
                                                   since_id=min_seen_id,
                                                   max_id=max_avail_id,
                                                   count=page_size,
                                                   trim_user='True', tweet_mode='extended')
-        page_number += 1
+        while page_number <= max_page and len(tweets_result) > 0:
+            for item in tweets_result:
+                item_is_retweet = False
+                original_user = '@' + target_user
+                final_date = item['created_at']
+                max_avail_id = min(max_avail_id, item['id'])
+                if item['full_text'].startswith('RT '):
+                    item_is_retweet = True
+                    original_user = item['full_text'].split(' ')[1]
+                    full_tweet = item['retweeted_status']
+                elif item['truncated']:
+                    print('Calling to look up the full text for', item['id_str'])
+                    full_tweet = twitter.lookup_status(id=item['id_str'], tweet_mode='extended')[0]
+                else:
+                    full_tweet = item
+                tweets[full_tweet['id_str']] = {'id': full_tweet['id'], 'text': full_tweet['full_text'], 'is_retweet': item_is_retweet, 'posted_by':original_user, 'posted_date': final_date}
+
+            tweets_result = twitter.get_user_timeline(screen_name=target_user,
+                                                      since_id=min_seen_id,
+                                                      max_id=max_avail_id,
+                                                      count=page_size,
+                                                      trim_user='True', tweet_mode='extended')
+            page_number += 1
+    except TwythonError as twy_err:
+        print(type(twy_err))
+        print(twy_err.msg)
+
     return tweets
 
 def store_tweets(filename, tweets):

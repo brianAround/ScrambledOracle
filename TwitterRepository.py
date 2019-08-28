@@ -33,7 +33,8 @@ class TwitterRepository:
 
 
 if __name__ == "__main__":
-    twitter = configure_client()
+    repository = TwitterRepository('oracle.ini')
+    twitter = repository.get_client_instance()
     # trends = twitter.get_available_trends()
     # use the Baton Rouge id
 #    trends = twitter.get_place_trends(id=2359991)
