@@ -12,8 +12,9 @@ list_source_texts_in_components = True
 show_word_disconnects = False
 find_paths = False
 find_trees = False
-save_component_graph = True
-significant_component_size = 200
+save_component_graph = False
+save_text_columns = True
+significant_component_size = 1000
 component_save_limit = 20
 
 
@@ -23,8 +24,9 @@ con_fact_by_prefix = {}
 max_con_factor = 0
 
 stop_at_con_factor = 4
-use_inbound_links = True
+use_inbound_links = False
 use_outbound_links = True
+
 
 def display_path(path:list):
     print(path)
@@ -36,6 +38,7 @@ def display_path(path:list):
     words += [wc.word_list[item[-1]] for item in path]
     print(" ".join(words))
     print()
+
 
 def get_degree(prefix, chain:WordChain, include_inbound=True, include_outbound=True):
     if prefix in degree_by_prefix:
@@ -49,6 +52,7 @@ def get_degree(prefix, chain:WordChain, include_inbound=True, include_outbound=T
             degree += len(node.outbound)
     degree_by_prefix[prefix] = degree
     return degree
+
 
 def get_con_factor(prefix, chain:WordChain, include_inbound=True, include_outbound=True):
     if prefix in con_fact_by_prefix:
@@ -76,6 +80,7 @@ def identify_components(prefix_list):
         components[comp_id].append(local_prefix)
     return components
 
+
 print(time.asctime())
 wc = WordChain()
 wc.depth = 4
@@ -88,8 +93,10 @@ wc.index_terms()
 last_message = ''
 
 prefix_list = [prefix for prefix in wc.nodes_by_prefix]
-# prefix_list = sorted(prefix_list, key=lambda x: get_degree(x, wc, include_inbound=use_inbound_links, include_outbound=use_outbound_links), reverse=False)
-prefix_list = sorted(prefix_list, key=lambda x: get_con_factor(x, wc, include_inbound=use_inbound_links, include_outbound=use_outbound_links), reverse=False)
+# prefix_list = sorted(prefix_list, key=lambda x: get_degree(x, wc, include_inbound=use_inbound_links,
+#                                                            include_outbound=use_outbound_links), reverse=False)
+prefix_list = sorted(prefix_list, key=lambda x: get_con_factor(x, wc, include_inbound=use_inbound_links,
+                                                               include_outbound=use_outbound_links), reverse=False)
 
 uf = UTUnionFind(prefix_list)
 
@@ -169,6 +176,8 @@ for prefix in prefix_list:
                             comp_file.write('\n')
                     subgraph_id += 1
 
+
+
         print("Component Breakdown-------------------------------")
         print("1-9 Nodes:", Comp_1)
         print("10-99 Nodes:", Comp_10)
@@ -180,7 +189,7 @@ for prefix in prefix_list:
         if connectivity_factor > stop_at_con_factor:
             break
 
-    if (connectivity_factor <= stop_at_con_factor):
+    if connectivity_factor <= stop_at_con_factor:
         if use_outbound_links:
             for entry in node.outbound:
                 second = entry[1].prefix
@@ -194,8 +203,29 @@ for prefix in prefix_list:
                     uf.union(prefix, second)
         max_con_factor = connectivity_factor
 
-
-
+if save_text_columns:
+    with open('text_columns.txt', 'w') as out_file:
+        ordered_components = sorted([cname for cname in comps], key=lambda x: len(comps[x]), reverse=True)
+        for cname in ordered_components:
+            text_name = " ".join([wc.word_list[id] for id in cname])
+            comp_node_count = len(comps[cname])
+            raw_nodes = [wc.get_node_by_prefix(raw_prefix) for raw_prefix in comps[cname]]
+            column_nodes = [raw_nodes.pop(0)]
+            iterations = 0
+            while len(raw_nodes) > 0:
+                temp_node = raw_nodes.pop(0)
+                if temp_node in column_nodes[0].inbound:
+                    column_nodes.insert(0, temp_node)
+                elif temp_node in [ln[1] for ln in column_nodes[-1].outbound]:
+                    column_nodes.append(temp_node)
+                else:
+                    raw_nodes.append(temp_node)
+                iterations += 1
+                if iterations > 10000:
+                    print("Some nodes do not match within component:", cname)
+                    break
+            out_file.write(wc.render_message_from_path(column_nodes) + '\n')
+    print('File text_columns.txt is written.')
 
 if show_word_disconnects:
     # word_lists = {}
@@ -214,8 +244,6 @@ if show_word_disconnects:
             print(not_in_this)
         print("Words only in", text_name)
         print(not_in_all)
-
-
 
 # you now have a directory of words... you could figure out which words are unique to what components
 if find_paths:
@@ -248,7 +276,8 @@ if find_paths:
             target = spangle.pop(0)
             if target[-1] in prefix_set_b:
                 connections.append(target)
-                print("Added connection #", len(connections), "Queue size:", len(spangle), "Nodes in connection:", len(target))
+                print("Added connection #", len(connections), "Queue size:", len(spangle),
+                      "Nodes in connection:", len(target))
             else:
                 parent = wc.nodes_by_prefix[target[-1]]
                 for entry in parent.outbound:
@@ -285,7 +314,7 @@ if find_paths:
 if find_trees:
     print("For Prompt A: enter the starting sequence.")
     a = input("Prompt A: ")
-    while len(a.strip()) == 0 or (wc.convert_key_to_prefix(a) not in wc.nodes_by_prefix and a not in ('q','Q')):
+    while len(a.strip()) == 0 or (wc.convert_key_to_prefix(a) not in wc.nodes_by_prefix and a not in ('q', 'Q')):
         print("You must enter a term that is in the map.")
         a = input("Prompt A: ")
 
@@ -367,9 +396,4 @@ if find_trees:
         while len(a.strip()) == 0 or a not in wc.words:
             print("You must enter a term that is in the map.")
             a = input("Prompt A: ")
-
-
-
-
-
 

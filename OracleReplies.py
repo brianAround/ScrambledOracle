@@ -6,38 +6,38 @@ from WordChain import *
 from Oracle import Oracle
 from ChainLinker import ChainLinker
 from WordChainScribe import Scribe
+import TwitterRepository
+import TwitterTimeline
 
-single_run = True
+single_run = False
+fetch_data_every = 3600
 
 # ini_stems = ['Oracle']
 ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
 
+ini_stems = [random.choice(ini_stems)]
+
 message_buckets = {}
 last_messages_filename = "message_buckets.txt"
+
+target_user = random.choice(['brianAround', 'a_storied'])
 
 
 def load_dictionary(file_path):
     result = {}
-    file_size = min(32, os.path.getsize(file_path))
-    with open(file_path, 'rb') as f_enc:
-        raw = f_enc.read(file_size)
-        if raw.startswith(codecs.BOM_UTF8):
-            encoding = 'utf-8-sig'
-        else:
-            encoding = 'utf-8'
-    with open(file_path, 'r', encoding=encoding) as f_handle:
+    with open(file_path, 'r', encoding='utf-16') as f_handle:
         for line in f_handle:
             work_line = line.strip()
             if '\t' in work_line:
                 bucket_key, bucket_id, bucket_text = work_line.split('\t')
-                result[bucket_key] = {'id': int(bucket_id), 'text': bucket_text.replace('<newline />', '/n')}
+                result[bucket_key] = {'id': int(bucket_id), 'text': bucket_text.replace('<newline />', '\n')}
             else:
                 result[line.strip()] = True
     return result
 
 
 def save_message_buckets():
-    with open(last_messages_filename, 'w') as sent_file:
+    with open(last_messages_filename, 'w', encoding='utf-16') as sent_file:
         for key, message in message_buckets.items():
             sent_file.write(key + '\t' + str(message['id']) + '\t'
                             + message['text'].replace('\n', '<newline />') + '\n')
@@ -90,25 +90,10 @@ else:
 def send():
     adjustment = ""
     iterations = 1
-    max_size = 200
+    max_size = 140
     make_response = True
     day_of_week = time.localtime()[6]
-    hash_tags = ['']
-    if day_of_week == 1:
-        iterations = 1
-        hash_tags = ['']
-    if day_of_week == 2:
-        make_response = True
-        max_size = 140
-    if day_of_week == 3:
-        Repeater.max_percent = 1/3
-        hash_tags = ['']
-    else:
-        Repeater.max_percent = 1/2
-    if day_of_week == 4:
-        adjustment = ".named"
-    if day_of_week == 5:
-        max_size = random.randint(70, 840)
+    hash_tags = []
 
     if 1 <= time.localtime()[3] <= 23:
         if random.randint(1, 1) == 1:
@@ -134,6 +119,7 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=N
         if add_hashtags is None:
             add_hashtags = []
         channel = config_file.split('.')[0]
+        print('Preparing to send reply to', target_user, 'for Channel', channel)
         linker = ChainLinker(config_file=config_file)
         # linker.data_refresh_time = 10
         linker.verbose = True
@@ -144,25 +130,40 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=N
         Repeater.target.character_limit = max_length
         Repeater.target.long_tweet_as_image = False
         Repeater.target.is_new_build = linker.file_rebuilt
+
+        tweet_file = TwitterTimeline.get_tweet_filename(target_user)
+        tweets = {}
+        if not os.path.isfile(tweet_file) or os.path.getmtime(tweet_file) < time.time() - fetch_data_every:
+            tweets = TwitterTimeline.download_tweets(config_file, target_user, tweet_file)
+            TwitterTimeline.store_tweets(tweet_file, tweets)
+        else:
+            tweets = TwitterTimeline.load_tweets(tweet_file)
+
+        sample_size = 10
+        skip_retweets = True
+        top_tweets = get_recent_tweets(tweets, sample_size, skip_retweets)
+
+        """mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@',''))
+        mentions = {}
+        if not os.path.isfile(mentions_file) or os.path.getmtime(mentions_file) < time.time() - fetch_data_every:
+            mentions = TwitterTimeline.get_mentions(config_file, Repeater.target.twitter_handle.replace('@',''), mentions_file)
+            TwitterTimeline.store_tweets(mentions_file, mentions)
+        else:
+            mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=True)
+        """
         prompt_id = 0
         prompt = ''
-        prompt_channel = channel
 
         for idx in range(iterations):
-            if send_response:
-                all_channels = [key for key in message_buckets.keys()]
-                prompt_channel = random.choice(all_channels)
+            if len(top_tweets) > 0:
+                target = top_tweets.pop(random.randint(0,len(top_tweets) - 1))
+                prompt_id = target['id']
+                prompt = target['text']
+                print('Replying to tweet id', prompt_id, ':', prompt)
 
-            if prompt_channel in message_buckets.keys():
-                prompt_id = message_buckets[prompt_channel]['id']
-                prompt = message_buckets[prompt_channel]['text']
-
-            if send_response:
                 last_message = r.send_response(prompt_id, prompt)
-            else:
-                last_message = r.send_message(prompt)
-            message_buckets[channel] = {'id': int(r.target.last_tweet_id), 'text': last_message}
-            prompt = last_message
+                message_buckets[channel] = {'id': int(r.target.last_tweet_id), 'text': last_message}
+                prompt = last_message
 
         linker = None
 
@@ -170,6 +171,18 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=N
         pass
     else:
         pass
+
+
+def get_recent_tweets(tweets, sample_size=5, skip_retweets=True):
+    top_tweets = []
+    ordered_ids = sorted([int(tid) for tid in tweets], reverse=True)
+    tweet_idx = 0
+    while len(top_tweets) < sample_size and tweet_idx < len(tweets):
+        tweet = tweets[str(ordered_ids[tweet_idx])]
+        if not skip_retweets or not tweet['is_retweet']:
+            top_tweets.append(tweet)
+        tweet_idx += 1
+    return top_tweets
 
 
 def check():
@@ -182,7 +195,9 @@ def check():
 
 send()
 if not single_run:
-    schedule.every(120).minutes.do(send)
+    schedule.every(60).minutes.do(send).tag('oracle_replies')
+    print(schedule.jobs)
+
     while 1:
         schedule.run_pending()
-        time.sleep(110)
+        time.sleep(10)
