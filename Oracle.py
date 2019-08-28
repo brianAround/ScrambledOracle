@@ -388,7 +388,7 @@ class Oracle:
             message = self.add_hashtag(message)
             twit_id = self.send_tweet(message)
         else:
-            message = username + ' ' + self.get_message(prompt, passages, char_limit=reply_limit)
+            message = username + ' ' + message
             message = self.add_hashtag(message)
             twit_id = self.send_tweet(message, respond_to_tweet=original_tweet_id)
         if twit_id > 0:
@@ -442,7 +442,8 @@ class Oracle:
                     print(type(twy_err))
                     print(twy_err.args)
                     print('Message attempted: "' + message + '"')
-                    self.add_tweet_to_queue(message_part, respond_to_tweet)
+                    if 'Status is a duplicate' not in twy_err.msg:
+                        self.add_tweet_to_queue(message_part, respond_to_tweet)
                     twit_id = 0
                     last_twit_id = 0
         self.last_tweet_id = twit_id
