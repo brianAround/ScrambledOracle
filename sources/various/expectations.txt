@@ -3,7 +3,7 @@ by Charles Dickens
 
 
 
-Chapter I
+#Chapter I
 
 My father's family name being Pirrip, and my Christian name Philip, my
 infant tongue could make of both names nothing longer or more explicit
@@ -209,7 +209,7 @@ I was frightened again, and ran home without stopping.
 
 
 
-Chapter II
+#Chapter II
 
 My sister, Mrs. Joe Gargery, was more than twenty years older than I,
 and had established a great reputation with herself and the neighbors
@@ -568,7 +568,7 @@ marshes.
 
 
 
-Chapter III
+#Chapter III
 
 It was a rimy morning, and very damp. I had seen the damp lying on the
 outside of my little window, as if some goblin had been crying there all
@@ -790,7 +790,7 @@ going.
 
 
 
-Chapter IV
+#Chapter IV
 
 I fully expected to find a Constable in the kitchen, waiting to take me
 up. But not only was there no Constable there, but no discovery had yet
@@ -1136,7 +1136,7 @@ of handcuffs to me, saying, "Here you are, look sharp, come on!"
 
 
 
-Chapter V
+#Chapter V
 
 The apparition of a file of soldiers ringing down the but-ends of their
 loaded muskets on our door-step, caused the dinner-party to rise
@@ -1564,7 +1564,7 @@ him.
 
 
 
-Chapter VI
+#Chapter VI
 
 My state of mind regarding the pilfering from which I had been so
 unexpectedly exonerated did not impel me to frank disclosure; but I hope
@@ -1635,7 +1635,7 @@ saving on exceptional occasions.
 
 
 
-Chapter VII
+#Chapter VII
 
 At the time when I stood in the churchyard reading the family
 tombstones, I had just enough learning to be able to spell them out. My
@@ -2078,7 +2078,7 @@ on earth I was expected to play at.
 
 
 
-Chapter VIII
+#Chapter VIII
 
 Mr. Pumblechook's premises in the High Street of the market town,
 were of a peppercorny and farinaceous character, as the premises of a
@@ -2595,7 +2595,7 @@ bad way.
 
 
 
-Chapter IX
+#Chapter IX
 
 When I reached home, my sister was very curious to know all about Miss
 Havisham's, and asked a number of questions. And I soon found myself
@@ -2907,7 +2907,7 @@ formation of the first link on one memorable day.
 
 
 
-Chapter X
+#Chapter X
 
 The felicitous idea occurred to me a morning or two later when I woke,
 that the best step I could take towards making myself uncommon was to
@@ -3188,7 +3188,7 @@ screamed myself awake.
 
 
 
-Chapter XI
+#Chapter XI
 
 At the appointed time I returned to Miss Havisham's, and my hesitating
 ring at the gate brought out Estella. She locked it after admitting
@@ -3785,7 +3785,7 @@ the road.
 
 
 
-Chapter XII
+#Chapter XII
 
 My mind grew very uneasy on the subject of the pale young gentleman. The
 more I thought of the fight, and recalled the pale young gentleman on
@@ -4000,7 +4000,7 @@ better speculation.
 
 
 
-Chapter XIII
+#Chapter XIII
 
 It was a trial to my feelings, on the next day but one, to see
 Joe arraying himself in his Sunday clothes to accompany me to Miss
@@ -4325,7 +4325,7 @@ Joe's trade. I had liked it once, but once was not now.
 
 
 
-Chapter XIV
+#Chapter XIV
 
 It is a most miserable thing to feel ashamed of home. There may be black
 ingratitude in the thing, and the punishment may be retributive and well
@@ -4402,7 +4402,7 @@ ever, in my own ungracious breast.
 
 
 
-Chapter XV
+#Chapter XV
 
 As I was getting too big for Mr. Wopsle's great-aunt's room, my
 education under that preposterous female terminated. Not, however, until
@@ -4869,7 +4869,7 @@ while she was the wife of Joe.
 
 
 
-Chapter XVI
+#Chapter XVI
 
 With my head full of George Barnwell, I was at first disposed to believe
 that I must have had some hand in the attack upon my sister, or at
@@ -5049,7 +5049,7 @@ than I did what to make of it.
 
 
 
-Chapter XVII
+#Chapter XVII
 
 I now fell into a regular routine of apprenticeship life, which was
 varied beyond the limits of the village and the marshes, by no more
@@ -5413,7 +5413,7 @@ to a premature end, as I proceed to relate.
 
 
 
-Chapter XVIII
+#Chapter XVIII
 
 It was in the fourth year of my apprenticeship to Joe, and it was a
 Saturday night. There was a group assembled round the fire at the Three
@@ -5996,7 +5996,7 @@ bed now, and I never slept the old sound sleep in it any more.
 
 
 
-Chapter XIX
+#Chapter XIX
 
 Morning made a considerable difference in my general prospect of Life,
 and brightened it so much that it scarcely seemed the same. What lay
@@ -6594,7 +6594,7 @@ the world lay spread before me.
 
 This is the end of the first stage of Pip's expectations.
 
-Chapter XX
+#Chapter XX
 
 The journey from our town to the metropolis was a journey of about five
 hours. It was a little past midday when the four-horse stage-coach by
@@ -6944,7 +6944,7 @@ and went on side by side.
 
 
 
-Chapter XXI
+#Chapter XXI
 
 Casting my eyes on Mr. Wemmick as we went along, to see what he was
 like in the light of day, I found him to be a dry man, rather short in
@@ -7149,7 +7149,7 @@ be in mine, and he said, falling back,--
 
 
 
-Chapter XXII
+#Chapter XXII
 
 The pale young gentleman and I stood contemplating one another in
 Barnard's Inn, until we both burst out laughing. "The idea of its
@@ -7694,7 +7694,7 @@ see his way to putting anything straight.
 
 
 
-Chapter XXIII
+#Chapter XXIII
 
 Mr. Pocket said he was glad to see me, and he hoped I was not sorry to
 see him. "For, I really am not," he added, with his son's smile,
@@ -8025,7 +8025,7 @@ bed and leave him.
 
 
 
-Chapter XXIV
+#Chapter XXIV
 
 After two or three days, when I had established myself in my room and
 had gone backwards and forwards to London several times, and had ordered
@@ -8283,7 +8283,7 @@ justice in that chair that day.
 
 
 
-Chapter XXV
+#Chapter XXV
 
 Bentley Drummle, who was so sulky a fellow that he even took up a book
 as if its writer had done him an injury, did not take up an
@@ -8597,7 +8597,7 @@ into space together by the last discharge of the Stinger.
 
 
 
-Chapter XXVI
+#Chapter XXVI
 
 It fell out as Wemmick had told me it would, that I had an early
 opportunity of comparing my guardian's establishment with that of his
@@ -8898,7 +8898,7 @@ went home to the family hole.
 
 
 
-Chapter XXVII
+#Chapter XXVII
 
 
 "MY DEAR MR PIP:--
@@ -9228,7 +9228,7 @@ neighboring streets; but he was gone.
 
 
 
-Chapter XXVIII
+#Chapter XXVIII
 
 It was clear that I must repair to our town next day, and in the first
 flow of my repentance, it was equally clear that I must stay at Joe's.
@@ -9479,7 +9479,7 @@ fortunes.
 
 
 
-Chapter XXIX
+#Chapter XXIX
 
 Betimes in the morning I was up and out. It was too early yet to go to
 Miss Havisham's, so I loitered into the country on Miss Havisham's
@@ -10038,7 +10038,7 @@ soon dried.
 
 
 
-Chapter XXX
+#Chapter XXX
 
 After well considering the matter while I was dressing at the Blue Boar
 in the morning, I resolved to tell my guardian that I doubted Orlick's
@@ -10409,7 +10409,7 @@ Wopsle and Denmark.
 
 
 
-Chapter XXXI
+#Chapter XXXI
 
 On our arrival in Denmark, we found the king and queen of that country
 elevated in two arm-chairs on a kitchen-table, holding a Court. The
@@ -10632,7 +10632,7 @@ twenty words of it.
 
 
 
-Chapter XXXII
+#Chapter XXXII
 
 One day when I was busy with my books and Mr. Pocket, I received a note
 by the post, the mere outside of which threw me into a great flutter;
@@ -10873,7 +10873,7 @@ What was the nameless shadow which again in that one instant had passed?
 
 
 
-Chapter XXXIII
+#Chapter XXXIII
 
 In her furred travelling-dress, Estella seemed more delicately beautiful
 than she had ever seemed yet, even in my eyes. Her manner was more
@@ -11179,7 +11179,7 @@ remedy for baby, I thought--Well--No, I wouldn't.
 
 
 
-Chapter XXXIV
+#Chapter XXXIV
 
 As I had grown accustomed to my expectations, I had insensibly begun to
 notice their effect upon myself and those around me. Their influence on
@@ -11408,7 +11408,7 @@ Monday next at three o'clock in the afternoon.
 
 
 
-Chapter XXXV
+#Chapter XXXV
 
 It was the first time that a grave had opened in my road of life, and
 the gap it made in the smooth ground was wonderful. The figure of my
@@ -11729,7 +11729,7 @@ was quite right, all I can say is,--they were quite right too.
 
 
 
-Chapter XXXVI
+#Chapter XXXVI
 
 Herbert and I went on from bad to worse, in the way of increasing our
 debts, looking into our affairs, leaving Margins, and the like exemplary
@@ -12039,7 +12039,7 @@ details of it, he felt so dejected and guilty.
 
 
 
-Chapter XXXVII
+#Chapter XXXVII
 
 Deeming Sunday the best day for taking Mr. Wemmick's Walworth
 sentiments, I devoted the next ensuing Sunday afternoon to a pilgrimage
@@ -12317,7 +12317,7 @@ much to give to the theme that so long filled my heart.
 
 
 
-Chapter XXXVIII
+#Chapter XXXVIII
 
 If that staid old house near the Green at Richmond should ever come to
 be haunted when I am dead, it will be haunted, surely, by my ghost. O
@@ -12866,7 +12866,7 @@ struck, and the roof of my stronghold dropped upon me.
 
 
 
-Chapter XXXIX
+#Chapter XXXIX
 
 I was three-and-twenty years of age. Not another word had I heard to
 enlighten me on the subject of my expectations, and my twenty-third
@@ -13386,7 +13386,7 @@ THIS IS THE END OF THE SECOND STAGE OF PIP'S EXPECTATIONS.
 
 
 
-Chapter XL
+#Chapter XL
 
 It was fortunate for me that I had to take precautions to ensure (so far
 as I could) the safety of my dreaded visitor; for, this thought pressing
@@ -13958,7 +13958,7 @@ you!"
 
 
 
-Chapter XLI
+#Chapter XLI
 
 In vain should I attempt to describe the astonishment and disquiet
 of Herbert, when he and I and Provis sat down before the fire, and I
@@ -14206,7 +14206,7 @@ looked round at us and said what follows.
 
 
 
-Chapter XLII
+#Chapter XLII
 
 "Dear boy and Pip's comrade. I am not a going fur to tell you my life
 like a song, or a story-book. But to give it you short and handy, I'll
@@ -14498,7 +14498,7 @@ smoking by the fire.
 
 
 
-Chapter XLIII
+#Chapter XLIII
 
 Why should I pause to ask how much of my shrinking from Provis might be
 traced to Estella? Why should I loiter on my road, to compare the state
@@ -14739,7 +14739,7 @@ never to have seen.
 
 
 
-Chapter XLIV
+#Chapter XLIV
 
 In the room where the dressing-table stood, and where the wax-candles
 burnt on the wall, I found Miss Havisham and Estella; Miss Havisham
@@ -15075,7 +15075,7 @@ his light, and read inside, in Wemmick's writing,--
 
 
 
-Chapter XLV
+#Chapter XLV
 
 Turning from the Temple gate as soon as I had read the warning, I made
 the best of my way to Fleet Street, and there got a late hackney chariot
@@ -15388,7 +15388,7 @@ expected.
 
 
 
-Chapter XLVI
+#Chapter XLVI
 
 Eight o'clock had struck before I got into the air, that was scented,
 not disagreeably, by the chips and shavings of the long-shore
@@ -15687,7 +15687,7 @@ silently, and surely, to take him.
 
 
 
-Chapter XLVII
+#Chapter XLVII
 
 Some weeks passed without bringing any change. We waited for Wemmick,
 and he made no sign. If I had never known him out of Little Britain, and
@@ -15946,7 +15946,7 @@ anything else.
 
 
 
-Chapter XLVIII
+#Chapter XLVIII
 
 The second of the two meetings referred to in the last chapter occurred
 about a week after the first. I had again left my boat at the wharf
@@ -16251,7 +16251,7 @@ my thoughts, though with no relief from the old.
 
 
 
-Chapter XLIX
+#Chapter XLIX
 
 Putting Miss Havisham's note in my pocket, that it might serve as
 my credentials for so soon reappearing at Satis House, in case her
@@ -16644,7 +16644,7 @@ under my name, "I forgive her.""
 
 
 
-Chapter L
+#Chapter L
 
 My hands had been dressed twice or thrice in the night, and again in
 the morning. My left arm was a good deal burned to the elbow, and, less
@@ -16831,7 +16831,7 @@ is Estella's Father."
 
 
 
-Chapter LI
+#Chapter LI
 
 What purpose I had in view when I was hot on tracing out and proving
 Estella's parentage, I cannot say. It will presently be seen that the
@@ -17163,7 +17163,7 @@ just had lunch.
 
 
 
-Chapter LII
+#Chapter LII
 
 
 From Little Britain I went, with my check in my pocket, to Miss
@@ -17384,7 +17384,7 @@ Towards the marshes I now went straight, having no time to spare.
 
 
 
-Chapter LIII
+#Chapter LIII
 
 It was a dark night, though the full moon rose as I left the enclosed
 lands, and passed out upon the marshes. Beyond their dark line there was
@@ -17900,7 +17900,7 @@ us, and stand ready, you over there at Mill Pond Bank!"
 
 
 
-Chapter LIV
+#Chapter LIV
 
 It was one of those March days when the sun shines hot and the wind
 blows cold: when it is summer in the light, and winter in the shade.
@@ -18453,7 +18453,7 @@ his hopes of enriching me had perished.
 
 
 
-Chapter LV
+#Chapter LV
 
 He was taken to the Police Court next day, and would have been
 immediately committed for trial, but that it was necessary to send down
@@ -18766,7 +18766,7 @@ something of the kind."
 
 
 
-Chapter LVI
+#Chapter LVI
 
 He lay in prison very ill, during the whole interval between his
 committal for trial and the coming round of the Sessions. He had broken
@@ -18987,7 +18987,7 @@ a sinner!"
 
 
 
-Chapter LVII
+#Chapter LVII
 
 Now that I was left wholly to myself, I gave notice of my intention
 to quit the chambers in the Temple as soon as my tenancy could legally
@@ -19510,7 +19510,7 @@ left to tell.
 
 
 
-Chapter LVIII
+#Chapter LVIII
 
 The tidings of my high fortunes having had a heavy fall had got down
 to my native place and its neighborhood before I got there. I found the
@@ -19837,7 +19837,7 @@ had never been in him at all, but had been in me.
 
 
 
-Chapter LIX
+#Chapter LIX
 
 For eleven years, I had not seen Joe nor Biddy with my bodily
 eyes,--though they had both been often before my fancy in the
