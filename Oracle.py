@@ -23,6 +23,8 @@ def find_add_item_index(item, item_list):
     return item_index
 
 
+
+
 class Oracle:
 
     sent_messages = {}
@@ -374,8 +376,7 @@ class Oracle:
         #           it is not done as a reply, or is aborted.
         # Second: What if instead of selecting ONE message and trying to reply, we selected a list and the first one
         #           to generate a viable message gets the response instead.
-        target_message = self.get_tweet(original_tweet_id)
-        username = '@' + target_message['user']['screen_name']
+        username = self.get_reply_users(original_tweet_id)[0]
 
         passages = []
         reply_limit = self.character_limit - len(username) - 1
@@ -388,12 +389,20 @@ class Oracle:
             message = self.add_hashtag(message)
             twit_id = self.send_tweet(message)
         else:
-            message = username + ' ' + self.get_message(prompt, passages, char_limit=reply_limit)
+            message = username + ' ' + message
             message = self.add_hashtag(message)
             twit_id = self.send_tweet(message, respond_to_tweet=original_tweet_id)
         if twit_id > 0:
             self.send_passages_email(message, passages, twit_id)
         return message
+
+    def get_reply_users(self, original_tweet_id, posted_user_only=True):
+        target_message = self.get_tweet(original_tweet_id)
+        username = ['@' + target_message['user']['screen_name']]
+        if not posted_user_only:
+            mentioned = ['@' + user_info['screen_name'] for user_info in target_message['entities']['user_mentions']]
+            username.extend([screen_name for screen_name in mentioned if screen_name != self.twitter_handle])
+        return username
 
     def send_build_announcement(self):
         build_time = time.time()
@@ -407,55 +416,51 @@ class Oracle:
     def send_tweet(self, message, respond_to_tweet=0):
         twit_id = 0
         last_twit_id = 0
-        twitter = self.get_twitter_client()
-        if len(message) > self.max_twitter_char and self.long_tweet_as_image:
-            clean_message = self.skim_hash_tags(message)
-            image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
-            image = open(image_path, 'rb')
-            img_response = twitter.upload_media(media=image)
-            caption = " ".join(clean_message['hashtags'])
-            if respond_to_tweet == 0:
-                twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
+        try:
+            twitter = self.get_twitter_client()
+            if len(message) > self.max_twitter_char and self.long_tweet_as_image:
+                clean_message = self.skim_hash_tags(message)
+                image_path = TextVisualizer.image_file_path_from_text(clean_message['text'])
+                image = open(image_path, 'rb')
+                img_response = twitter.upload_media(media=image)
+                caption = " ".join(clean_message['hashtags'])
+                if respond_to_tweet == 0:
+                    twit_response = twitter.update_status(status=caption, media_ids=[img_response['media_id']])
+                else:
+                    twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet,
+                                                          media_ids=[img_response['media_id']])
+                twit_id = twit_response['id']
+                print(time.ctime(int(time.time())), self.bot_name + ' Tweeted as Image:', message)
             else:
-                twit_response = twitter.update_status(status=caption, in_reply_to_status_id=respond_to_tweet,
-                                                      media_ids=[img_response['media_id']])
-            twit_id = twit_response['id']
-            print(time.ctime(int(time.time())), self.bot_name + ' Tweeted as Image:', message)
-        else:
-            seq = self.get_message_sequence(message, self.max_twitter_char)
-            for message_part in seq:
-                try:
-                    if twit_id == 0:
-                        if respond_to_tweet == 0:
-                            twit_response = twitter.update_status(status=message_part)
-                        else:
-                            twit_response = twitter.update_status(status=message_part,
-                                                                  in_reply_to_status_id=respond_to_tweet)
-                        last_twit_id = twit_response['id']
-                        twit_id = last_twit_id
+                seq = self.get_message_sequence(message, self.max_twitter_char)
+                for message_part in seq:
+                        if twit_id == 0:
+                            if respond_to_tweet == 0:
+                                twit_response = twitter.update_status(status=message_part)
+                            else:
+                                twit_response = twitter.update_status(status=message_part,
+                                                                      in_reply_to_status_id=respond_to_tweet)
+                            last_twit_id = twit_response['id']
+                            twit_id = last_twit_id
 
-                    else:
-                        twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=last_twit_id)
-                        last_twit_id = twit_response['id']
-                    print(time.ctime(int(time.time())), self.bot_name + ' Tweeted:', message_part)
-                except TwythonError as twy_err:
-                    print(type(twy_err))
-                    print(twy_err.args)
-                    print('Message attempted: "' + message + '"')
-                    self.add_tweet_to_queue(message_part, respond_to_tweet)
-                    twit_id = 0
-                    last_twit_id = 0
+                        else:
+                            twit_response = twitter.update_status(status=message_part, in_reply_to_status_id=last_twit_id)
+                            last_twit_id = twit_response['id']
+                        print(time.ctime(int(time.time())), self.bot_name + ' Tweeted:', message_part)
+        except TwythonError as twy_err:
+            print(type(twy_err))
+            print(twy_err.args)
+            print('Message attempted: "' + message + '"')
+            if 'Status is a duplicate' not in twy_err.msg:
+                self.add_tweet_to_queue(message_part, respond_to_tweet)
+            twit_id = 0
+            last_twit_id = 0
         self.last_tweet_id = twit_id
         self.last_tweet_message = message
         return twit_id
 
     def get_twitter_client(self):
-        twit_config = self.config['twitter']
-        app_key = twit_config['app_key']
-        app_secret = twit_config['app_secret']
-        acct_key = twit_config['acct_key']
-        acct_secret = twit_config['acct_secret']
-        twitter = Twython(app_key, app_secret, acct_key, acct_secret)
+        twitter = Twython(self.app_key, self.app_secret, self.acct_key, self.acct_secret)
         return twitter
 
     def add_tweet_to_queue(self, message_part, respond_to_tweet):
@@ -463,6 +468,28 @@ class Oracle:
             queue_file.write(self.bot_name + '\t')
             queue_file.write(str(respond_to_tweet) + '\t')
             queue_file.write(message_part.replace('\n', '<newline />') + '\n')
+
+    def get_tweet_queue(self, use_name=None):
+        tweet_queue = []
+        if use_name is None:
+            use_name = self.bot_name
+        with open(self.tweet_queue_path, mode='r') as queue_file:
+            for line in queue_file.readlines():
+                values = line.strip().split('\t')
+                if use_name == '' or values[0] == use_name:
+                    queue_item = {'bot_name': values[0],
+                                  'reply_to_tweet': int(values[1]),
+                                  'message': values[2].replace('<newline />', '\n').replace('<tab />', '\t')}
+                    tweet_queue.append(queue_item)
+        return tweet_queue
+
+    def write_tweet_queue(self, tweet_queue):
+        with open(self.tweet_queue_path, mode='w') as queue_file:
+            for queue_item in tweet_queue:
+                queue_file.write(queue_item['bot_name'] + '\t')
+                queue_file.write(str(queue_item['reply_to_tweet']) + '\t')
+                queue_file.write(queue_item['message'].replace('\n', '<newline />').replace('\t', '<tab />') + '\n')
+
 
     def get_tweet(self, tweet_id):
         twitter = self.get_twitter_client()

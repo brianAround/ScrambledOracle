@@ -63,7 +63,8 @@ class Scribe:
                 else:
                     values = line.strip().split('\t')
                     key = values[0]
-                    prefix = chain.convert_key_to_prefix(key)
+                    beats = []
+                    prefix = chain.convert_key_to_prefix(key, beats)
                     if prefix not in chain.nodes_by_prefix:
                         node = ChainNode(prefix[-1], prefix=prefix)
                         chain.nodes_by_prefix[prefix] = node
