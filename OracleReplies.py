@@ -127,6 +127,7 @@ def send():
 
             Repeater.target = Oracle()
 
+
             print("Time taken:", time.time() - start_time)
         else:
             print(time.ctime(int(time.time())), "Tick!")
@@ -151,6 +152,7 @@ def send_mention_response_for_config(config_file, r:Repeater, iterations=1, max_
 
 
         mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@',''))
+
         mentions = {}
         if not os.path.isfile(mentions_file) or os.path.getmtime(mentions_file) < time.time() - fetch_data_every:
             mentions = TwitterTimeline.get_mentions(config_file, Repeater.target.twitter_handle.replace('@',''), mentions_file)
@@ -158,6 +160,8 @@ def send_mention_response_for_config(config_file, r:Repeater, iterations=1, max_
         else:
             mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=True)
 
+        # now that the system can post responses, we're close to being able to process commands.
+        # possible valuable commands to use: show build, rebuild, set reply timing 30, set tweet timing 120
         target_tweets = [mentions[tid] for tid in mentions
                          if mentions[tid]['posted_by'] not in scrambled_accounts and
                          mentions[tid]['reaction_status'] == 'pending']
@@ -168,6 +172,7 @@ def send_mention_response_for_config(config_file, r:Repeater, iterations=1, max_
 
         prompt_id = 0
         prompt = ''
+
 
         for idx in range(iterations):
             if len(target_tweets) > 0:
