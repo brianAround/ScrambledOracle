@@ -130,7 +130,7 @@ def send():
             print("Time taken:", time.time() - start_time)
         else:
             print(time.ctime(int(time.time())), "Tick!")
-
+    print(schedule.jobs)
 
 def send_mention_response_for_config(config_file, r:Repeater, iterations=1, max_length=270, add_hashtags=None, strangers_only=True):
     try:

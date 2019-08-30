@@ -7,14 +7,15 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "pratchett.4.alt.txt.map"
+map_name = "douglasadams.4.txt.map"
 target_depth = 4
 build_type = "F"
-target_dir = os.path.join("sources", "various")
+target_dir = os.path.join("sources", "dougadams")
 select_count = 7
 
 # target_dir = os.path.join("sources", "pratchett")
-# text_list = [os.path.join(target_dir, f) for f in text_list]
+#text = os.get
+#text_list = [os.path.join(target_dir, f) for f in text_list]
 
 def get_relative_file_list(source_folder):
     file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
@@ -23,10 +24,11 @@ def get_relative_file_list(source_folder):
     return file_listing
 
 
+text_list = get_relative_file_list(target_dir)
 
 #text_list = ['sources/various/alice13a.txt']
 
-text_list = ['sources\\pratchett\\DW 013 SmallGods.txt','sources\\pratchett\\DW 028 AmazingMaurice.txt','sources\\pratchett\\DW 011 ReaperMan.txt']
+#text_list = ['sources\\pratchett\\DW 013 SmallGods.txt','sources\\pratchett\\DW 028 AmazingMaurice.txt','sources\\pratchett\\DW 011 ReaperMan.txt']
 # text_list.extend(get_relative_file_list('sources/dougadams'))
 # text_list.extend(get_relative_file_list('sources/inaugural'))
 # text_list.extend(get_relative_file_list('sources/pratchett'))
