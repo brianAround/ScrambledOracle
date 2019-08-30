@@ -7,7 +7,7 @@ from Oracle import Oracle
 from ChainLinker import ChainLinker
 from WordChainScribe import Scribe
 
-single_run = True
+single_run = False
 
 # ini_stems = ['Oracle']
 ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
@@ -91,7 +91,7 @@ def send():
     adjustment = ""
     iterations = 1
     max_size = 200
-    make_response = True
+    make_response = False
     day_of_week = time.localtime()[6]
     hash_tags = ['']
     if day_of_week == 1:
@@ -147,20 +147,33 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=N
         prompt_id = 0
         prompt = ''
         prompt_channel = channel
+        queued_items = Repeater.target.get_tweet_queue(use_name='')
 
         for idx in range(iterations):
-            if send_response:
-                all_channels = [key for key in message_buckets.keys()]
-                prompt_channel = random.choice(all_channels)
-
-            if prompt_channel in message_buckets.keys():
-                prompt_id = message_buckets[prompt_channel]['id']
-                prompt = message_buckets[prompt_channel]['text']
-
-            if send_response:
-                last_message = r.send_response(prompt_id, prompt)
+            old_values = None
+            if len(queued_items) > 0:
+                for qidx in range(len(queued_items)):
+                    if queued_items[qidx]['bot_name'] == Repeater.target.bot_name:
+                        old_values = queued_items.pop(qidx)
+                        break
+            if old_values is not None:
+                Repeater.target.write_tweet_queue(queued_items)
+                tid = Repeater.target.send_tweet(old_values['message'], old_values['reply_to_tweet'])
+                r.target.last_tweet_id = tid
+                last_message = old_values['message']
             else:
-                last_message = r.send_message(prompt)
+                if send_response:
+                    all_channels = [key for key in message_buckets.keys()]
+                    prompt_channel = random.choice(all_channels)
+
+                if prompt_channel in message_buckets.keys():
+                    prompt_id = message_buckets[prompt_channel]['id']
+                    prompt = message_buckets[prompt_channel]['text']
+
+                if send_response:
+                    last_message = r.send_response(prompt_id, prompt)
+                else:
+                    last_message = r.send_message(prompt)
             message_buckets[channel] = {'id': int(r.target.last_tweet_id), 'text': last_message}
             prompt = last_message
 
