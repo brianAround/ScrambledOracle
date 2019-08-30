@@ -23,6 +23,8 @@ def find_add_item_index(item, item_list):
     return item_index
 
 
+
+
 class Oracle:
 
     sent_messages = {}
@@ -463,6 +465,28 @@ class Oracle:
             queue_file.write(self.bot_name + '\t')
             queue_file.write(str(respond_to_tweet) + '\t')
             queue_file.write(message_part.replace('\n', '<newline />') + '\n')
+
+    def get_tweet_queue(self, use_name=None):
+        tweet_queue = []
+        if use_name is None:
+            use_name = self.bot_name
+        with open(self.tweet_queue_path, mode='r') as queue_file:
+            for line in queue_file.readlines():
+                values = line.strip().split('\t')
+                if use_name == '' or values[0] == use_name:
+                    queue_item = {'bot_name': values[0],
+                                  'reply_to_tweet': int(values[1]),
+                                  'message': values[2].replace('<newline />', '\n').replace('<tab />', '\t')}
+                    tweet_queue.append(queue_item)
+        return tweet_queue
+
+    def write_tweet_queue(self, tweet_queue):
+        with open(self.tweet_queue_path, mode='w') as queue_file:
+            for queue_item in tweet_queue:
+                queue_file.write(queue_item['bot_name'] + '\t')
+                queue_file.write(str(queue_item['reply_to_tweet']) + '\t')
+                queue_file.write(queue_item['message'].replace('\n', '<newline />').replace('\t', '<tab />') + '\n')
+
 
     def get_tweet(self, tweet_id):
         twitter = self.get_twitter_client()
