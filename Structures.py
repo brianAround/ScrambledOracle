@@ -8,6 +8,7 @@ import nltk
 from nltk.corpus import conll2000
 from WordChain import WordChain, full_stop_beats
 from Oracle import Oracle
+from ConsecutiveNPChunker import ConsecutiveNPChunker, ConsecutiveNPChunkTagger
 
 
 class UnigramChunker(nltk.ChunkParserI):
@@ -25,10 +26,39 @@ class UnigramChunker(nltk.ChunkParserI):
         return nltk.chunk.conlltags2tree(conlltags)
 
 
-def get_chunker():
+class BigramChunker(nltk.ChunkParserI):
+    def __init__(self, train_sents):
+        train_data = [[(t, c) for w, t, c in nltk.chunk.tree2conlltags(sent)]
+                  for sent in train_sents]
+        self.tagger = nltk.BigramTagger(train_data)
+
+    def parse(self, sentence):
+        pos_tags = [pos for (word, pos) in sentence]
+        tagged_pos_tags = self.tagger.tag(pos_tags)
+        chunktags = [chunktag for (pos, chunktag) in tagged_pos_tags]
+        conlltags = [(word, pos, chunktag) for ((word, pos), chunktag)
+                     in zip(sentence, chunktags)]
+        return nltk.chunk.conlltags2tree(conlltags)
+
+
+
+def get_uni_chunker():
     train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
     unigram_nunker = UnigramChunker(train_sents)
     return unigram_nunker
+
+def get_bi_chunker():
+    train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+    bigram_nunker = BigramChunker(train_sents)
+    return bigram_nunker
+
+def get_consNPChunker():
+    train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+    cnp_chunker = ConsecutiveNPChunker(train_sents)
+    return cnp_chunker
+
+def get_chunker():
+    return get_consNPChunker()
 
 def write_pos_file(file_path, ideal_line_length=80):
     last_beat = ""
@@ -96,4 +126,4 @@ def write_pos_file(file_path, ideal_line_length=80):
                         pos_handle.write(" ".join([word[0] for word in item]) + '\n')
                 pos_handle.write('\n')
 
-write_pos_file('sources/various/janeeyre.txt')
+write_pos_file('sources/dougadams/RestaurantAtTheEndOfTheUniverse.txt')
