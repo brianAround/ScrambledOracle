@@ -10,17 +10,17 @@ import TwitterRepository
 import TwitterTimeline
 
 single_run = False
-fetch_data_every = 3600
+fetch_data_every = 900
 
-# ini_stems = ['Oracle']
+# ini_stems = ['ScrambledPratchett']
 ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
 
-ini_stems = [random.choice(ini_stems)]
+# ini_stems = [random.choice(ini_stems)]
 
 message_buckets = {}
 last_messages_filename = "message_buckets.txt"
 
-target_user = random.choice(['brianAround', 'a_storied'])
+scrambled_accounts = ['ScrambledAdams','ScramPratchett','SouthernOracle4']
 
 
 def load_dictionary(file_path):
@@ -67,6 +67,24 @@ class Repeater:
         self.init_target()
         return Repeater.target.send_reply(message_id, prompt)
 
+    def send_tweet(self, message_text, as_reply_to_id=0):
+        if as_reply_to_id > 0:
+            handles = []
+            for screen_name in Repeater.target.get_reply_users(as_reply_to_id):
+                if screen_name.lower() not in message_text.lower():
+                    handles.append(screen_name)
+            message_text = " ".join(handles) + ' ' + message_text
+        return Repeater.target.send_tweet(message_text, respond_to_tweet=as_reply_to_id)
+
+    def build_message(self, prompt, fail_on_lost_prompt=True):
+        self.init_target()
+        passage_results = []
+        message = Repeater.target.get_message(prompt=prompt, passages=passage_results)
+        if fail_on_lost_prompt and Repeater.target.prompt_reset:
+            return ''
+        else:
+            return message
+
     @staticmethod
     def init_target():
         if Repeater.target is None:
@@ -102,19 +120,86 @@ def send():
             random.shuffle(ini_stems)
             for ini_stem in ini_stems:
                 prat_config = ini_stem + adjustment + '.ini'
-                send_for_config(prat_config, r, iterations, max_length=max_size,
-                                add_hashtags=hash_tags, send_response=make_response)
+                send_mention_response_for_config(prat_config, r, iterations, max_length=max_size,
+                                add_hashtags=hash_tags)
 
             save_message_buckets()
 
             Repeater.target = Oracle()
 
+
             print("Time taken:", time.time() - start_time)
         else:
             print(time.ctime(int(time.time())), "Tick!")
+    print(schedule.jobs)
+
+def send_mention_response_for_config(config_file, r:Repeater, iterations=1, max_length=270, add_hashtags=None, strangers_only=True):
+    try:
+        # linker = ChainLinker(config_file=config_file)
+        if add_hashtags is None:
+            add_hashtags = []
+        channel = config_file.split('.')[0]
+        # linker.data_refresh_time = 10
+        # linker.verbose = True
+        # linker.initialize_chain()
+        Repeater.target = Oracle(config_file=config_file)
+        Repeater.target.hashtags += add_hashtags
+        Repeater.target.max_percent = Repeater.max_percent
+        Repeater.target.character_limit = max_length
+        Repeater.target.long_tweet_as_image = False
+        # Repeater.target.is_new_build = linker.file_rebuilt
+        print(time.ctime(int(time.time())), "Handling mentions for", Repeater.target.twitter_handle,"...")
 
 
-def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=None, send_response=False):
+        mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@',''))
+
+        mentions = {}
+        if not os.path.isfile(mentions_file) or os.path.getmtime(mentions_file) < time.time() - fetch_data_every:
+            mentions = TwitterTimeline.get_mentions(config_file, Repeater.target.twitter_handle.replace('@',''), mentions_file)
+            TwitterTimeline.store_tweets(mentions_file, mentions)
+        else:
+            mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=True)
+
+        # now that the system can post responses, we're close to being able to process commands.
+        # possible valuable commands to use: show build, rebuild, set reply timing 30, set tweet timing 120
+        target_tweets = [mentions[tid] for tid in mentions
+                         if mentions[tid]['posted_by'] not in scrambled_accounts and
+                         mentions[tid]['reaction_status'] == 'pending']
+
+        if len(target_tweets) == 0 and not strangers_only:
+            target_tweets = [mentions[tid] for tid in mentions
+                             if mentions[tid]['reaction_status'] == 'pending']
+
+        prompt_id = 0
+        prompt = ''
+
+
+        for idx in range(iterations):
+            if len(target_tweets) > 0:
+                target = target_tweets.pop(random.randint(0,len(target_tweets) - 1))
+                prompt_id = target['id']
+                prompt = target['text']
+                print('Replying to tweet id', prompt_id, ':', prompt, 'from', '@' + target['posted_by'])
+                message = r.build_message(prompt)
+                if len(message) == 0:
+                    print('Unable to generate response from prompt.')
+                else:
+                    tid = r.send_tweet(message, prompt_id)
+                    if tid > 0:
+                        mentions[str(prompt_id)]['reaction_status'] = 'replied:' + str(tid)
+                    TwitterTimeline.store_tweets(mentions_file, mentions)
+                    last_message = message
+                    message_buckets[channel] = {'id': int(r.target.last_tweet_id), 'text': last_message}
+                    prompt = last_message
+        linker = None
+
+    except ValueError:
+        pass
+    else:
+        pass
+
+
+def send_random_for_config(config_file, target_user, r, iterations=1, max_length=270, add_hashtags=None, send_response=False):
     try:
         if add_hashtags is None:
             add_hashtags = []
@@ -143,14 +228,6 @@ def send_for_config(config_file, r, iterations=1, max_length=270, add_hashtags=N
         skip_retweets = True
         top_tweets = get_recent_tweets(tweets, sample_size, skip_retweets)
 
-        """mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@',''))
-        mentions = {}
-        if not os.path.isfile(mentions_file) or os.path.getmtime(mentions_file) < time.time() - fetch_data_every:
-            mentions = TwitterTimeline.get_mentions(config_file, Repeater.target.twitter_handle.replace('@',''), mentions_file)
-            TwitterTimeline.store_tweets(mentions_file, mentions)
-        else:
-            mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=True)
-        """
         prompt_id = 0
         prompt = ''
 
@@ -195,7 +272,7 @@ def check():
 
 send()
 if not single_run:
-    schedule.every(60).minutes.do(send).tag('oracle_replies')
+    schedule.every(15).minutes.do(send).tag('oracle_replies')
     print(schedule.jobs)
 
     while 1:
