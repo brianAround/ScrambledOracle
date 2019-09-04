@@ -19,6 +19,15 @@ class UnionFind:
             n = nodes[n]
         return n
 
+    def get_clusters(self):
+        clusters = {}
+        for node_index in range(len(self.nodes)):
+            cluster_id = self.find(node_index)
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append(node_index)
+        return clusters
+
 
 class UTUnionFind:
 
@@ -38,3 +47,11 @@ class UTUnionFind:
         n = self.lookup[item]
         return self.item_list[self.uf.find(n)]
 
+    def get_clusters(self):
+        clusters = {}
+        for item in self.item_list:
+            cluster_id = self.find(item)
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append(item)
+        return clusters

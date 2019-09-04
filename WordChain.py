@@ -41,6 +41,8 @@ class WordChain:
         self.words = {}
         self.word_list = []
         self.words_lower = {}
+        self.synonym_map = {}
+        self.antonym_map = {}
         self.abbreviations = {"mr", "mrs", "p.m", "a.m"}
         if os.path.isfile('KnownAbbreviations.txt'):
             self.abbreviations = self.load_dictionary("KnownAbbreviations.txt")
@@ -181,30 +183,33 @@ class WordChain:
     def index_terms(self):
         if len(self.words_lower) == 0:
             for prefix in self.nodes_by_prefix:
-                for word_id in prefix:
-                    self.words[self.word_list[word_id]]['nodes'].append(prefix)
-                    caseless = self.word_list[word_id].lower()
-                    if caseless not in self.words_lower:
-                        self.words_lower[caseless] = []
-                    self.words_lower[caseless].append(self.word_list[word_id])
-
+                word_id = prefix[-1]
+                self.words[self.word_list[word_id]]['nodes'].append(prefix)
+                caseless = self.word_list[word_id].lower()
+                if caseless not in self.words_lower:
+                    self.words_lower[caseless] = []
+                self.words_lower[caseless].append(self.word_list[word_id])
 
     def select_start_node(self, word_id_set=[], starters_only=False, time_limit=60):
         start_time = time.time()
         start_node = None
+        pos_filter = ['NN','NNP','NNS','NNPS']
         if len(word_id_set) > 0:
             top_score = 0
             candidates = {}
             multiplier = 1
             for word_id in word_id_set:
                 for prefix in self.words[self.word_list[word_id]]['nodes']:
-                    if not starters_only or self.nodes_by_prefix[prefix].is_starter:
-                        if prefix not in candidates:
-                            candidates[prefix] = 0
-                        candidates[prefix] += multiplier * len(self.word_list[word_id])
-                        top_score = max(top_score, candidates[prefix])
-                    if time_limit < time.time() - start_time:
-                        break
+                    if prefix[-1] in word_id_set:
+                        node = self.nodes_by_prefix[prefix]
+                        if not starters_only or node.is_starter:
+                            if len([pos for pos in node.parts_of_speech if pos in pos_filter]) > 0:
+                                if prefix not in candidates:
+                                    candidates[prefix] = 0
+                                candidates[prefix] += multiplier * len(self.word_list[word_id])
+                                top_score = max(top_score, candidates[prefix])
+                        if time_limit < time.time() - start_time:
+                            break
                 multiplier += 1
                 if time_limit < time.time() - start_time:
                     break
@@ -253,14 +258,25 @@ class WordChain:
                 break
         return result
 
-    def convert_text_to_id_set(self, text, minimum_word_length=4, remove_articles=True):
+    def convert_text_to_id_set(self, text, minimum_word_length=3, remove_articles=True):
         raw_words = text.replace(".", "").replace("?", "").replace(",", "").lower().strip().split()
         clean_words = [word.strip(string.punctuation) for word in raw_words]
         long_words = [long_word for long_word in clean_words if len(long_word) >= minimum_word_length]
         if remove_articles:
             long_words = [final_word for final_word in long_words if final_word not in self.articles]
+        new_words = []
+        last_not = -1
+        for idx in range(len(long_words)):
+            if len(self.antonym_map) > 0 and long_words[idx] == 'not':
+                last_not = idx
+            elif idx != 0 and last_not == idx - 1 and long_words[idx] in self.antonym_map:
+                new_words.extend(self.antonym_map[long_words[idx]])
+            elif (idx == 0 or last_not < idx - 1) and long_words[idx] in self.synonym_map:
+                new_words.extend(self.synonym_map[long_words[idx]])
+            else:
+                new_words.append(long_words[idx])
         id_set = []
-        for w in long_words:
+        for w in new_words:
             if w in self.words_lower:
                 for term in self.words_lower[w]:
                     if self.words[term]['id'] not in id_set:
@@ -447,6 +463,7 @@ class WordChain:
         message_path = []
         down_path = []
         prompt_ids = self.convert_text_to_id_set(prompt)
+        print([self.word_list[word_id] for word_id in prompt_ids])
         lead_nodes = 3
         node = self.select_start_node(prompt_ids, time_limit=(time_limit - (time.time() - start_time)))
         possible_starts = self.find_starter_paths(node, allow_hops=lead_nodes,

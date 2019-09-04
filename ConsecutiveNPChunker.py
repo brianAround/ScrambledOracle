@@ -2,6 +2,7 @@ import codecs
 import os
 import nltk
 from nltk.corpus import conll2000
+import time
 
 
 
@@ -17,7 +18,10 @@ class ConsecutiveNPChunkTagger(nltk.TaggerI):
                 featureset = npchunk_features(untagged_sent, i, history)
                 train_set.append( (featureset, tag) )
                 history.append(tag)
-        self.classifier = nltk.MaxentClassifier.train(train_set, algorithm='megam', trace=0)
+        print(time.asctime(), ':training Maxent start')
+        self.classifier = nltk.MaxentClassifier.train(train_set, algorithm='gis', trace=0)
+        print(time.asctime(), ':training Maxent end')
+
 
     def tag(self, sentence):
         history = []

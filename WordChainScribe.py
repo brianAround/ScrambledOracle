@@ -44,7 +44,22 @@ class Scribe:
         for prefix in chain.nodes_by_prefix:
             if chain.nodes_by_prefix[prefix].is_starter:
                 chain.starters.append(prefix)
+        syn_filepath = filepath.split('.')[0] + '.syn.map'
+        if os.path.isfile(syn_filepath):
+            Scribe.read_term_map(syn_filepath, chain.synonym_map)
+        ant_filepath = filepath.split('.')[0] + '.ant.map'
+        if os.path.isfile(ant_filepath):
+            Scribe.read_term_map(syn_filepath, chain.antonym_map)
         return chain
+
+    @staticmethod
+    def read_term_map(src_filepath, map:dict):
+        with open(src_filepath, 'r') as file_in:
+            for line in file_in:
+                values = line.strip().split('\t')
+                key = values.pop(0)
+                map[key] = values
+
 
     @staticmethod
     def read_sourcemap(src_filepath, chain:WordChain):

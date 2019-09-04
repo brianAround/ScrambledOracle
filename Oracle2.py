@@ -60,9 +60,9 @@ def send():
             r = Repeater()
             prat_config = 'ScrambledPratchett' + adjustment + '.ini'
 
-            send_for_config(prat_config, r, iterations, add_hashtags=hash_tags)
+            # send_for_config(prat_config, r, iterations, add_hashtags=hash_tags)
             send_for_config('ScrambledDouglasAdams' + adjustment + '.ini', r, iterations, add_hashtags=hash_tags)
-            send_for_config('oracle' + adjustment + '.ini', r, iterations, add_hashtags=hash_tags)
+            # send_for_config('oracle' + adjustment + '.ini', r, iterations, add_hashtags=hash_tags)
             Repeater.target = Oracle()
             print("Time taken:", time.time() - start_time)
         else:
@@ -83,8 +83,8 @@ def send_for_config(prat_config, r, iterations=1, add_hashtags=[]):
         prompt = ''
         if channel in Repeater.message_buckets:
             prompt = Repeater.message_buckets[channel]
-        for idx in range(iterations):
-            Repeater.message_buckets[channel] = r.send_message(prompt)
+        # for idx in range(iterations):
+        #    Repeater.message_buckets[channel] = r.send_message(prompt)
     except ValueError:
         pass
     else:

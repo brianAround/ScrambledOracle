@@ -41,24 +41,28 @@ class BigramChunker(nltk.ChunkParserI):
         return nltk.chunk.conlltags2tree(conlltags)
 
 
-
 def get_uni_chunker():
     train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
     unigram_nunker = UnigramChunker(train_sents)
     return unigram_nunker
+
 
 def get_bi_chunker():
     train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
     bigram_nunker = BigramChunker(train_sents)
     return bigram_nunker
 
+
 def get_consNPChunker():
     train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+    train_sents = random.choices(train_sents, k=500)
     cnp_chunker = ConsecutiveNPChunker(train_sents)
     return cnp_chunker
 
+
 def get_chunker():
     return get_consNPChunker()
+
 
 def write_pos_file(file_path, ideal_line_length=80):
     last_beat = ""

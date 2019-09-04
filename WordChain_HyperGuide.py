@@ -7,10 +7,82 @@ import time
 import nltk
 from nltk.corpus import wordnet
 from WordChain import WordChain, full_stop_beats
+from WordChainScribe import Scribe
 from Oracle import Oracle
 
 
-class ChainLinker:
+class HyperGuide:
+
+    def __init__(self, target_chain:WordChain):
+        self.chain = target_chain
+        self.syn_map = {}
+        self.ant_map = {}
+
+    def build_synonyms(self):
+        if self.chain.words_lower is None or len(self.chain.words_lower) == 0:
+            self.chain.index_terms()
+
+        for term in self.chain.words_lower:
+            if term not in self.syn_map and term.strip(string.punctuation) != '':
+                syns = wordnet.synsets(term)
+                for syn in syns:
+                    for l in syn.lemmas():
+                        syn_text = l.name()
+                        if syn_text != term:
+                            if syn_text not in self.syn_map:
+                                self.syn_map[syn_text] = []
+                            if term not in self.syn_map[syn_text]:
+                                self.syn_map[syn_text].append(term)
+                        if l.antonyms():
+                            for antilemma in l.antonyms():
+                                ant_text = antilemma.name()
+                                if ant_text not in self.ant_map:
+                                    self.ant_map[ant_text] = []
+                                if term not in self.ant_map[ant_text]:
+                                    self.ant_map[ant_text].append(term)
+        # for syn_text in self.syn_map:
+        #     print(syn_text, '-', self.syn_map[syn_text])
+        # for ant_text in self.ant_map:
+        #     print(ant_text, '-', self.ant_map[ant_text])
+        # print(len(self.syn_map))
+        # print(len(self.ant_map))
+
+    def write_syns(self, filename):
+        if len(self.syn_map) > 0:
+            with open(filename, 'w') as syn_out:
+                for term in sorted([term for term in self.syn_map]):
+                    syns = self.syn_map[term]
+                    syn_out.write(term + '\t')
+                    syn_out.write('\t'.join(syns))
+                    syn_out.write('\n')
+
+    def write_ants(self, filename):
+        if len(self.ant_map) > 0:
+            with open(filename, 'w') as ant_out:
+                for term in sorted([term for term in self.ant_map]):
+                    ants = self.ant_map[term]
+                    ant_out.write(term + '\t')
+                    ant_out.write('\t'.join(ants))
+                    ant_out.write('\n')
+
+
+wc = WordChain()
+wc.depth = 4
+Scribe.read_map("douglasadams.4.txt.map", chain=wc)
+
+hg = HyperGuide(wc)
+hg.build_synonyms()
+hg.write_syns("douglasadams.syn.map")
+hg.write_ants("douglasadams.ant.map")
+
+
+
+
+
+
+
+"""
+class HyperGuide:
 
     def __init__(self, config_file='oracle.ini'):
         self.chain = None
@@ -314,3 +386,4 @@ class ChainLinker:
             self.mchain = chain.mchain
             self.starters = chain.starters
             self.depth = chain.depth
+"""
