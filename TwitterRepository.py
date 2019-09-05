@@ -36,6 +36,16 @@ class TwitterRepository:
         twit_config = cfg['twitter']
         return twit_config
 
+    def reset_client(self, use_config_path=None):
+        if use_config_path is None:
+            use_config_path = self.config_filename
+
+        if use_config_path == 'All':
+            TwitterRepository.clients = {}
+        else:
+            TwitterRepository.clients.pop(use_config_path, None)
+
+
 
 if __name__ == "__main__":
     repository = TwitterRepository('oracle.ini')

@@ -14,6 +14,7 @@ TweetInfo = namedtuple('TweetInfo', ['id','text','is_retweet','posted_by','poste
 def get_tweet_filename(username):
     return os.path.join('datafile', username + '_tweets.txt')
 
+
 def get_mentions_filename(username):
     return os.path.join('datafile', username + '_mentions.txt')
 
@@ -60,6 +61,7 @@ def get_mentions(use_config_path=None, target_user='brianAround', mentions_file=
         print('Error downloading user mentions for', repository.twitter_handle, 'from Twitter.')
         print(type(twy_err))
         print(twy_err.msg)
+    repository.reset_client()
     return mentions
 
 # use the max_id to know what's been handled and what hasn't.
@@ -126,7 +128,7 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
         print('Error downloading timeline for', target_user, 'from Twitter using account', repository.twitter_handle)
         print(type(twy_err))
         print(twy_err.msg)
-
+    repository.reset_client()
     return tweets
 
 def store_tweets(filename, tweets):

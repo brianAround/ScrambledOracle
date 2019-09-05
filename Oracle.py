@@ -398,11 +398,15 @@ class Oracle:
 
     def get_reply_users(self, original_tweet_id, posted_user_only=True):
         target_message = self.get_tweet(original_tweet_id)
-        username = ['@' + target_message['user']['screen_name']]
-        if not posted_user_only:
-            mentioned = ['@' + user_info['screen_name'] for user_info in target_message['entities']['user_mentions']]
-            username.extend([screen_name for screen_name in mentioned if screen_name != self.twitter_handle])
+        username = []
+        if target_message is not None:
+            username = ['@' + target_message['user']['screen_name']]
+            if not posted_user_only:
+                mentioned = ['@' + user_info['screen_name'] for user_info in target_message['entities']['user_mentions']]
+                username.extend([screen_name for screen_name in mentioned if screen_name != self.twitter_handle])
         return username
+
+
 
     def send_build_announcement(self):
         build_time = time.time()
@@ -490,10 +494,14 @@ class Oracle:
                 queue_file.write(str(queue_item['reply_to_tweet']) + '\t')
                 queue_file.write(queue_item['message'].replace('\n', '<newline />').replace('\t', '<tab />') + '\n')
 
-
     def get_tweet(self, tweet_id):
-        twitter = self.get_twitter_client()
-        raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
+        raw_tweet = [None]
+        try:
+            twitter = self.get_twitter_client()
+            raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
+        except TwythonError as twy_err:
+            print(type(twy_err))
+            print(twy_err.args)
         return raw_tweet[0]
 
     @staticmethod

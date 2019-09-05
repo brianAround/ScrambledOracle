@@ -44,8 +44,8 @@ def save_message_buckets():
 
 
 # if the message_buckets file exists, load it.
-if os.path.isfile(last_messages_filename):
-    message_buckets = load_dictionary(last_messages_filename)
+# if os.path.isfile(last_messages_filename):
+    # message_buckets = load_dictionary(last_messages_filename)
 
 
 class Repeater:
