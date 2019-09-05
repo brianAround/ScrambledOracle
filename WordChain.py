@@ -7,6 +7,7 @@ import time
 from StructTree import *
 
 
+
 full_stop_beats = [".", "!", "?"]
 
 
@@ -353,12 +354,15 @@ class WordChain:
                 break
         return result
 
-    def convert_text_to_id_set(self, text, minimum_word_length=4, remove_articles=True, pos_filter=None):
+    def convert_text_to_id_set(self, text, minimum_word_length=4, remove_articles=True, pos_filter=None, try_harder=False):
         if pos_filter is None:
             pos_filter = ['NN', 'NNP', 'NNS']
         raw_words = text.replace(".", "").replace("?", "").replace(",", "").lower().strip().split()
         clean_words = [word.strip(string.punctuation) for word in raw_words]
-        long_words = [long_word for long_word in clean_words if len(long_word) >= minimum_word_length]
+        if try_harder:
+            long_words = clean_words
+        else:
+            long_words = [long_word for long_word in clean_words if len(long_word) >= minimum_word_length]
         if remove_articles:
             long_words = [final_word for final_word in long_words if final_word not in self.articles]
         id_set = []
@@ -366,8 +370,12 @@ class WordChain:
             if w in self.words_lower:
                 for term in self.words_lower[w]:
                     if self.words[term]['id'] not in id_set \
-                            and len([pos for pos in self.words[term]['pos'] if pos in pos_filter]) > 0:
+                            and (try_harder or len([pos for pos in self.words[term]['pos'] if pos in pos_filter]) > 0):
                         id_set.append(self.words[term]['id'])
+                    # right here is an excellent point to integrate some thesaurus lookup
+                    # or to benefit from some synonym work during the Word Indexing process.
+        if len(id_set) == 0 and not try_harder:
+            return self.convert_text_to_id_set(text, minimum_word_length, remove_articles, pos_filter, try_harder=True)
         return id_set
 
     def render_message_from_path(self, message_path):
