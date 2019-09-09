@@ -408,13 +408,15 @@ class Oracle:
 
 
 
-    def send_build_announcement(self):
+    def send_build_announcement(self, mention_users=None):
         build_time = time.time()
         if os.path.isfile(self.filename):
             build_time = os.path.getmtime(self.filename)
 
         build_message = self.bot_name + " rebuilt " + time.ctime(build_time)
         build_message += '\n' + self.chain.get_chain_description()
+        if mention_users is not None:
+            build_message += '\n' + ' '.join(mention_users)
         self.send_tweet(build_message)
 
     def send_tweet(self, message, respond_to_tweet=0):

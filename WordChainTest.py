@@ -9,12 +9,12 @@ wc.depth = 3
 print(time.asctime(), "Reading map")
 
 
-repetitions = 4
+repetitions = 1
 is_verbose = False
 max_characters = 840
 single_sentence = True
 
-Scribe.read_map('pratchett.4.alt.txt.map', chain=wc)
+Scribe.read_map('pratchett.4.txt.map', chain=wc)
 
 # print(wc.get_chain_description())
 

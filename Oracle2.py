@@ -122,11 +122,14 @@ else:
     Repeater.last_message = ""
 
 
-def send(mode='originate'):
+def send(mode='originate', use_config_stem=None):
     adjustment = ""
     iterations = 1
     day_of_week = time.localtime()[6]
     hash_tags = []
+    config_stems = ini_stems
+    if use_config_stem is not None:
+        config_stems = [use_config_stem]
     start_time = time.time()
     if mode == 'originate':
         max_size = 200
@@ -150,8 +153,8 @@ def send(mode='originate'):
         if 1 <= time.localtime()[3] <= 23:
             if random.randint(1, 1) == 1:
                 r = Repeater()
-                random.shuffle(ini_stems)
-                for ini_stem in ini_stems:
+                random.shuffle(config_stems)
+                for ini_stem in config_stems:
                     prat_config = ini_stem + adjustment + '.ini'
                     send_for_config(prat_config, r, iterations, max_length=max_size,
                                     add_hashtags=hash_tags, send_response=make_response)
@@ -208,6 +211,11 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
 
         # now that the system can post responses, we're close to being able to process commands.
         # possible valuable commands to use: show build, rebuild, set reply timing 30, set tweet timing 120
+
+        commands = get_commands_pending(mentions)
+
+        run_commands(commands, config_file)
+
         target_tweets = get_response_candidates(mentions)
 
         prompt_id = 0
@@ -230,7 +238,10 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
                     print('Digging a little deeper.')
                     prompt = r.get_expanded_prompt(mention_tweet['id'], prompt)
                     print('Building message for exended prompt:', prompt)
+                    old_percentage = r.target.max_percent
+                    r.target.max_percent = 3/4
                     message = r.build_message(prompt)
+                    r.target.max_percent = old_percentage
                 if len(message) == 0:
                     print('Unable to generate response from prompt.')
                     mention_tweet['reaction_status'] = 'speechless'
@@ -251,6 +262,20 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
         pass
 
 
+def get_commands_pending(mentions):
+    target_tweets = [mentions[tid] for tid in mentions
+                     if mentions[tid]['reaction_status'] == 'pending'
+                     and ' oracle: ' in mentions[tid]['text'].lower()]
+    for tweet in target_tweets:
+        clean_words = []
+        for word in tweet['text'].split():
+            word = word.strip()
+            if word[0] != '@':
+                clean_words.append(word.lower())
+        tweet['command'] = ' '.join(clean_words)
+    return target_tweets
+
+
 def get_response_candidates(mentions):
     target_tweets = [mentions[tid] for tid in mentions
                      if mentions[tid]['reaction_status'] == 'pending']
@@ -258,6 +283,24 @@ def get_response_candidates(mentions):
         target_tweets = [mentions[tid] for tid in mentions
                          if mentions[tid]['reaction_status'] == 'speechless']
     return target_tweets
+
+
+def run_commands(commands, config_file):
+    for command in commands:
+        command_text = command['command']
+        print('Handling command in tweet', command['id'], ':' + command['command'])
+        command['reaction_status'] = 'executed'
+        if ': rebuild' in command_text:
+            linker = configure_linker(config_file=config_file, initialize=False)
+            linker.regenerate_by_config()
+            Repeater.target.initialize_chain()
+            to_user = Repeater.target.get_reply_users(command['id'])
+            Repeater.target.send_build_announcement(to_user)
+        if ': show build' in command_text:
+            Repeater.target.initialize_chain()
+            to_user = Repeater.target.get_reply_users(command['id'])
+            Repeater.target.send_build_announcement(to_user)
+
 
 
 def configure_repeater_target(add_hashtags, config_file, max_length):
@@ -268,10 +311,11 @@ def configure_repeater_target(add_hashtags, config_file, max_length):
     Repeater.target.long_tweet_as_image = False
 
 
-def configure_linker(config_file):
+def configure_linker(config_file, initialize=True):
     linker = ChainLinker(config_file=config_file)
     linker.verbose = True
-    linker.initialize_chain()
+    if initialize:
+        linker.initialize_chain()
     return linker
 
 
@@ -347,8 +391,9 @@ def check():
 
 
 if not single_run:
-    schedule.every(120).minutes.do(send, 'originate').tag('oracle_standard')
     schedule.every(15).minutes.do(send, 'respond').tag('oracle_replies')
+    schedule.every(120).minutes.do(send, 'originate').tag('oracle_standard')
+#     schedule.every(30).minutes.do(send, 'originate', 'oracle')
     schedule.run_all(60)
     last_hash = str(schedule.jobs)
     print(schedule.jobs)

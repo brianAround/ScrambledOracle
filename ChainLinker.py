@@ -48,17 +48,23 @@ class ChainLinker:
         target_file = self.filename
         self.file_rebuilt = False
         if not os.path.isfile(target_file) or os.path.getmtime(target_file) < time.time() - self.data_refresh_time:
-            if self.regenerate is not None and self.regenerate.startswith('select'):
-                source_count = int(self.regenerate.split()[1])
-                source_folder = os.path.join('sources', self.source_subdirectory)
-                self.regenerate_markov_chain(source_count, source_folder, target_file)
-                if self.prompt_filter is not None and type(self.prompt_filter) is str:
-                    # remove prompt filter file
-                    if os.path.isfile(self.prompt_filter):
-                        os.remove(self.prompt_filter)
+            self.regenerate_by_config(target_file)
         self.chain = WordChain()
         self.chain.depth = self.depth
         # self.chain.read_map(target_file)
+
+    def regenerate_by_config(self, target_file=None):
+        if self.regenerate is not None and self.regenerate.startswith('select'):
+            if target_file is None:
+                target_file = self.filename
+            source_count = int(self.regenerate.split()[1])
+            source_folder = os.path.join('sources', self.source_subdirectory)
+            self.regenerate_markov_chain(source_count, source_folder, target_file)
+            if self.prompt_filter is not None and type(self.prompt_filter) is str:
+                # remove prompt filter file
+                if os.path.isfile(self.prompt_filter):
+                    os.remove(self.prompt_filter)
+
 
     def regenerate_markov_chain(self, source_count, source_folder, target_file):
         self.say("Regenerating markov chain with " + str(source_count) + " files from " + source_folder)

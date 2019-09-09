@@ -7,7 +7,7 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "douglasadams.4.txt.map"
+map_name = "pratchett.4.txt.map"
 target_depth = 4
 build_type = "F"
 target_dir = os.path.join("sources", "dougadams")

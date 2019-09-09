@@ -43,8 +43,8 @@ class Preprocess:
         return before + replacement + after
 
 byline = "by William Shakespeare"
-target_folder = os.path.join("sources", "HorrorShow")
-source_filename = os.path.join(target_folder, "Rocky_Horror.txt")
+target_folder = os.path.join("sources", "various")
+source_filename = os.path.join(target_folder, "AChristmasCarol.txt")
 end_marker = "THE END"
 
 sack = []
