@@ -153,7 +153,7 @@ def store_tweets(filename, tweets):
 
 
 def load_tweets(filename, existing_tweets:dict = None):
-    tweets = {} if existing_tweets is None else existing_tweets
+    tweets = {}
     with open(filename, 'r', encoding='utf-16') as tweet_file:
         for line in tweet_file.readlines():
             values = line.strip('\n').split('\t')
@@ -164,17 +164,22 @@ def load_tweets(filename, existing_tweets:dict = None):
                      'posted_date': values[4]}
             if len(values) >= 6:
                 tweet['reaction_status'] = values[5]
-            if values[0] not in tweets:
-                tweets[values[0]] = tweet
-            else:
-                new_values = tweets[values[0]]
-                is_changed = False
-                for field_name in ['text', 'posted_by', 'posted_date', 'reaction_status']:
-                    if field_name in new_values and new_values[field_name] != tweet[field_name]:
-                        is_changed = True
-                        break
-                if is_changed:
-                    new_values['is_changed'] = is_changed
+            tweets[values[0]] = tweet
+    for tid in existing_tweets:
+        if tid not in tweets:
+            existing_tweets[tid]['is_changed'] = True
+            tweets[tid] = existing_tweets[tid]
+        else:
+            new_values = existing_tweets[tid]
+            tweet = tweets[tid]
+            is_changed = False
+            for field_name in ['text', 'is_retweet', 'posted_by', 'posted_date', 'reaction_status']:
+                if field_name in new_values and new_values[field_name] != tweet[field_name]:
+                    is_changed = True
+                    break
+            if is_changed:
+                new_values['is_changed'] = True
+                tweets[tid] = new_values
     return tweets
 
 
