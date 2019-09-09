@@ -131,23 +131,25 @@ def download_tweets(use_config_path=None, target_user = 'brianAround', tweet_fil
     repository.reset_client()
     return tweets
 
+
 def store_tweets(filename, tweets):
     has_reaction = False
+    ids_to_store = [tid for tid in tweets]
     if os.path.isfile(filename):
         tweets = load_tweets(filename, tweets)
-    with open(filename, 'w', encoding='utf-16') as tweet_file:
-        for tweet_id in sorted([int(tid) for tid in tweets], reverse=True):
-            tweet = tweets[str(tweet_id)]
-            tweet_file.write(str(tweet['id']) + '\t')
-            tweet_file.write(tweet['text'].replace('\t',' <tab /> ').replace('\n',' <newline /> ') + '\t')
-            tweet_file.write(str(tweet['is_retweet']) + '\t')
-            tweet_file.write(tweet['posted_by'] + '\t')
-            tweet_file.write(tweet['posted_date'])
-            if has_reaction or 'reaction_status' in tweet:
-                has_reaction = True
-                tweet_file.write('\t' + tweet['reaction_status'])
-            tweet_file.write('\n')
-
+    if len([tid for tid in ids_to_store if 'is_changed' in tweets[tid]]) > 0:
+        with open(filename, 'w', encoding='utf-16') as tweet_file:
+            for tweet_id in sorted([int(tid) for tid in tweets], reverse=True):
+                tweet = tweets[str(tweet_id)]
+                tweet_file.write(str(tweet['id']) + '\t')
+                tweet_file.write(tweet['text'].replace('\t',' <tab /> ').replace('\n',' <newline /> ') + '\t')
+                tweet_file.write(str(tweet['is_retweet']) + '\t')
+                tweet_file.write(tweet['posted_by'] + '\t')
+                tweet_file.write(tweet['posted_date'])
+                if has_reaction or 'reaction_status' in tweet:
+                    has_reaction = True
+                    tweet_file.write('\t' + tweet['reaction_status'])
+                tweet_file.write('\n')
 
 
 def load_tweets(filename, existing_tweets:dict = None):
@@ -155,15 +157,24 @@ def load_tweets(filename, existing_tweets:dict = None):
     with open(filename, 'r', encoding='utf-16') as tweet_file:
         for line in tweet_file.readlines():
             values = line.strip('\n').split('\t')
+            tweet = {'id': int(values[0]),
+                     'text': values[1].replace(' <tab /> ', '\t').replace(' <newline /> ', '\n'),
+                     'is_retweet': (values[2] == 'True'),
+                     'posted_by': values[3],
+                     'posted_date': values[4]}
+            if len(values) >= 6:
+                tweet['reaction_status'] = values[5]
             if values[0] not in tweets:
-                tweet = {'id': int(values[0]),
-                         'text': values[1].replace(' <tab /> ', '\t').replace(' <newline /> ', '\n'),
-                         'is_retweet': (values[2] == 'True'),
-                         'posted_by': values[3],
-                         'posted_date': values[4]}
-                if len(values) >= 6:
-                    tweet['reaction_status'] = values[5]
                 tweets[values[0]] = tweet
+            else:
+                new_values = tweets[values[0]]
+                is_changed = False
+                for field_name in ['text', 'posted_by', 'posted_date', 'reaction_status']:
+                    if field_name in new_values and new_values[field_name] != tweet[field_name]:
+                        is_changed = True
+                        break
+                if is_changed:
+                    new_values['is_changed'] = is_changed
     return tweets
 
 
