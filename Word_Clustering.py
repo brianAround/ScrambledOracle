@@ -9,9 +9,37 @@ import time
 from UnionFind import *
 from WordChain import WordChain, full_stop_beats
 
-def distance(node1, node2):
+distances = {}
+
+
+def calculate_distance(node1, node2):
     diff = node1 ^ node2
-    return bin(diff).count("1")
+    # weight = max(bin(node1).count("1"), bin(node2).count("1"))
+    # dist = bin(diff).count("1") - weight
+    dist = bin(diff).count("1")
+    return dist
+
+
+def lookup_distance(node1, node2):
+    if node1 in distances:
+        if node2 in distances[node1]:
+            return distances[node1][node2]
+    return None
+
+
+def store_distance(node1, node2, dist):
+    if node1 not in distances:
+        distances[node1] = {}
+    distances[node1][node2] = dist
+
+
+def distance(node1, node2):
+    dist = lookup_distance(node1, node2)
+    if dist is None:
+        dist = calculate_distance(node1, node2)
+        store_distance(node1, node2, dist)
+    return dist
+
 
 class WordClustering:
     def __init__(self):
@@ -74,7 +102,7 @@ class WordClustering:
         return word_tally
 
     def divide_into_subunits(self, lines):
-        return self.divide_by_paragraphs(lines)
+        return self.divide_by_profile_weight(lines)
 
     def divide_by_line_count(self, lines, block_size=20):
         subunits = []
@@ -105,6 +133,29 @@ class WordClustering:
         if len(current_subunit) > 0:
             subunits.append(current_subunit)
         return subunits
+
+    def divide_by_profile_weight(self, lines, min_weight=8, use_pos_tags=['JJ','JJR','JJS','RB','RBR','RBS']):
+        subunits = []
+        source_text = " ".join(lines)
+        sentences = nltk.sent_tokenize(source_text)
+        worded_sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
+        tagged_sentences = [nltk.pos_tag(sentence) for sentence in worded_sentences]
+        current_subunit = []
+        current_words = {}
+        for idx in range(len(tagged_sentences)):
+            for beat in tagged_sentences[idx]:
+                if beat[1] in use_pos_tags and beat[0] not in current_words:
+                    current_words[beat[0]] = 1
+            current_subunit.append(sentences[idx])
+            if len(current_words) >= min_weight:
+                subunits.append(current_subunit)
+                current_subunit = []
+                current_words = {}
+        if len(current_subunit) > 0 and len(current_words) > 0:
+            subunits.append(current_subunit)
+        return subunits
+
+
 
     def calculate_word_penetration(self, word_tally:dict):
         profiles_for_word = []
@@ -149,17 +200,13 @@ class WordClustering:
         uf = UTUnionFind(node_list)
         clusters = len(node_list)
         for i in range(len(node_list) - 1):
-            if node_weight[i] > 0:
+            if node_weight[i] > 7:
                 for j in range(i + 1, len(node_list)):
-                    if node_weight[j] > 0:
-                        if node_weight[j] - node_weight[i] > cluster_distance:
+                    if node_weight[j] > 7:
+                        # if node_weight[j] - node_weight[i] > cluster_distance:
                             # print('i:', i, ' wgt:', node_weight[i], 'j:', j, node_weight[j])
-                            break
+                            # break
                         if uf.find(node_list[i]) != uf.find(node_list[j]) and distance(node_list[i], node_list[j]) <= cluster_distance:
-                            if node_weight[j] - node_weight[i] > cluster_distance + 1:
-                                print('MATCH!? distance:', distance(node_list[i], node_list[j]), 'i:', i, ' wgt:', node_weight[i], 'j:', j, 'wgt:', node_weight[j])
-                                print('i:', node_list[i])
-                                print('j:', node_list[j])
                             uf.union(node_list[i], node_list[j])
                             clusters -= 1
             if i % 100 == 0:
@@ -178,20 +225,57 @@ wc = WordClustering()
 wt = wc.compile_word_tally(filename)
 opt = wc.get_optimized_profiles(wt)
 
-for cluster_distance in range(2, 3):
+write_to_file = True
+
+
+
+
+distance_start = 8
+distance_end = 12
+filename_root = filename.split('/')[-1].split('.')[0]
+range_desc = str(distance_start) + 'to' + str(distance_end)
+file_output = os.path.join('datafile', filename_root + '_' + range_desc + '.txt')
+if write_to_file:
+    with open(file_output, 'w') as outfile:
+        outfile.write('Clustering output: ')
+        outfile.write(time.asctime() + '\n\n')
+for cluster_distance in range(distance_start, distance_end + 1):
     print('Calculating for cluster distance', cluster_distance)
     result = wc.full_clustering(cluster_distance, opt['nodes'])
     print(len(result), 'particles')
     grouped = [key for key in result if len(result[key]) > 1]
     print(len(grouped), 'grouped sets found')
+    if write_to_file:
+        with open(file_output, 'a+') as outfile:
+            outfile.write('Calculating for cluster distance ' + str(cluster_distance) + '\n')
+            outfile.write(str(len(result)) + ' particles\n')
+            outfile.write(str(len(grouped)) + ' grouped sets found\n')
     if len(grouped) > 1:
+        lines = []
         for group_label in grouped:
             if group_label != 0:
-                print(group_label, ':', len(result[group_label]), 'items')
+                group_frequency = {}
+                current_line = str(group_label) + ' : ' + str(len(result[group_label])) + ' items'
+                print(current_line)
+                lines.append(current_line)
                 for opt_idx in range(len(opt['nodes'])):
                     if opt['nodes'][opt_idx] in result[group_label]:
                         opt_profile = opt['profiles'][opt_idx]
-                        print([wt['word_list'][opt['indices'][pos_idx]] for pos_idx in range(len(opt_profile)) if opt_profile[pos_idx] > 0])
+                        current_words = [wt['word_list'][opt['indices'][pos_idx]] for pos_idx in range(len(opt_profile)) if opt_profile[pos_idx] > 0]
+                        current_line = str(current_words)
+                        print(current_line)
+                        lines.append(current_line)
+                        for word in current_words:
+                            if word not in group_frequency:
+                                group_frequency[word] = 0
+                            group_frequency[word] += 1
+                current_line = str(group_frequency)
+                print(current_line)
+                lines.append(current_line)
+        if write_to_file:
+            with open(file_output, 'a+') as outfile:
+                outfile.writelines([text + '\n' for text in lines])
+                outfile.write('\n\n')
 
 # I'm starting to see the value of K-Means clustering: once the distance gets to be 2, it's already clumping weird stuff in small paragraphs
 
