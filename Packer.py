@@ -7,10 +7,10 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "pratchett.4.txt.map"
+map_name = "oracle.txt.map"
 target_depth = 4
 build_type = "F"
-target_dir = os.path.join("sources", "dougadams")
+target_dir = os.path.join("sources", "various")
 select_count = 7
 
 # target_dir = os.path.join("sources", "pratchett")
@@ -24,7 +24,7 @@ def get_relative_file_list(source_folder):
     return file_listing
 
 
-text_list = get_relative_file_list(target_dir)
+# text_list = get_relative_file_list(target_dir)
 
 #text_list = ['sources/various/alice13a.txt']
 

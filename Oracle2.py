@@ -154,8 +154,8 @@ def send(mode='originate', use_config_stem=None):
             if random.randint(1, 1) == 1:
                 r = Repeater()
                 random.shuffle(config_stems)
-                for ini_stem in config_stems:
-                    prat_config = ini_stem + adjustment + '.ini'
+                for config_stem in config_stems:
+                    prat_config = config_stem + adjustment + '.ini'
                     send_for_config(prat_config, r, iterations, max_length=max_size,
                                     add_hashtags=hash_tags, send_response=make_response)
 
@@ -172,10 +172,10 @@ def send(mode='originate', use_config_stem=None):
             if random.randint(1, 1) == 1:
                 start_time = time.time()
                 r = Repeater()
-                random.shuffle(ini_stems)
-                for ini_stem in ini_stems:
-                    prat_config = ini_stem + adjustment + '.ini'
-                    send_mention_response_for_config(prat_config, r, iterations, max_length=max_size,
+                random.shuffle(config_stems)
+                for config_stem in config_stems:
+                    file_config = config_stem + adjustment + '.ini'
+                    send_mention_response_for_config(file_config, r, iterations, max_length=max_size,
                                                      add_hashtags=hash_tags, strangers_only=False)
                 save_message_buckets()
             else:
@@ -286,20 +286,70 @@ def get_response_candidates(mentions):
 
 
 def run_commands(commands, config_file):
+    config_modes = ['originate', 'respond']
     for command in commands:
-        command_text = command['command']
-        print('Handling command in tweet', command['id'], ':' + command['command'])
+        command_units = (' ' + command['command']).replace(' o: ', ' oracle: ').split(' oracle: ')
+        for command_text in command_units:
+            command_text = command_text.strip()
+            if len(command_text) > 0:
+                options = command_text.split()
+                print('Handling command in tweet', command['id'], ':', command_text)
+
+                if options[0] == 'rebuild':
+                    linker = configure_linker(config_file=config_file, initialize=False)
+                    linker.regenerate_by_config()
+                    Repeater.target.initialize_chain()
+                    to_user = Repeater.target.get_reply_users(command['id'])
+                    Repeater.target.send_build_announcement(to_user)
+                if options[0] == 'show':
+                    if options[1] == 'build':
+                        Repeater.target.initialize_chain()
+                        to_user = Repeater.target.get_reply_users(command['id'])
+                        Repeater.target.send_build_announcement(to_user)
+                if options[0] == 'task' and len(options) >= 3:
+                    change_type = ''
+                    timing_queue = []
+                    config_queue = []
+                    tag = options[1]
+                    if len([job for job in schedule.jobs if tag in job.tags]) == 0 and tag in config_modes:
+                        tag = tag + '_all'
+                        change_type = 'global_tasks'
+                    minutes = int(options[2])
+                    method = send
+                    mode = 'originate'
+                    config_stem = []
+                    if len(options) >= 4:
+                        if options[3] in config_modes:
+                            mode = options[3]
+                        else:
+                            config_stem.append(options[3])
+                    if len(options) >= 5:
+                        config_stem.append(options[4])
+
+                    if len(options) == 3:
+                        for job in schedule.jobs:
+                            if tag in job.tags:
+                                all_tags = job.tags
+                                method = job.job_func
+                                mode = None
+                                timing_queue.append([all_tags, minutes, method])
+                    if len(timing_queue) == 0:
+                        if len(config_stem) > 0:
+                            for stem in config_stem:
+                                config_queue.append([tag, minutes, method, mode, stem])
+                        else:
+                            config_queue.append([tag, minutes, method, mode])
+
+                    schedule.clear(tag)
+                    for item in timing_queue:
+                        schedule.every(item[1]).minutes.do(item[2]).tags = item[0]
+                    for item in config_queue:
+                        if len(item) == 4:
+                            schedule.every(item[1]).minutes.do(item[2], item[3]).tag(item[0])
+                        else:
+                            schedule.every(item[1]).minutes.do(item[2], item[3], item[4]).tag(item[0])
         command['reaction_status'] = 'executed'
-        if ': rebuild' in command_text:
-            linker = configure_linker(config_file=config_file, initialize=False)
-            linker.regenerate_by_config()
-            Repeater.target.initialize_chain()
-            to_user = Repeater.target.get_reply_users(command['id'])
-            Repeater.target.send_build_announcement(to_user)
-        if ': show build' in command_text:
-            Repeater.target.initialize_chain()
-            to_user = Repeater.target.get_reply_users(command['id'])
-            Repeater.target.send_build_announcement(to_user)
+
 
 
 
@@ -391,10 +441,11 @@ def check():
 
 
 if not single_run:
-    schedule.every(15).minutes.do(send, 'respond').tag('oracle_replies')
-    schedule.every(120).minutes.do(send, 'originate').tag('oracle_standard')
-#     schedule.every(30).minutes.do(send, 'originate', 'oracle')
-    schedule.run_all(60)
+    schedule.every(15).minutes.do(send, 'respond').tag('respond_all')
+    schedule.every(120).minutes.do(send, 'originate').tag('originate_all')
+    # schedule.every(10).minutes.do(send, 'originate', 'oracle').tag('originate_oracle')
+
+    schedule.run_all(1)
     last_hash = str(schedule.jobs)
     print(schedule.jobs)
     while 1:
@@ -404,5 +455,6 @@ if not single_run:
             last_hash = str(schedule.jobs)
         time.sleep(60)
 else:
-    send('originate')
-    send('respond')
+    send('respond', 'oracle')
+    # send('originate')
+    # send('respond')
