@@ -8,11 +8,14 @@ import nltk
 from WordChain import WordChain, full_stop_beats
 from Oracle import Oracle
 import CharacterFinder
+import TwitterTimeline
 
 
 class ChainLinker:
 
     def __init__(self, config_file='oracle.ini'):
+        self.config_file = config_file
+        self.config = None
         self.chain = None
         self.mchain = None
         self.starters = []
@@ -21,24 +24,53 @@ class ChainLinker:
         self.depth = 1
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file)
-        self.filename = self.config['bot_info']['markov_map']
-        self.depth = int(self.config['bot_info']['depth'])
+        self.source_subdirectory = ''
+        self.bot_name = ''
+        self.app_key = ''
+        self.app_secret = ''
+        self.acct_key = ''
+        self.acct_secret = ''
+        self.twitter_handle = ''
+
         self.abbreviations = Oracle.load_dictionary('KnownAbbreviations.txt')
         self.articles = Oracle.load_dictionary('SearchIgnoreList.txt')
         self.max_percent = 1/2
-        self.regenerate = self.config['bot_info']['regenerate']
-        self.source_subdirectory = self.config['bot_info']['source']
+        self.prompt_filter_filename = None
         self.prompt_filter = None
+        self.learn_from_mentions = False
         self.verbose = False
-        if 'prompt_filter' in self.config['bot_info']:
-            self.prompt_filter = self.config['bot_info']['prompt_filter']
+        self.announce_new_build = False
         self.hashtags = []
-        if 'hashtags' in self.config['bot_info']:
-            self.hashtags = self.config['bot_info']['hashtags'].split()
-        # self.initialize_chain()
         self.sources = []
+
+        self.configure_from_file(self.config_file)
+
+    def configure_from_file(self, config_file):
+        if os.path.isfile(config_file):
+            self.config = configparser.ConfigParser()
+            self.config.read(config_file)
+            bot_info = self.config['bot_info']
+            self.filename = bot_info['markov_map']
+            self.depth = int(bot_info['depth'])
+            self.regenerate = bot_info['regenerate']
+            self.source_subdirectory = bot_info['source']
+            self.bot_name = bot_info['name']
+            twit_config = self.config['twitter']
+            self.app_key = twit_config['app_key']
+            self.app_secret = twit_config['app_secret']
+            self.acct_key = twit_config['acct_key']
+            self.acct_secret = twit_config['acct_secret']
+            if 'acct_handle' in twit_config:
+                self.twitter_handle = twit_config['acct_handle']
+
+            if 'prompt_filter' in self.config['bot_info']:
+                self.prompt_filter_filename = self.config['bot_info']['prompt_filter']
+            if 'hashtags' in self.config['bot_info']:
+                self.hashtags = self.config['bot_info']['hashtags'].split()
+            if 'announce_new_build' in self.config['bot_info']:
+                self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
+            if 'learn_from_mentions' in bot_info:
+                self.learn_from_mentions = (bot_info['learn_from_mentions'] == 'True')
 
     def say(self, message):
         if self.verbose:
@@ -59,14 +91,16 @@ class ChainLinker:
                 target_file = self.filename
             source_count = int(self.regenerate.split()[1])
             source_folder = os.path.join('sources', self.source_subdirectory)
-            self.regenerate_markov_chain(source_count, source_folder, target_file)
+            mention_lines = None
+            if self.learn_from_mentions:
+                mention_lines = self.get_mentions_text(self.twitter_handle.strip('@'))
+            self.regenerate_markov_chain(source_count, source_folder, target_file, mention_lines)
             if self.prompt_filter is not None and type(self.prompt_filter) is str:
                 # remove prompt filter file
                 if os.path.isfile(self.prompt_filter):
                     os.remove(self.prompt_filter)
 
-
-    def regenerate_markov_chain(self, source_count, source_folder, target_file):
+    def regenerate_markov_chain(self, source_count, source_folder, target_file, mention_lines=None):
         self.say("Regenerating markov chain with " + str(source_count) + " files from " + source_folder)
         source_files = []
         dir_listing = self.get_relative_file_list(source_folder)
@@ -78,7 +112,7 @@ class ChainLinker:
             if len(source_files) >= len(dir_listing):
                 break
         self.say("Building markov chain from sources:" + str(source_files))
-        self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file)
+        self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file, mention_lines=mention_lines)
         self.file_rebuilt = True
 
     @staticmethod
@@ -88,8 +122,8 @@ class ChainLinker:
         file_listing = [f for f in file_listing if os.path.isfile(f)]
         return file_listing
 
-    def build_and_save_chain_from_list(self, file_list, depth=2, target_filename="current.txt.map"):
-        chain = self.build_chain_from_file_list(file_list, depth)
+    def build_and_save_chain_from_list(self, file_list, depth=2, target_filename="current.txt.map", mention_lines=None):
+        chain = self.build_chain_from_file_list(file_list, depth, mention_lines)
         self.write_chain(chain, target_filename)
         return chain
 
@@ -104,14 +138,19 @@ class ChainLinker:
         chain = self.build_and_save_chain_from_list([file_path], depth=depth, target_filename=target_filename)
         return chain
 
-    def build_chain_from_file_list(self, file_list, depth=2):
+    def build_chain_from_file_list(self, file_list, depth=2, mention_lines=None):
         word_tally = {}
         for file_path in file_list:
             self.compile_word_tally(file_path, depth, word_tally)
+        if mention_lines is not None:
+            self.stimulate_word_tally('Twitter', mention_lines, depth, word_tally)
+
         source_names = WordChain.normalize_text(file_list)
         src_map = {}
         for idx in range(len(file_list)):
             src_map[file_list[idx]] = source_names[idx]
+        if len(mention_lines) > 0:
+            src_map['Twitter'] = 'Twitter'
         chain = self.convert_tally_to_chain(word_tally, depth, src_map)
         self.set_chain(chain)
         return chain
@@ -172,15 +211,31 @@ class ChainLinker:
         sentence = nltk.word_tokenize(source_text)
         return nltk.pos_tag(sentence)
 
-    def compile_word_tally(self, file_path, depth, word_tally, use_pos_tags=True):
+    def get_mentions_text(self, username):
+        mentions_filename = TwitterTimeline.get_mentions_filename(username)
+        mentions = TwitterTimeline.get_mentions(self.config_file, username, mentions_filename)
+        lines = []
+        for id in mentions:
+            tweet = mentions[id]
+            if not tweet['is_retweet'] and tweet['reaction_status'] not in ['executed']\
+                    and ' oracle: ' not in tweet['text'].lower():
+                tweet_text = tweet['text']
+                working_text = []
+                for term in tweet_text.split():
+                    if term[0] not in ('@','#') and not term.lower().startswith("http"):
+                        working_text.append(term)
+                lines.append(' '.join(working_text))
+
+        print('Retrieved user mentions text:', lines)
+        return lines
+
+    def stimulate_word_tally(self, source_name, lines, depth, word_tally, multiplier=10):
+        self.say("Stimulating word tally with " + str(len(lines)) + " additional patterns.")
+        self.add_lines_to_word_tally(depth, source_name, lines, word_tally, multiplier)
+
+    def compile_word_tally(self, file_path, depth, word_tally, use_pos_tags=True, multiplier=1):
         self.say("Compiling word tally from " + file_path)
-        last_beat = ""
-        beat_list = []
-        if len(word_tally) == 0:
-            self.word_counts = {}
-            self.sources = []
         file_size = min(32, os.path.getsize(file_path))
-        quotes = []
         with open(file_path, 'rb') as f_enc:
             raw = f_enc.read(file_size)
             if raw.startswith(codecs.BOM_UTF8):
@@ -191,6 +246,7 @@ class ChainLinker:
         is_spoken = False
         is_starter = True
         current_speech = []
+        quotes = []
         source_beat = 0
         with open(file_path, 'r', encoding=encoding) as f_handle:
             self.sources.append(file_path)
@@ -198,42 +254,7 @@ class ChainLinker:
                 source_text = f_handle.readlines()
                 source_text = source_text[3:]
                 source_text = [line for line in source_text if line[0] != '#']
-                source_text = " ".join(source_text).strip('\n')
-                sentences = nltk.sent_tokenize(source_text)
-                sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
-                tagged_sentences = [nltk.pos_tag(sentence) for sentence in sentences]
-                for sentence in tagged_sentences:
-                    is_starter = True
-                    for idx in range(len(sentence)):
-                        source_beat += 1
-                        current_beat = sentence[idx][0]
-                        current_pos = sentence[idx][1]
-                        if last_beat != "":
-                            self.add_sequence_to_tally(last_beat, is_starter, is_spoken, word_tally)
-                            if current_beat not in word_tally[last_beat]:
-                                word_tally[last_beat][current_beat] = 0
-                            word_tally[last_beat][current_beat] += 1
-                            word_tally[last_beat]['_is_spoken'] = is_spoken or word_tally[last_beat][
-                                '_is_spoken']
-                            word_tally[last_beat]['_source_text'].append(file_path)
-                            word_tally[last_beat]['_source_index'].append(source_beat)
-                            word_tally[last_beat]['_is_starter'] = is_starter or word_tally[last_beat][
-                                '_is_starter']
-                            if last_pos not in word_tally[last_beat]['_pos']:
-                                word_tally[last_beat]['_pos'].append(last_pos)
-                            if is_starter:
-                                self.starters.append(last_beat)
-                        while len(beat_list) >= depth:
-                            del beat_list[0]
-                            is_starter = False
-                        beat_list.append(current_beat)
-                        last_beat = " ".join(beat_list)
-                        last_pos = current_pos
-                    self.add_sequence_to_tally(last_beat, False, is_spoken, word_tally)
-                    if last_pos not in word_tally[last_beat]['_pos']:
-                        word_tally[last_beat]['_pos'].append(last_pos)
-                    last_beat = ""
-                    beat_list = []
+                self.add_lines_to_word_tally(depth, file_path, source_text, word_tally)
             else:
                 for line in f_handle:
                     line = line.strip()
@@ -312,6 +333,53 @@ class ChainLinker:
                                 is_spoken = False
                                 quotes.append(' '.join(current_speech))
                                 current_speech = []
+
+    def add_lines_to_word_tally(self, depth, source_name, source_text, word_tally, multiplier=1):
+        last_beat = ""
+        beat_list = []
+        if len(word_tally) == 0:
+            self.word_counts = {}
+            self.sources = []
+        is_spoken = False
+        current_speech = []
+        quotes = []
+        source_beat = 0
+        source_text = " ".join(source_text).strip('\n')
+        sentences = nltk.sent_tokenize(source_text)
+        sentences = [nltk.word_tokenize(sentence) for sentence in sentences]
+        tagged_sentences = [nltk.pos_tag(sentence) for sentence in sentences]
+        for sentence in tagged_sentences:
+            is_starter = True
+            for idx in range(len(sentence)):
+                source_beat += 1
+                current_beat = sentence[idx][0]
+                current_pos = sentence[idx][1]
+                if last_beat != "":
+                    self.add_sequence_to_tally(last_beat, is_starter, is_spoken, word_tally)
+                    if current_beat not in word_tally[last_beat]:
+                        word_tally[last_beat][current_beat] = 0
+                    word_tally[last_beat][current_beat] += multiplier
+                    word_tally[last_beat]['_is_spoken'] = is_spoken or word_tally[last_beat][
+                        '_is_spoken']
+                    word_tally[last_beat]['_source_text'].append(source_name)
+                    word_tally[last_beat]['_source_index'].append(source_beat)
+                    word_tally[last_beat]['_is_starter'] = is_starter or word_tally[last_beat][
+                        '_is_starter']
+                    if last_pos not in word_tally[last_beat]['_pos']:
+                        word_tally[last_beat]['_pos'].append(last_pos)
+                    if is_starter:
+                        self.starters.append(last_beat)
+                while len(beat_list) >= depth:
+                    del beat_list[0]
+                    is_starter = False
+                beat_list.append(current_beat)
+                last_beat = " ".join(beat_list)
+                last_pos = current_pos
+            self.add_sequence_to_tally(last_beat, False, is_spoken, word_tally)
+            if last_pos not in word_tally[last_beat]['_pos']:
+                word_tally[last_beat]['_pos'].append(last_pos)
+            last_beat = ""
+            beat_list = []
 
     @staticmethod
     def add_sequence_to_tally(last_beat, is_starter, is_spoken, word_tally):

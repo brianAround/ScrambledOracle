@@ -63,6 +63,8 @@ class Oracle:
         self.regenerate = 'None'
         self.source_subdirectory = ''
         self.use_source_as_hashtag = True
+        self.learn_from_mentions = False
+        self.learning_multiplier = 10
 
         # twitter configuration
         self.app_key = None
@@ -100,6 +102,8 @@ class Oracle:
                 self.hashtags = self.config['bot_info']['hashtags'].split()
             if 'announce_new_build' in self.config['bot_info']:
                 self.announce_new_build = (self.config['bot_info']['announce_new_build'] == 'True')
+            if 'learn_from_mentions' in bot_info:
+                self.learn_from_mentions = bot_info['learn_from_mentions'] == 'True'
 
     @staticmethod
     def one_word_less(text):

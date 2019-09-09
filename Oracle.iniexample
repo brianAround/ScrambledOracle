@@ -18,6 +18,7 @@ markov_map = various.txt.map
 depth = 3
 name = Scrambled Books
 regenerate = select 2
+learn_from_mentions = True
 source = various
 hashtags = #twitterbot #pythonbot #markov
 announce_new_build = False

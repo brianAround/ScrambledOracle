@@ -10,13 +10,13 @@ import TwitterRepository
 import TwitterTimeline
 
 single_run = False
-fetch_data_every = 900
+fetch_data_every = 300
 
 ignore_bot_ratio = 0.80
 
 
-# ini_stems = ['Oracle']
-ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
+ini_stems = ['Oracle']
+# ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
 
 message_buckets = {}
 last_messages_filename = "message_buckets.txt"
