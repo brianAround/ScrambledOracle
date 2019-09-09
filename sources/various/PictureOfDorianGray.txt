@@ -1,97 +1,9 @@
-﻿The Project Gutenberg EBook of The Picture of Dorian Gray, by Oscar Wilde
-
-This eBook is for the use of anyone anywhere at no cost and with
-almost no restrictions whatsoever.  You may copy it, give it away or
-re-use it under the terms of the Project Gutenberg License included
-with this eBook or online at www.gutenberg.net
-
-
-Title: The Picture of Dorian Gray
-
-Author: Oscar Wilde
-
-Release Date: June 9, 2008 [EBook #174]
-[This file last updated on July 2, 2011]
-[This file last updated on July 23, 2014]
-
-
-Language: English
-
-
-*** START OF THIS PROJECT GUTENBERG EBOOK THE PICTURE OF DORIAN GRAY ***
+﻿The Picture of Dorian Gray
+by Oscar Wilde
 
 
 
-
-Produced by Judith Boss.  HTML version by Al Haines.
-
-
-
-
-
-
-
-
-
-
-The Picture of Dorian Gray
-
-by
-
-Oscar Wilde
-
-
-
-
-THE PREFACE
-
-The artist is the creator of beautiful things.  To reveal art and
-conceal the artist is art's aim.  The critic is he who can translate
-into another manner or a new material his impression of beautiful
-things.
-
-The highest as the lowest form of criticism is a mode of autobiography.
-Those who find ugly meanings in beautiful things are corrupt without
-being charming.  This is a fault.
-
-Those who find beautiful meanings in beautiful things are the
-cultivated.  For these there is hope.  They are the elect to whom
-beautiful things mean only beauty.
-
-There is no such thing as a moral or an immoral book.  Books are well
-written, or badly written.  That is all.
-
-The nineteenth century dislike of realism is the rage of Caliban seeing
-his own face in a glass.
-
-The nineteenth century dislike of romanticism is the rage of Caliban
-not seeing his own face in a glass.  The moral life of man forms part
-of the subject-matter of the artist, but the morality of art consists
-in the perfect use of an imperfect medium.  No artist desires to prove
-anything.  Even things that are true can be proved.  No artist has
-ethical sympathies.  An ethical sympathy in an artist is an
-unpardonable mannerism of style.  No artist is ever morbid.  The artist
-can express everything.  Thought and language are to the artist
-instruments of an art.  Vice and virtue are to the artist materials for
-an art.  From the point of view of form, the type of all the arts is
-the art of the musician.  From the point of view of feeling, the
-actor's craft is the type.  All art is at once surface and symbol.
-Those who go beneath the surface do so at their peril.  Those who read
-the symbol do so at their peril.  It is the spectator, and not life,
-that art really mirrors.  Diversity of opinion about a work of art
-shows that the work is new, complex, and vital.  When critics disagree,
-the artist is in accord with himself.  We can forgive a man for making
-a useful thing as long as he does not admire it.  The only excuse for
-making a useless thing is that one admires it intensely.
-
-               All art is quite useless.
-
-                            OSCAR WILDE
-
-
-
-
-CHAPTER 1
+#CHAPTER 1
 
 The studio was filled with the rich odour of roses, and when the light
 summer wind stirred amidst the trees of the garden, there came through
@@ -314,8 +226,8 @@ Conscience is the trade-name of the firm.  That is all."
 "I don't believe that, Harry, and I don't believe you do either.
 However, whatever was my motive--and it may have been pride, for I used
 to be very proud--I certainly struggled to the door.  There, of course,
-I stumbled against Lady Brandon.  'You are not going to run away so
-soon, Mr. Hallward?' she screamed out.  You know her curiously shrill
+I stumbled against Lady Brandon.  "You are not going to run away so
+soon, Mr. Hallward?" she screamed out.  You know her curiously shrill
 voice?"
 
 "Yes; she is a peacock in everything but beauty," said Lord Henry,
@@ -354,10 +266,10 @@ listlessly.
 opening a restaurant.  How could I admire her?  But tell me, what did
 she say about Mr. Dorian Gray?"
 
-"Oh, something like, 'Charming boy--poor dear mother and I absolutely
+"Oh, something like, "Charming boy--poor dear mother and I absolutely
 inseparable.  Quite forget what he does--afraid he--doesn't do
 anything--oh, yes, plays the piano--or is it the violin, dear Mr.
-Gray?'  Neither of us could help laughing, and we became friends at
+Gray?"  Neither of us could help laughing, and we became friends at
 once."
 
 "Laughter is not at all a bad beginning for a friendship, and it is far
@@ -442,8 +354,8 @@ work, is the best work of my life.  But in some curious way--I wonder
 will you understand me?--his personality has suggested to me an
 entirely new manner in art, an entirely new mode of style.  I see
 things differently, I think of them differently.  I can now recreate
-life in a way that was hidden from me before.  'A dream of form in days
-of thought'--who is it who says that?  I forget; but it is what Dorian
+life in a way that was hidden from me before.  "A dream of form in days
+of thought"--who is it who says that?  I forget; but it is what Dorian
 Gray has been to me.  The merely visible presence of this lad--for he
 seems to me little more than a lad, though he is really over
 twenty--his merely visible presence--ah!  I wonder can you realize all
@@ -601,7 +513,7 @@ by the arm, he almost led him into the house.
 
 
 
-CHAPTER 2
+#CHAPTER 2
 
 As they entered they saw Dorian Gray.  He was seated at the piano, with
 his back to them, turning over the pages of a volume of Schumann's
@@ -1240,7 +1152,7 @@ sofa, and a look of pain came into his face.
 
 
 
-CHAPTER 3
+#CHAPTER 3
 
 At half-past twelve next day Lord Henry Wotton strolled from Curzon
 Street over to the Albany to call on his uncle, Lord Fermor, a genial
@@ -1742,7 +1654,7 @@ me, if you care to."
 
 
 
-CHAPTER 4
+#CHAPTER 4
 
 One afternoon, a month later, Dorian Gray was reclining in a luxurious
 arm-chair, in the little library of Lord Henry's house in Mayfair.  It
@@ -1922,7 +1834,7 @@ theatre, with great flaring gas-jets and gaudy play-bills.  A hideous
 Jew, in the most amazing waistcoat I ever beheld in my life, was
 standing at the entrance, smoking a vile cigar.  He had greasy
 ringlets, and an enormous diamond blazed in the centre of a soiled
-shirt. 'Have a box, my Lord?' he said, when he saw me, and he took off
+shirt. "Have a box, my Lord?" he said, when he saw me, and he took off
 his hat with an air of gorgeous servility.  There was something about
 him, Harry, that amused me.  He was such a monster.  You will laugh at
 me, I know, but I really went in and paid a whole guinea for the
@@ -1969,7 +1881,7 @@ was a terrible consumption of nuts going on."
 what on earth I should do when I caught sight of the play-bill.  What
 do you think the play was, Harry?"
 
-"I should think 'The Idiot Boy', or 'Dumb but Innocent'.  Our fathers
+"I should think "The Idiot Boy", or "Dumb but Innocent".  Our fathers
 used to like that sort of piece, I believe.  The longer I live, Dorian,
 the more keenly I feel that whatever was good enough for our fathers is
 not good enough for us.  In art, as in politics, _les grandperes ont
@@ -2080,7 +1992,7 @@ place again.  When he saw me, he made me a low bow and assured me that
 I was a munificent patron of art.  He was a most offensive brute,
 though he had an extraordinary passion for Shakespeare.  He told me
 once, with an air of pride, that his five bankruptcies were entirely
-due to 'The Bard,' as he insisted on calling him.  He seemed to think
+due to "The Bard," as he insisted on calling him.  He seemed to think
 it a distinction."
 
 "It was a distinction, my dear Dorian--a great distinction.  Most
@@ -2106,9 +2018,9 @@ her what I thought of her performance, and she seemed quite unconscious
 of her power.  I think we were both rather nervous.  The old Jew stood
 grinning at the doorway of the dusty greenroom, making elaborate
 speeches about us both, while we stood looking at each other like
-children.  He would insist on calling me 'My Lord,' so I had to assure
+children.  He would insist on calling me "My Lord," so I had to assure
 Sibyl that I was not anything of the kind.  She said quite simply to
-me, 'You look more like a prince.  I must call you Prince Charming.'"
+me, "You look more like a prince.  I must call you Prince Charming.""
 
 "Upon my word, Dorian, Miss Sibyl knows how to pay compliments."
 
@@ -2343,7 +2255,7 @@ Vane.
 
 
 
-CHAPTER 5
+#CHAPTER 5
 
 "Mother, Mother, I am so happy!" whispered the girl, burying her face
 in the lap of the faded, tired-looking woman who, with back turned to
@@ -2644,7 +2556,7 @@ theatre to-night. He is going to be there, and I am to play Juliet.
 Oh! how I shall play it!  Fancy, Jim, to be in love and play Juliet!
 To have him sitting there!  To play for his delight!  I am afraid I may
 frighten the company, frighten or enthrall them.  To be in love is to
-surpass one's self.  Poor dreadful Mr. Isaacs will be shouting 'genius'
+surpass one's self.  Poor dreadful Mr. Isaacs will be shouting "genius"
 to his loafers at the bar.  He has preached me as a dogma; to-night he
 will announce me as a revelation.  I feel it.  And it is all his, his
 only, Prince Charming, my wonderful lover, my god of graces.  But I am
@@ -2829,7 +2741,7 @@ they would all laugh at it some day.
 
 
 
-CHAPTER 6
+#CHAPTER 6
 
 "I suppose you have heard the news, Basil?" said Lord Henry that
 evening as Hallward was shown into a little private room at the Bristol
@@ -3143,7 +3055,7 @@ up at the theatre, it seemed to him that he had grown years older.
 
 
 
-CHAPTER 7
+#CHAPTER 7
 
 For some reason or other, the house was crowded that night, and the fat
 Jew manager who met them at the door was beaming from ear to ear with
@@ -3221,8 +3133,8 @@ eyes rested on Romeo.  The few words she had to speak--
 
     Good pilgrim, you do wrong your hand too much,
         Which mannerly devotion shows in this;
-    For saints have hands that pilgrims' hands do touch,
-        And palm to palm is holy palmers' kiss--
+    For saints have hands that pilgrims" hands do touch,
+        And palm to palm is holy palmers" kiss--
 
 with the brief dialogue that follows, were spoken in a thoroughly
 artificial manner.  The voice was exquisite, but from the point of view
@@ -3583,7 +3495,7 @@ dew-drenched garden seemed to be telling the flowers about her.
 
 
 
-CHAPTER 8
+#CHAPTER 8
 
 It was long past noon when he awoke.  His valet had crept several times
 on tiptoe into the room to see if he was stirring, and had wondered
@@ -4115,7 +4027,7 @@ Henry was leaning over his chair.
 
 
 
-CHAPTER 9
+#CHAPTER 9
 
 As he was sitting at breakfast next morning, Basil Hallward was shown
 into the room.
@@ -4513,7 +4425,7 @@ in a room to which any of his friends had access.
 
 
 
-CHAPTER 10
+#CHAPTER 10
 
 When his servant entered, he looked at him steadfastly and wondered if
 he had thought of peering behind the screen.  The man was quite
@@ -4842,7 +4754,7 @@ into the dining-room.
 
 
 
-CHAPTER 11
+#CHAPTER 11
 
 For years, Dorian Gray could not free himself from the influence of
 this book.  Or perhaps it would be more accurate to say that he never
@@ -5163,7 +5075,7 @@ Priest were "made of sardius, with the horn of the horned snake
 inwrought, so that no man might bring poison within." Over the gable
 were "two golden apples, in which were two carbuncles," so that the
 gold might shine by day and the carbuncles by night.  In Lodge's
-strange romance 'A Margarite of America', it was stated that in the
+strange romance "A Margarite of America", it was stated that in the
 chamber of the queen one could behold "all the chaste ladies of the
 world, inchased out of silver, looking through fair mirrours of
 chrysolites, carbuncles, sapphires, and greene emeraults." Marco Polo
@@ -5245,7 +5157,7 @@ Mohammed had stood beneath the tremulous gilt of its canopy.
 And so, for a whole year, he sought to accumulate the most exquisite
 specimens that he could find of textile and embroidered work, getting
 the dainty Delhi muslins, finely wrought with gold-thread palmates and
-stitched over with iridescent beetles' wings; the Dacca gauzes, that
+stitched over with iridescent beetles" wings; the Dacca gauzes, that
 from their transparency are known in the East as "woven air," and
 "running water," and "evening dew"; strange figured cloths from Java;
 elaborate yellow Chinese hangings; books bound in tawny satins or fair
@@ -5502,7 +5414,7 @@ could realize his conception of the beautiful.
 
 
 
-CHAPTER 12
+#CHAPTER 12
 
 It was on the ninth of November, the eve of his own thirty-eighth
 birthday, as he often remembered afterwards.
@@ -5770,7 +5682,7 @@ will not have to read long."
 
 
 
-CHAPTER 13
+#CHAPTER 13
 
 He passed out of the room and began the ascent, Basil Hallward
 following close behind.  They walked softly, as men do instinctively at
@@ -5899,8 +5811,8 @@ and buried his face in his hands.
 "Good God, Dorian, what a lesson!  What an awful lesson!" There was no
 answer, but he could hear the young man sobbing at the window.  "Pray,
 Dorian, pray," he murmured.  "What is it that one was taught to say in
-one's boyhood?  'Lead us not into temptation.  Forgive us our sins.
-Wash away our iniquities.'  Let us say that together.  The prayer of
+one's boyhood?  "Lead us not into temptation.  Forgive us our sins.
+Wash away our iniquities."  Let us say that together.  The prayer of
 your pride has been answered.  The prayer of your repentance will be
 answered also.  I worshipped you too much.  I am punished for it.  You
 worshipped yourself too much.  We are both punished."
@@ -5909,8 +5821,8 @@ Dorian Gray turned slowly around and looked at him with tear-dimmed
 eyes.  "It is too late, Basil," he faltered.
 
 "It is never too late, Dorian.  Let us kneel down and try if we cannot
-remember a prayer.  Isn't there a verse somewhere, 'Though your sins be
-as scarlet, yet I will make them as white as snow'?"
+remember a prayer.  Isn't there a verse somewhere, "Though your sins be
+as scarlet, yet I will make them as white as snow"?"
 
 "Those words mean nothing to me now."
 
@@ -6049,7 +5961,7 @@ Hertford Street, Mayfair."  Yes; that was the man he wanted.
 
 
 
-CHAPTER 14
+#CHAPTER 14
 
 At nine o'clock the next morning his servant came in with a cup of
 chocolate on a tray and opened the shutters.  Dorian was sleeping quite
@@ -6551,7 +6463,7 @@ at the table was gone.
 
 
 
-CHAPTER 15
+#CHAPTER 15
 
 That evening, at eight-thirty, exquisitely dressed and wearing a large
 button-hole of Parma violets, Dorian Gray was ushered into Lady
@@ -6927,7 +6839,7 @@ towards the river.
 
 
 
-CHAPTER 16
+#CHAPTER 16
 
 A cold rain began to fall, and the blurred street-lamps looked ghastly
 in the dripping mist.  The public-houses were just closing, and dim men
@@ -7283,7 +7195,7 @@ vanished also.
 
 
 
-CHAPTER 17
+#CHAPTER 17
 
 A week later Dorian Gray was sitting in the conservatory at Selby
 Royal, talking to the pretty Duchess of Monmouth, who with her husband,
@@ -7597,7 +7509,7 @@ face of James Vane watching him.
 
 
 
-CHAPTER 18
+#CHAPTER 18
 
 The next day he did not leave the house, and, indeed, spent most of the
 time in his own room, sick with a wild terror of dying, and yet
@@ -7911,7 +7823,7 @@ town to consult his doctor and asking him to entertain his guests in
 his absence.  As he was putting it into the envelope, a knock came to
 the door, and his valet informed him that the head-keeper wished to see
 him.  He frowned and bit his lip.  "Send him in," he muttered, after
-some moments' hesitation.
+some moments" hesitation.
 
 As soon as the man entered, Dorian pulled his chequebook out of a
 drawer and spread it out before him.
@@ -7998,7 +7910,7 @@ home, his eyes were full of tears, for he knew he was safe.
 
 
 
-CHAPTER 19
+#CHAPTER 19
 
 "There is no use your telling me that you are going to be good," cried
 Lord Henry, dipping his white fingers into a red copper bowl filled
@@ -8202,13 +8114,13 @@ Lord Henry laughed.  "If a man treats life artistically, his brain is
 his heart," he answered, sinking into an arm-chair.
 
 Dorian Gray shook his head and struck some soft chords on the piano.
-"'Like the painting of a sorrow,'" he repeated, "'a face without a
-heart.'"
+""Like the painting of a sorrow,"" he repeated, ""a face without a
+heart.""
 
 The elder man lay back and looked at him with half-closed eyes.  "By
-the way, Dorian," he said after a pause, "'what does it profit a man if
+the way, Dorian," he said after a pause, ""what does it profit a man if
 he gain the whole world and lose--how does the quotation run?--his own
-soul'?"
+soul"?"
 
 The music jarred, and Dorian Gray started and stared at his friend.
 "Why do you ask me that, Harry?"
@@ -8358,7 +8270,7 @@ had something more to say.  Then he sighed and went out.
 
 
 
-CHAPTER 20
+#CHAPTER 20
 
 It was a lovely night, so warm that he threw his coat over his arm and
 did not even put his silk scarf round his throat.  As he strolled home,
@@ -8516,7 +8428,7 @@ and watched.
 They looked at each other, as they walked away, and sneered.  One of
 them was Sir Henry Ashton's uncle.
 
-Inside, in the servants' part of the house, the half-clad domestics
+Inside, in the servants" part of the house, the half-clad domestics
 were talking in low whispers to each other.  Old Mrs. Leaf was crying
 and wringing her hands.  Francis was as pale as death.
 
@@ -8533,372 +8445,3 @@ evening dress, with a knife in his heart.  He was withered, wrinkled,
 and loathsome of visage.  It was not till they had examined the rings
 that they recognized who it was.
 
-
-
-
-
-
-
-
-
-End of Project Gutenberg's The Picture of Dorian Gray, by Oscar Wilde
-
-*** END OF THIS PROJECT GUTENBERG EBOOK THE PICTURE OF DORIAN GRAY ***
-
-***** This file should be named 174.txt or 174.zip *****
-This and all associated files of various formats will be found in:
-        http://www.gutenberg.org/1/7/174/
-
-Produced by Judith Boss.  HTML version by Al Haines.
-
-Updated editions will replace the previous one--the old editions
-will be renamed.
-
-Creating the works from public domain print editions means that no
-one owns a United States copyright in these works, so the Foundation
-(and you!) can copy and distribute it in the United States without
-permission and without paying copyright royalties.  Special rules,
-set forth in the General Terms of Use part of this license, apply to
-copying and distributing Project Gutenberg-tm electronic works to
-protect the PROJECT GUTENBERG-tm concept and trademark.  Project
-Gutenberg is a registered trademark, and may not be used if you
-charge for the eBooks, unless you receive specific permission.  If you
-do not charge anything for copies of this eBook, complying with the
-rules is very easy.  You may use this eBook for nearly any purpose
-such as creation of derivative works, reports, performances and
-research.  They may be modified and printed and given away--you may do
-practically ANYTHING with public domain eBooks.  Redistribution is
-subject to the trademark license, especially commercial
-redistribution.
-
-
-
-*** START: FULL LICENSE ***
-
-THE FULL PROJECT GUTENBERG LICENSE
-PLEASE READ THIS BEFORE YOU DISTRIBUTE OR USE THIS WORK
-
-To protect the Project Gutenberg-tm mission of promoting the free
-distribution of electronic works, by using or distributing this work
-(or any other work associated in any way with the phrase "Project
-Gutenberg"), you agree to comply with all the terms of the Full Project
-Gutenberg-tm License (available with this file or online at
-http://gutenberg.net/license).
-
-
-Section 1.  General Terms of Use and Redistributing Project Gutenberg-tm
-electronic works
-
-1.A.  By reading or using any part of this Project Gutenberg-tm
-electronic work, you indicate that you have read, understand, agree to
-and accept all the terms of this license and intellectual property
-(trademark/copyright) agreement.  If you do not agree to abide by all
-the terms of this agreement, you must cease using and return or destroy
-all copies of Project Gutenberg-tm electronic works in your possession.
-If you paid a fee for obtaining a copy of or access to a Project
-Gutenberg-tm electronic work and you do not agree to be bound by the
-terms of this agreement, you may obtain a refund from the person or
-entity to whom you paid the fee as set forth in paragraph 1.E.8.
-
-1.B.  "Project Gutenberg" is a registered trademark.  It may only be
-used on or associated in any way with an electronic work by people who
-agree to be bound by the terms of this agreement.  There are a few
-things that you can do with most Project Gutenberg-tm electronic works
-even without complying with the full terms of this agreement.  See
-paragraph 1.C below.  There are a lot of things you can do with Project
-Gutenberg-tm electronic works if you follow the terms of this agreement
-and help preserve free future access to Project Gutenberg-tm electronic
-works.  See paragraph 1.E below.
-
-1.C.  The Project Gutenberg Literary Archive Foundation ("the Foundation"
-or PGLAF), owns a compilation copyright in the collection of Project
-Gutenberg-tm electronic works.  Nearly all the individual works in the
-collection are in the public domain in the United States.  If an
-individual work is in the public domain in the United States and you are
-located in the United States, we do not claim a right to prevent you from
-copying, distributing, performing, displaying or creating derivative
-works based on the work as long as all references to Project Gutenberg
-are removed.  Of course, we hope that you will support the Project
-Gutenberg-tm mission of promoting free access to electronic works by
-freely sharing Project Gutenberg-tm works in compliance with the terms of
-this agreement for keeping the Project Gutenberg-tm name associated with
-the work.  You can easily comply with the terms of this agreement by
-keeping this work in the same format with its attached full Project
-Gutenberg-tm License when you share it without charge with others.
-
-1.D.  The copyright laws of the place where you are located also govern
-what you can do with this work.  Copyright laws in most countries are in
-a constant state of change.  If you are outside the United States, check
-the laws of your country in addition to the terms of this agreement
-before downloading, copying, displaying, performing, distributing or
-creating derivative works based on this work or any other Project
-Gutenberg-tm work.  The Foundation makes no representations concerning
-the copyright status of any work in any country outside the United
-States.
-
-1.E.  Unless you have removed all references to Project Gutenberg:
-
-1.E.1.  The following sentence, with active links to, or other immediate
-access to, the full Project Gutenberg-tm License must appear prominently
-whenever any copy of a Project Gutenberg-tm work (any work on which the
-phrase "Project Gutenberg" appears, or with which the phrase "Project
-Gutenberg" is associated) is accessed, displayed, performed, viewed,
-copied or distributed:
-
-This eBook is for the use of anyone anywhere at no cost and with
-almost no restrictions whatsoever.  You may copy it, give it away or
-re-use it under the terms of the Project Gutenberg License included
-with this eBook or online at www.gutenberg.net
-
-1.E.2.  If an individual Project Gutenberg-tm electronic work is derived
-from the public domain (does not contain a notice indicating that it is
-posted with permission of the copyright holder), the work can be copied
-and distributed to anyone in the United States without paying any fees
-or charges.  If you are redistributing or providing access to a work
-with the phrase "Project Gutenberg" associated with or appearing on the
-work, you must comply either with the requirements of paragraphs 1.E.1
-through 1.E.7 or obtain permission for the use of the work and the
-Project Gutenberg-tm trademark as set forth in paragraphs 1.E.8 or
-1.E.9.
-
-1.E.3.  If an individual Project Gutenberg-tm electronic work is posted
-with the permission of the copyright holder, your use and distribution
-must comply with both paragraphs 1.E.1 through 1.E.7 and any additional
-terms imposed by the copyright holder.  Additional terms will be linked
-to the Project Gutenberg-tm License for all works posted with the
-permission of the copyright holder found at the beginning of this work.
-
-1.E.4.  Do not unlink or detach or remove the full Project Gutenberg-tm
-License terms from this work, or any files containing a part of this
-work or any other work associated with Project Gutenberg-tm.
-
-1.E.5.  Do not copy, display, perform, distribute or redistribute this
-electronic work, or any part of this electronic work, without
-prominently displaying the sentence set forth in paragraph 1.E.1 with
-active links or immediate access to the full terms of the Project
-Gutenberg-tm License.
-
-1.E.6.  You may convert to and distribute this work in any binary,
-compressed, marked up, nonproprietary or proprietary form, including any
-word processing or hypertext form.  However, if you provide access to or
-distribute copies of a Project Gutenberg-tm work in a format other than
-"Plain Vanilla ASCII" or other format used in the official version
-posted on the official Project Gutenberg-tm web site (www.gutenberg.net),
-you must, at no additional cost, fee or expense to the user, provide a
-copy, a means of exporting a copy, or a means of obtaining a copy upon
-request, of the work in its original "Plain Vanilla ASCII" or other
-form.  Any alternate format must include the full Project Gutenberg-tm
-License as specified in paragraph 1.E.1.
-
-1.E.7.  Do not charge a fee for access to, viewing, displaying,
-performing, copying or distributing any Project Gutenberg-tm works
-unless you comply with paragraph 1.E.8 or 1.E.9.
-
-1.E.8.  You may charge a reasonable fee for copies of or providing
-access to or distributing Project Gutenberg-tm electronic works provided
-that
-
-- You pay a royalty fee of 20% of the gross profits you derive from
-     the use of Project Gutenberg-tm works calculated using the method
-     you already use to calculate your applicable taxes.  The fee is
-     owed to the owner of the Project Gutenberg-tm trademark, but he
-     has agreed to donate royalties under this paragraph to the
-     Project Gutenberg Literary Archive Foundation.  Royalty payments
-     must be paid within 60 days following each date on which you
-     prepare (or are legally required to prepare) your periodic tax
-     returns.  Royalty payments should be clearly marked as such and
-     sent to the Project Gutenberg Literary Archive Foundation at the
-     address specified in Section 4, "Information about donations to
-     the Project Gutenberg Literary Archive Foundation."
-
-- You provide a full refund of any money paid by a user who notifies
-     you in writing (or by e-mail) within 30 days of receipt that s/he
-     does not agree to the terms of the full Project Gutenberg-tm
-     License.  You must require such a user to return or
-     destroy all copies of the works possessed in a physical medium
-     and discontinue all use of and all access to other copies of
-     Project Gutenberg-tm works.
-
-- You provide, in accordance with paragraph 1.F.3, a full refund of any
-     money paid for a work or a replacement copy, if a defect in the
-     electronic work is discovered and reported to you within 90 days
-     of receipt of the work.
-
-- You comply with all other terms of this agreement for free
-     distribution of Project Gutenberg-tm works.
-
-1.E.9.  If you wish to charge a fee or distribute a Project Gutenberg-tm
-electronic work or group of works on different terms than are set
-forth in this agreement, you must obtain permission in writing from
-both the Project Gutenberg Literary Archive Foundation and Michael
-Hart, the owner of the Project Gutenberg-tm trademark.  Contact the
-Foundation as set forth in Section 3 below.
-
-1.F.
-
-1.F.1.  Project Gutenberg volunteers and employees expend considerable
-effort to identify, do copyright research on, transcribe and proofread
-public domain works in creating the Project Gutenberg-tm
-collection.  Despite these efforts, Project Gutenberg-tm electronic
-works, and the medium on which they may be stored, may contain
-"Defects," such as, but not limited to, incomplete, inaccurate or
-corrupt data, transcription errors, a copyright or other intellectual
-property infringement, a defective or damaged disk or other medium, a
-computer virus, or computer codes that damage or cannot be read by
-your equipment.
-
-1.F.2.  LIMITED WARRANTY, DISCLAIMER OF DAMAGES - Except for the "Right
-of Replacement or Refund" described in paragraph 1.F.3, the Project
-Gutenberg Literary Archive Foundation, the owner of the Project
-Gutenberg-tm trademark, and any other party distributing a Project
-Gutenberg-tm electronic work under this agreement, disclaim all
-liability to you for damages, costs and expenses, including legal
-fees.  YOU AGREE THAT YOU HAVE NO REMEDIES FOR NEGLIGENCE, STRICT
-LIABILITY, BREACH OF WARRANTY OR BREACH OF CONTRACT EXCEPT THOSE
-PROVIDED IN PARAGRAPH F3.  YOU AGREE THAT THE FOUNDATION, THE
-TRADEMARK OWNER, AND ANY DISTRIBUTOR UNDER THIS AGREEMENT WILL NOT BE
-LIABLE TO YOU FOR ACTUAL, DIRECT, INDIRECT, CONSEQUENTIAL, PUNITIVE OR
-INCIDENTAL DAMAGES EVEN IF YOU GIVE NOTICE OF THE POSSIBILITY OF SUCH
-DAMAGE.
-
-1.F.3.  LIMITED RIGHT OF REPLACEMENT OR REFUND - If you discover a
-defect in this electronic work within 90 days of receiving it, you can
-receive a refund of the money (if any) you paid for it by sending a
-written explanation to the person you received the work from.  If you
-received the work on a physical medium, you must return the medium with
-your written explanation.  The person or entity that provided you with
-the defective work may elect to provide a replacement copy in lieu of a
-refund.  If you received the work electronically, the person or entity
-providing it to you may choose to give you a second opportunity to
-receive the work electronically in lieu of a refund.  If the second copy
-is also defective, you may demand a refund in writing without further
-opportunities to fix the problem.
-
-1.F.4.  Except for the limited right of replacement or refund set forth
-in paragraph 1.F.3, this work is provided to you 'AS-IS' WITH NO OTHER
-WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-WARRANTIES OF MERCHANTIBILITY OR FITNESS FOR ANY PURPOSE.
-
-1.F.5.  Some states do not allow disclaimers of certain implied
-warranties or the exclusion or limitation of certain types of damages.
-If any disclaimer or limitation set forth in this agreement violates the
-law of the state applicable to this agreement, the agreement shall be
-interpreted to make the maximum disclaimer or limitation permitted by
-the applicable state law.  The invalidity or unenforceability of any
-provision of this agreement shall not void the remaining provisions.
-
-1.F.6.  INDEMNITY - You agree to indemnify and hold the Foundation, the
-trademark owner, any agent or employee of the Foundation, anyone
-providing copies of Project Gutenberg-tm electronic works in accordance
-with this agreement, and any volunteers associated with the production,
-promotion and distribution of Project Gutenberg-tm electronic works,
-harmless from all liability, costs and expenses, including legal fees,
-that arise directly or indirectly from any of the following which you do
-or cause to occur: (a) distribution of this or any Project Gutenberg-tm
-work, (b) alteration, modification, or additions or deletions to any
-Project Gutenberg-tm work, and (c) any Defect you cause.
-
-
-Section  2.  Information about the Mission of Project Gutenberg-tm
-
-Project Gutenberg-tm is synonymous with the free distribution of
-electronic works in formats readable by the widest variety of computers
-including obsolete, old, middle-aged and new computers.  It exists
-because of the efforts of hundreds of volunteers and donations from
-people in all walks of life.
-
-Volunteers and financial support to provide volunteers with the
-assistance they need, is critical to reaching Project Gutenberg-tm's
-goals and ensuring that the Project Gutenberg-tm collection will
-remain freely available for generations to come.  In 2001, the Project
-Gutenberg Literary Archive Foundation was created to provide a secure
-and permanent future for Project Gutenberg-tm and future generations.
-To learn more about the Project Gutenberg Literary Archive Foundation
-and how your efforts and donations can help, see Sections 3 and 4
-and the Foundation web page at http://www.pglaf.org.
-
-
-Section 3.  Information about the Project Gutenberg Literary Archive
-Foundation
-
-The Project Gutenberg Literary Archive Foundation is a non profit
-501(c)(3) educational corporation organized under the laws of the
-state of Mississippi and granted tax exempt status by the Internal
-Revenue Service.  The Foundation's EIN or federal tax identification
-number is 64-6221541.  Its 501(c)(3) letter is posted at
-http://pglaf.org/fundraising.  Contributions to the Project Gutenberg
-Literary Archive Foundation are tax deductible to the full extent
-permitted by U.S. federal laws and your state's laws.
-
-The Foundation's principal office is located at 4557 Melan Dr. S.
-Fairbanks, AK, 99712., but its volunteers and employees are scattered
-throughout numerous locations.  Its business office is located at
-809 North 1500 West, Salt Lake City, UT 84116, (801) 596-1887, email
-business@pglaf.org.  Email contact links and up to date contact
-information can be found at the Foundation's web site and official
-page at http://pglaf.org
-
-For additional contact information:
-     Dr. Gregory B. Newby
-     Chief Executive and Director
-     gbnewby@pglaf.org
-
-
-Section 4.  Information about Donations to the Project Gutenberg
-Literary Archive Foundation
-
-Project Gutenberg-tm depends upon and cannot survive without wide
-spread public support and donations to carry out its mission of
-increasing the number of public domain and licensed works that can be
-freely distributed in machine readable form accessible by the widest
-array of equipment including outdated equipment.  Many small donations
-($1 to $5,000) are particularly important to maintaining tax exempt
-status with the IRS.
-
-The Foundation is committed to complying with the laws regulating
-charities and charitable donations in all 50 states of the United
-States.  Compliance requirements are not uniform and it takes a
-considerable effort, much paperwork and many fees to meet and keep up
-with these requirements.  We do not solicit donations in locations
-where we have not received written confirmation of compliance.  To
-SEND DONATIONS or determine the status of compliance for any
-particular state visit http://pglaf.org
-
-While we cannot and do not solicit contributions from states where we
-have not met the solicitation requirements, we know of no prohibition
-against accepting unsolicited donations from donors in such states who
-approach us with offers to donate.
-
-International donations are gratefully accepted, but we cannot make
-any statements concerning tax treatment of donations received from
-outside the United States.  U.S. laws alone swamp our small staff.
-
-Please check the Project Gutenberg Web pages for current donation
-methods and addresses.  Donations are accepted in a number of other
-ways including including checks, online payments and credit card
-donations.  To donate, please visit: http://pglaf.org/donate
-
-
-Section 5.  General Information About Project Gutenberg-tm electronic
-works.
-
-Professor Michael S. Hart is the originator of the Project Gutenberg-tm
-concept of a library of electronic works that could be freely shared
-with anyone.  For thirty years, he produced and distributed Project
-Gutenberg-tm eBooks with only a loose network of volunteer support.
-
-
-Project Gutenberg-tm eBooks are often created from several printed
-editions, all of which are confirmed as Public Domain in the U.S.
-unless a copyright notice is included.  Thus, we do not necessarily
-keep eBooks in compliance with any particular paper edition.
-
-
-Most people start at our Web site which has the main PG search facility:
-
-     http://www.gutenberg.net
-
-This Web site includes information about Project Gutenberg-tm,
-including how to make donations to the Project Gutenberg Literary
-Archive Foundation, how to help produce our new eBooks, and how to
-subscribe to our email newsletter to hear about new eBooks.

@@ -46,15 +46,18 @@ byline = "by William Shakespeare"
 target_folder = os.path.join("sources", "various")
 source_filename = os.path.join(target_folder, "AChristmasCarol.txt")
 end_marker = "THE END"
+license_start = '*** START: FULL LICENSE ***'
+
+
 
 sack = []
 
 title = ""
 
-# folder_list = os.listdir(target_folder)
-# folder_list = [f for f in folder_list if f.endswith(".txt") and os.path.isfile(os.path.join(target_folder, f))]
-# file_list = [os.path.join(target_folder, f) for f in folder_list]
-file_list = [source_filename]
+folder_list = os.listdir(target_folder)
+folder_list = [f for f in folder_list if f.endswith(".txt") and os.path.isfile(os.path.join(target_folder, f))]
+file_list = [os.path.join(target_folder, f) for f in folder_list]
+# file_list = [source_filename]
 # file_list = file_list[4:5]
 
 p = Preprocess()
@@ -79,7 +82,6 @@ for source_filename in file_list:
     full_doc = p.replace_singlequote(full_doc)
     full_doc = p.replace_doublequotes(full_doc)
     full_doc = p.odd_character_replacements(full_doc, encoding)
-
 
     with open(source_filename, 'w', encoding=encoding) as f_handle:
         f_handle.seek(0)

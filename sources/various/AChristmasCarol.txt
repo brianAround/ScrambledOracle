@@ -16,7 +16,7 @@ MARLEY was dead: to begin with. There is no doubt
 whatever about that. The register of his burial was
 signed by the clergyman, the clerk, the undertaker,
 and the chief mourner. Scrooge signed it: and
-Scrooge's name was good upon 'Change, for anything he
+Scrooge's name was good upon "Change, for anything he
 chose to put his hand to. Old Marley was as dead as a
 door-nail.
 
@@ -170,7 +170,7 @@ not an hour richer; a time for balancing your books
 and having every item in 'em through a round dozen
 of months presented dead against you? If I could
 work my will," said Scrooge indignantly, "every idiot
-who goes about with 'Merry Christmas' on his lips,
+who goes about with "Merry Christmas" on his lips,
 should be boiled with his own pudding, and buried
 with a stake of holly through his heart. He should!"
 
@@ -375,7 +375,7 @@ being left in solitude, its overflowings sullenly congealed,
 and turned to misanthropic ice. The brightness
 of the shops where holly sprigs and berries
 crackled in the lamp heat of the windows, made pale
-faces ruddy as they passed. Poulterers' and grocers'
+faces ruddy as they passed. Poulterers" and grocers"
 trades became a splendid joke: a glorious pageant,
 with which it was next to impossible to believe that
 such dull principles as bargain and sale had anything
@@ -473,7 +473,7 @@ London, even including--which is a bold word--the
 corporation, aldermen, and livery. Let it also be
 borne in mind that Scrooge had not bestowed one
 thought on Marley, since his last mention of his
-seven years' dead partner that afternoon. And then
+seven years" dead partner that afternoon. And then
 let any man explain to me, if he can, how it happened
 that Scrooge, having his key in the lock of the door,
 saw in the knocker, without its undergoing any intermediate
@@ -990,7 +990,7 @@ and making a great stir, as there unquestionably would have been
 if night had beaten off bright day, and taken possession of the
 world.  This was a great relief, because "three days after sight
 of this First of Exchange pay to Mr. Ebenezer Scrooge or his
-order," and so forth, would have become a mere United States'
+order," and so forth, would have become a mere United States"
 security if there were no days to count by.
 
 Scrooge went to bed again, and thought, and thought, and thought
@@ -1256,8 +1256,8 @@ the city, indeed.
 yellow tail, with a thing like a lettuce growing out of the
 top of his head; there he is! Poor Robin Crusoe, he called
 him, when he came home again after sailing round the
-island. 'Poor Robin Crusoe, where have you been, Robin
-Crusoe?'  The man thought he was dreaming, but he wasn't.
+island. "Poor Robin Crusoe, where have you been, Robin
+Crusoe?"  The man thought he was dreaming, but he wasn't.
 It was the Parrot, you know. There goes Friday, running
 for his life to the little creek! Halloa! Hoop! Halloo!"
 
@@ -1389,7 +1389,7 @@ called out in a comfortable, oily, rich, fat, jovial voice:
 "Yo ho, there! Ebenezer! Dick!"
 
 Scrooge's former self, now grown a young man, came briskly
-in, accompanied by his fellow-'prentice.
+in, accompanied by his fellow-"prentice.
 
 "Dick Wilkins, to be sure!" said Scrooge to the Ghost.
 "Bless me, yes. There he is. He was very much attached
@@ -1483,7 +1483,7 @@ When the clock struck eleven, this domestic ball broke up.
 Mr. and Mrs. Fezziwig took their stations, one on either side
 of the door, and shaking hands with every person individually
 as he or she went out, wished him or her a Merry Christmas.
-When everybody had retired but the two 'prentices, they did
+When everybody had retired but the two "prentices, they did
 the same to them; and thus the cheerful voices died away,
 and the lads were left to their beds; which were under a
 counter in the back-shop.
@@ -1907,7 +1907,7 @@ and the shortest streets were choked up with a dingy mist,
 half thawed, half frozen, whose heavier particles descended
 in a shower of sooty atoms, as if all the chimneys in Great
 Britain had, by one consent, caught fire, and were blazing away
-to their dear hearts' content. There was nothing very cheerful
+to their dear hearts" content. There was nothing very cheerful
 in the climate or the town, and yet was there an air of
 cheerfulness abroad that the clearest summer air and brightest
 summer sun might have endeavoured to diffuse in vain.
@@ -1917,8 +1917,8 @@ were jovial and full of glee; calling out to one another
 from the parapets, and now and then exchanging a facetious
 snowball--better-natured missile far than many a wordy jest--
 laughing heartily if it went right and not less heartily if it
-went wrong. The poulterers' shops were still half open, and the
-fruiterers' were radiant in their glory. There were great, round,
+went wrong. The poulterers" shops were still half open, and the
+fruiterers" were radiant in their glory. There were great, round,
 pot-bellied baskets of chestnuts, shaped like the waistcoats
 of jolly old gentlemen, lolling at the doors, and tumbling out
 into the street in their apoplectic opulence. There were
@@ -1927,7 +1927,7 @@ the fatness of their growth like Spanish Friars, and winking
 from their shelves in wanton slyness at the girls as they went
 by, and glanced demurely at the hung-up mistletoe. There were
 pears and apples, clustered high in blooming pyramids; there
-were bunches of grapes, made, in the shopkeepers' benevolence
+were bunches of grapes, made, in the shopkeepers" benevolence
 to dangle from conspicuous hooks, that people's mouths might
 water gratis as they passed; there were piles of filberts, mossy
 and brown, recalling, in their fragrance, ancient walks among
@@ -1942,7 +1942,7 @@ stagnant-blooded race, appeared to know that there was
 something going on; and, to a fish, went gasping round and
 round their little world in slow and passionless excitement.
 
-The Grocers'! oh, the Grocers'! nearly closed, with perhaps
+The Grocers"! oh, the Grocers"! nearly closed, with perhaps
 two shutters down, or one; but through those gaps such
 glimpses! It was not alone that the scales descending on the
 counter made a merry sound, or that the twine and roller
@@ -1973,7 +1973,7 @@ chapel, and away they came, flocking through the streets in
 their best clothes, and with their gayest faces. And at the
 same time there emerged from scores of bye-streets, lanes, and
 nameless turnings, innumerable people, carrying their dinners
-to the bakers' shops. The sight of these poor revellers
+to the bakers" shops. The sight of these poor revellers
 appeared to interest the Spirit very much, for he stood with
 Scrooge beside him in a baker's doorway, and taking off the
 covers as their bearers passed, sprinkled incense on their
@@ -2651,7 +2651,7 @@ that way.
 "He has given us plenty of merriment, I am sure," said
 Fred, "and it would be ungrateful not to drink his health.
 Here is a glass of mulled wine ready to our hand at the
-moment; and I say, 'Uncle Scrooge!'"
+moment; and I say, "Uncle Scrooge!""
 
 "Well! Uncle Scrooge!" they cried.
 
@@ -2687,7 +2687,7 @@ it, until they left a children's Twelfth Night party, when,
 looking at the Spirit as they stood together in an open place,
 he noticed that its hair was grey.
 
-"Are spirits' lives so short?" asked Scrooge.
+"Are spirits" lives so short?" asked Scrooge.
 
 "My life upon this globe, is very brief," replied the Ghost.
 "It ends to-night."
@@ -2823,7 +2823,7 @@ up, he thought, and carried him along.
 They scarcely seemed to enter the city; for the city rather
 seemed to spring up about them, and encompass them of its
 own act. But there they were, in the heart of it; on
-'Change, amongst the merchants; who hurried up and down,
+"Change, amongst the merchants; who hurried up and down,
 and chinked the money in their pockets, and conversed in
 groups, and looked at their watches, and trifled thoughtfully
 with their great gold seals; and so forth, as Scrooge had
@@ -3262,8 +3262,8 @@ still as statues in one corner, and sat looking up at Peter,
 who had a book before him. The mother and her daughters
 were engaged in sewing. But surely they were very quiet!
 
-"'And He took a child, and set him in the midst of
-them.'"
+""And He took a child, and set him in the midst of
+them.""
 
 Where had Scrooge heard those words? He had not
 dreamed them. The boy must have read them out, as he
@@ -3341,8 +3341,8 @@ once, and who, meeting him in the street that day, and seeing
 that he looked a little--"just a little down you know," said
 Bob, inquired what had happened to distress him. "On
 which," said Bob, "for he is the pleasantest-spoken gentleman
-you ever heard, I told him. 'I am heartily sorry for it, Mr.
-Cratchit,' he said, 'and heartily sorry for your good wife.'
+you ever heard, I told him. "I am heartily sorry for it, Mr.
+Cratchit," he said, "and heartily sorry for your good wife."
 By the bye, how he ever knew that, I don't know."
 
 "Knew what, my dear?"
@@ -3352,9 +3352,9 @@ By the bye, how he ever knew that, I don't know."
 "Everybody knows that!" said Peter.
 
 "Very well observed, my boy!" cried Bob. "I hope they
-do. 'Heartily sorry,' he said, 'for your good wife. If I
-can be of service to you in any way,' he said, giving me
-his card, 'that's where I live. Pray come to me.' Now, it
+do. "Heartily sorry," he said, "for your good wife. If I
+can be of service to you in any way," he said, giving me
+his card, "that's where I live. Pray come to me." Now, it
 wasn't," cried Bob, "for the sake of anything he might be
 able to do for us, so much as for his kind way, that this was
 quite delightful. It really seemed as if he had known our
