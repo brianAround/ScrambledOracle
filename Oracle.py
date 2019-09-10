@@ -24,8 +24,6 @@ def find_add_item_index(item, item_list):
     return item_index
 
 
-
-
 class Oracle:
 
     sent_messages = {}
@@ -438,13 +436,23 @@ class Oracle:
             last_tweet_id = self.send_tweet(summary_message, tweet_id)
             for passage in passages:
                 passage_text = str(passage['item'] + 1) + ". From " + passage['source_name'] + ":\n"
-                full_quote = passage['full_quote'].replace('<used>', '[').replace('</used>',']')
-                passage_text += full_quote
+                context_quote = passage['full_quote'].replace('<used>', '[').replace('</used>',']')
+                available_char = self.max_twitter_char - len(passage_text)
+                if len(context_quote) > available_char:
+                    if available_char - len(passage['fragment']) > 30:
+                        start_idx = context_quote.index("[")
+                        end_idx = context_quote.index("]")
+                        while end_idx - start_idx < available_char - 8:
+                            if start_idx > 0:
+                                start_idx -= 1
+                            if end_idx < len(context_quote) - 1:
+                                end_idx += 1
+                        context_quote = '... ' + context_quote[start_idx:end_idx] + ' ...'
+                passage_text += context_quote
                 last_tweet_id = self.send_tweet(passage_text, last_tweet_id)
         else:
-            summary_message = "There is no record of the sources for this tweet. " + mention_user
+            summary_message = "There is no record of the sources for this tweet. " + " ".join(mention_user)
             last_tweet_id = self.send_tweet(summary_message, tweet_id)
-
 
 
     def send_tweet(self, message, respond_to_tweet=0):
@@ -685,6 +693,9 @@ class Oracle:
     def get_breakdown_filename(self, tweet_id):
         return os.path.join('tweets', 'TweetBreakdown' + str(tweet_id) + '.json')
 
+    def has_tweet_breakdown(self, tweet_id):
+        return os.path.isfile(self.get_breakdown_filename(tweet_id))
+
     def load_tweet_breakdown(self, tweet_id:int):
         result = None
         bd_filename = self.get_breakdown_filename(tweet_id)
@@ -713,12 +724,21 @@ class Oracle:
         return "".join(result)
 
     @staticmethod
-    def wrap_a_substring(source_text, subtext, prefix, suffix):
-        align = SequenceAlignment.get_alignment(source_text, subtext, penalty_blank=5)
-        prefix_idx = align['match_starts_in_1']
-        suffix_idx = align['match_ends_in_1'] + 1
-        if suffix_idx - prefix_idx > len(subtext) + 5:
-            suffix_idx = prefix_idx + len(subtext) + 1
+    def wrap_a_substring(source_text:str, subtext:str, prefix:str, suffix:str):
+        highlighted = ''
+        if subtext in source_text:
+            first_idx = source_text.index(subtext)
+            last_idx = first_idx + len(subtext)
+            inserted_text = prefix + source_text[first_idx:last_idx] + suffix
+            highlighted = source_text[:first_idx] + inserted_text + source_text[last_idx:]
+            return highlighted
+        else:
+            align = SequenceAlignment.get_alignment(source_text, subtext, penalty_blank=5)
+            prefix_idx = align['match_starts_in_1']
+            suffix_idx = align['match_ends_in_1'] + 1
+            if suffix_idx - prefix_idx > len(subtext) + 5:
+                suffix_idx = prefix_idx + len(subtext) + 1
+            return source_text[:prefix_idx] + prefix + source_text[prefix_idx:suffix_idx] +\
+                suffix + source_text[suffix_idx:]
 
-        return source_text[:prefix_idx] + prefix + source_text[prefix_idx:suffix_idx] +\
-            suffix + source_text[suffix_idx:]
+

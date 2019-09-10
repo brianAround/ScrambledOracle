@@ -200,7 +200,17 @@ def load_mentions(filename, pending_only=False):
                 mentions[values[0]] = tweet
     return mentions
 
+def get_tweet(use_config_path, tweet_id):
+    raw_tweet = [None]
+    try:
+        repository = TwitterRepository(use_config_path)
+        twitter = repository.get_client_instance()
+        raw_tweet = twitter.lookup_status(id=tweet_id, tweet_mode='extended')
+    except TwythonError as twy_err:
+        print(type(twy_err))
+        print(twy_err.args)
+    return raw_tweet[0]
 
 
-# use the max_id to know what's been handled and what hasn't.
+    # use the max_id to know what's been handled and what hasn't.
 # important attributes: id, text (perhaps full_text, newlines and tabs cloaked for save), truncated, ['entities']['user_mentions']->['screen_name'],

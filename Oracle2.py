@@ -325,6 +325,15 @@ def run_commands(commands, config_file):
                     if len(options) == 1:
                         previous_tweet = Repeater.get_tweet_uplink(command['id'])
                         to_user = Repeater.target.get_reply_users(command['id'])
+                        # starting right here, this is such a nasty mess
+                        if not Repeater.target.has_tweet_breakdown(previous_tweet['id']):
+                            try:
+                                linker = configure_linker(config_file=config_file, initialize=False)
+                                passages = linker.reconstruct_tweet_passages(previous_tweet['full_text'])
+                                breakdown = Repeater.target.build_tweet_breakdown(previous_tweet['full_text'], passages, previous_tweet['id'])
+                                Repeater.target.store_tweet_breakdown(breakdown)
+                            except:
+                                print('Failed to recontruct breakdown for:', previous_tweet['id'], previous_tweet['full_text'])
                         Repeater.target.append_tweet_breakdown(previous_tweet['id'], mention_user=to_user)
                         # this one only works when the command is a reply to the specific message to view sources.
                     # elif len(options) == 2:
@@ -466,7 +475,7 @@ def check():
 
 if not single_run:
     schedule.every(15).minutes.do(send, 'respond').tag('respond_all')
-    schedule.every(120).minutes.do(send, 'originate').tag('originate_all')
+    schedule.every(60).minutes.do(send, 'originate').tag('originate_all')
     # schedule.every(10).minutes.do(send, 'originate', 'oracle').tag('originate_oracle')
 
     schedule.run_all(1)

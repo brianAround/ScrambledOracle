@@ -75,10 +75,13 @@ class ChainLinker:
         if self.verbose:
             print(message)
 
-    def initialize_chain(self):
+    def initialize_chain(self, prevent_timeout=False):
         target_file = self.filename
         self.file_rebuilt = False
-        if not os.path.isfile(target_file) or os.path.getmtime(target_file) < time.time() - self.data_refresh_time:
+        is_timed_out = False
+        if not prevent_timeout:
+            is_timed_out = (os.path.getmtime(target_file) < time.time() - self.data_refresh_time)
+        if not os.path.isfile(target_file) or is_timed_out:
             self.regenerate_by_config(target_file)
         self.chain = WordChain()
         self.chain.depth = self.depth
@@ -220,14 +223,18 @@ class ChainLinker:
             if not tweet['is_retweet'] and tweet['reaction_status'] not in ['executed']\
                     and ' oracle: ' not in tweet['text'].lower():
                 tweet_text = tweet['text']
-                working_text = []
-                for term in tweet_text.split():
-                    if term[0] not in ('@', '#') and not term.lower().startswith("http"):
-                        working_text.append(term)
-                lines.append(' '.join(working_text))
+                working_text = self.clean_tweet_text(tweet_text)
+                lines.append(working_text)
 
         # print('Retrieved user mentions text:', lines)
         return lines
+
+    def clean_tweet_text(self, tweet_text):
+        working_text = []
+        for term in tweet_text.split():
+            if term[0] not in ('@', '#') and not term.lower().startswith("http"):
+                working_text.append(term)
+        return ' '.join(working_text)
 
     def stimulate_word_tally(self, source_name, lines, depth, word_tally, multiplier=10):
         self.say("Stimulating word tally with " + str(len(lines)) + " additional patterns.")
@@ -439,6 +446,21 @@ class ChainLinker:
             self.depth = chain.depth
 
 
+    def reconstruct_tweet_passages(self, source_text):
+        sentence = nltk.word_tokenize(self.clean_tweet_text(source_text))
+        tagged = self.tag_text(sentence)
+
+        if self.chain is None:
+            self.initialize_chain(prevent_timeout=True)
+
+        mpath = self.chain.find_path_for_tagged(tagged)
+        sources = []
+        for set_node in mpath:
+            self.chain.append_node_sources(set_node, sources)
+
+        passages = self.chain.identify_passages(sources)
+        return passages
+
 notes = """Ideas for optimizing the file structure:
     Replace the words with numbers:
         Sort the terms in descending order of frequency, then assign numbers sequentially, to minimize space.
@@ -447,3 +469,4 @@ notes = """Ideas for optimizing the file structure:
     In .srcmap, enumerate sources to keep from repeating source name t1 times.
     In the header for the .srcmap add a listing for each source to enable more rich metadata.
     """
+
