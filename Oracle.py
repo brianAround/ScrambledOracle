@@ -1,5 +1,6 @@
 import codecs
 import configparser
+import json
 import os.path
 import smtplib
 from email.mime.text import MIMEText
@@ -358,7 +359,8 @@ class Oracle:
 
         twit_id = self.send_tweet(message)
         if twit_id > 0:
-            self.send_passages_email(message, passages, twit_id)
+            breakdown = self.build_tweet_breakdown(message, passages, twit_id)
+            self.send_passages_email(breakdown)
         return message
 
     def get_source_hashtag(self, passages, source_hashtag):
@@ -397,7 +399,8 @@ class Oracle:
             message = self.add_hashtag(message)
             twit_id = self.send_tweet(message, respond_to_tweet=original_tweet_id)
         if twit_id > 0:
-            self.send_passages_email(message, passages, twit_id)
+            breakdown = self.build_tweet_breakdown(message, passages, twit_id)
+            self.send_passages_email(breakdown)
         return message
 
     def get_reply_users(self, original_tweet_id, posted_user_only=True):
@@ -410,8 +413,6 @@ class Oracle:
                 username.extend([screen_name for screen_name in mentioned if screen_name != self.twitter_handle])
         return username
 
-
-
     def send_build_announcement(self, mention_users=None):
         build_time = time.time()
         if os.path.isfile(self.filename):
@@ -422,6 +423,29 @@ class Oracle:
         if mention_users is not None:
             build_message += '\n' + ' '.join(mention_users)
         self.send_tweet(build_message)
+
+    def append_tweet_breakdown(self, tweet_id, mention_user=None):
+        tweet_breakdown = self.load_tweet_breakdown(tweet_id)
+        summary_message = ""
+        if tweet_breakdown is not None:
+            passages = tweet_breakdown['passages']
+            sources = set([passage['source_name'] for passage in passages])
+            summary_message = "This tweet is composed from " + str(len(passages)) + " passages"
+            summary_message += " from " + str(len(sources)) + " sources.\n"
+            if mention_user is not None:
+                summary_message += " ".join(mention_user)
+            summary_message += "\nIndividual passages follow. 2/" + str(len(passages) + 2)
+            last_tweet_id = self.send_tweet(summary_message, tweet_id)
+            for passage in passages:
+                passage_text = str(passage['item'] + 1) + ". From " + passage['source_name'] + ":\n"
+                full_quote = passage['full_quote'].replace('<used>', '[').replace('</used>',']')
+                passage_text += full_quote
+                last_tweet_id = self.send_tweet(passage_text, last_tweet_id)
+        else:
+            summary_message = "There is no record of the sources for this tweet. " + mention_user
+            last_tweet_id = self.send_tweet(summary_message, tweet_id)
+
+
 
     def send_tweet(self, message, respond_to_tweet=0):
         twit_id = 0
@@ -572,32 +596,47 @@ class Oracle:
                 message += ' ' + use_hashtag
         return message
 
-    def send_passages_email(self, message, passages, tweet_id):
+    def build_tweet_breakdown(self, message, passages, tweet_id):
+        tweet_breakdown = {'id': tweet_id,
+                           'bot_name': self.bot_name,
+                           'twitter_username': self.twitter_handle,
+                           'text': message,
+                           'passages': []}
+        passage_index = 0
+        for passage in passages:
+            full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+            full_passage = self.wrap_a_substring(full_passage, passage[5],
+                                                 '<used>',
+                                                 '</used>')
+            entry = {'item': passage_index,
+                     'fragment': passage[5],
+                     'source_name': self.clean_source(passage[0]),
+                     'source_position': passage[3],
+                     'prefix': passage[6],
+                     'full_quote': full_passage }
+            tweet_breakdown['passages'].append(entry)
+            passage_index += 1
+        return tweet_breakdown
+
+    # def send_passages_email(self, message, passages, tweet_id):
+    def send_passages_email(self, tweet_breakdown):
         try:
             email_config = self.config['email_account']
-            msg = "<h3>" + self.config['bot_info']['name'] + "</h3>\n"
-            msg += "<h4>The tweet with ID " + str(tweet_id) + ':</h4>\n\n'
-            msg += '<blockquote><h3>' + message
+            msg = "<h3>" + tweet_breakdown['bot_name'] + "</h3>\n"
+            msg += "<h4>The tweet with ID " + str(tweet_breakdown['id']) + ':</h4>\n\n'
+            msg += '<blockquote><h3>' + tweet_breakdown['text']
             msg += "</h3></blockquote>\n\nIs composed of the following passages.\n"
             msg += "<ol>\n"
-            for passage in passages:
-                full_passage = self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
-                full_passage = self.wrap_a_substring(full_passage, passage[5],
-                                                     '<strong>',
-                                                     '</strong>')
-                msg += "<li><strong>&quot;" + passage[5] + "&quot;</strong> - from source: "
-                msg += "<strong><em>" + self.clean_source(passage[0]) + "</em></strong> "
-                msg += "at position " + str(passage[3]) + "<br \>\n"
+            for passage in tweet_breakdown['passages']:
+                full_passage = passage['full_quote'].replace('used>','strong>')
+                msg += "<li><strong>&quot;" + passage['fragment'] + "&quot;</strong> - from source: "
+                msg += "<strong><em>" + passage['source_name'] + "</em></strong> "
+                msg += "at position " + str(passage['source_position']) + "<br \>\n"
                 msg += "<strong>Full passage:</strong> <blockquote><em>&quot;" + full_passage + \
                        "&quot;</em></blockquote></li>\n"
                 # print(full_passage)
             msg += "</ol>\n"
 
-            msg += "<h3>Raw Data:</h3>"
-            msg += '<pre>[Source, Position, Size, From Idx, To Idx, Text, Prefix(first)]\n'
-            for passage in passages:
-                msg += str(passage) + '\n'
-            msg += "\n"
             if 'send_email' in email_config and email_config['send_email'] == 'True':
                 server = smtplib.SMTP(email_config['smtp_server'], int(email_config['port']))
                 server.ehlo()
@@ -606,19 +645,21 @@ class Oracle:
                 server.login(email_config['account_name'], email_config['password'])
 
                 eml = MIMEText(msg)
-                if len(message) > 70:
-                    subject = self.config['bot_info']['name'] + ' Analysis: ' + message[:70] + '...'
+                if len(tweet_breakdown['text']) > 70:
+                    subject = tweet_breakdown['bot_name'] + ' Analysis: ' + tweet_breakdown['text'][:70] + '...'
                 else:
-                    subject = self.config['bot_info']['name'] + ' Analysis: ' + message
+                    subject = tweet_breakdown['bot_name'] + ' Analysis: ' + tweet_breakdown['text']
                 eml['Subject'] = subject
                 eml['From'] = email_config['account_name']
                 eml['To'] = email_config['send_email_to']
                 server.send_message(eml)
             # else:
             # open(outfile + '.srcmap', 'w', encoding="utf-8")
-            filename = os.path.join('tweets', 'Tweet' + str(tweet_id) + '.htm')
+            filename = os.path.join('tweets', 'Tweet' + str(tweet_breakdown['id']) + '.htm')
             with open(filename, 'w', encoding='utf-8') as f_handle:
                 f_handle.write(msg)
+            self.store_tweet_breakdown(tweet_breakdown)
+
         except ValueError as err:
             print("Value Error on email send:", err)
             pass
@@ -634,6 +675,23 @@ class Oracle:
             # write source position. - str(passage[3])
             # write passage text - passage(5)
             # write full_passage text - self.chain.render_message_from_path(self.chain.find_passage_nodes(passage))
+
+    def store_tweet_breakdown(self, tweet_breakdown):
+        bd_filename = self.get_breakdown_filename(tweet_breakdown['id'])
+        with open(bd_filename, 'w', encoding='utf-8') as f_handle:
+            json.dump(tweet_breakdown, f_handle)
+            # f_handle.write(str(tweet_breakdown))
+
+    def get_breakdown_filename(self, tweet_id):
+        return os.path.join('tweets', 'TweetBreakdown' + str(tweet_id) + '.json')
+
+    def load_tweet_breakdown(self, tweet_id:int):
+        result = None
+        bd_filename = self.get_breakdown_filename(tweet_id)
+        if os.path.isfile(bd_filename):
+            with open(bd_filename, 'r') as f_handle:
+                result = json.load(f_handle)
+        return result
 
     @staticmethod
     def clean_source(source_text):

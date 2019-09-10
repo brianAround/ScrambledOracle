@@ -7,7 +7,7 @@ from WordChainScribe import Scribe
 
 print('WordChain Packer Utility ver. 2.1')
 
-map_name = "oracle.txt.map"
+map_name = "various.txt.map"
 target_depth = 4
 build_type = "F"
 target_dir = os.path.join("sources", "various")
@@ -26,7 +26,7 @@ def get_relative_file_list(source_folder):
 
 # text_list = get_relative_file_list(target_dir)
 
-#text_list = ['sources/various/alice13a.txt']
+text_list = ['sources/various/PictureOfDorianGray.txt', 'sources/various/AnneOfGreenGables.txt', 'sources/various/MetamorphosisKafka.txt']
 
 #text_list = ['sources\\pratchett\\DW 013 SmallGods.txt','sources\\pratchett\\DW 028 AmazingMaurice.txt','sources\\pratchett\\DW 011 ReaperMan.txt']
 # text_list.extend(get_relative_file_list('sources/dougadams'))
@@ -109,7 +109,8 @@ print("Reading files and creating map file:", map_name)
 if build_type == "D":
     linker.build_and_save_chain_from_directory(target_dir, depth=target_depth, target_filename=map_name)
 elif build_type in ["F", "S"]:
-    linker.build_and_save_chain_from_list(text_list, target_depth, map_name)
+    lines = linker.get_mentions_text(linker.twitter_handle.replace('@',''))
+    linker.build_and_save_chain_from_list(text_list, target_depth, map_name, lines)
 print("Reading", map_name, "from disk")
 Scribe.read_map(map_name, chain=o.chain)
 

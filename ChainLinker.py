@@ -7,7 +7,6 @@ import time
 import nltk
 from WordChain import WordChain, full_stop_beats
 from Oracle import Oracle
-import CharacterFinder
 import TwitterTimeline
 
 
@@ -22,6 +21,7 @@ class ChainLinker:
         self.data_refresh_time = 43200
         self.file_rebuilt = False
         self.depth = 1
+        self.regenerate = 'None'
         self.word_counts = {}
         self.filename = "Leftovers.txt.map"
         self.source_subdirectory = ''
@@ -42,7 +42,6 @@ class ChainLinker:
         self.announce_new_build = False
         self.hashtags = []
         self.sources = []
-
         self.configure_from_file(self.config_file)
 
     def configure_from_file(self, config_file):
@@ -112,7 +111,8 @@ class ChainLinker:
             if len(source_files) >= len(dir_listing):
                 break
         self.say("Building markov chain from sources:" + str(source_files))
-        self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file, mention_lines=mention_lines)
+        self.build_and_save_chain_from_list(source_files, depth=self.depth, target_filename=target_file,
+                                            mention_lines=mention_lines)
         self.file_rebuilt = True
 
     @staticmethod
@@ -215,18 +215,18 @@ class ChainLinker:
         mentions_filename = TwitterTimeline.get_mentions_filename(username)
         mentions = TwitterTimeline.get_mentions(self.config_file, username, mentions_filename)
         lines = []
-        for id in mentions:
-            tweet = mentions[id]
+        for tweet_id in mentions:
+            tweet = mentions[tweet_id]
             if not tweet['is_retweet'] and tweet['reaction_status'] not in ['executed']\
                     and ' oracle: ' not in tweet['text'].lower():
                 tweet_text = tweet['text']
                 working_text = []
                 for term in tweet_text.split():
-                    if term[0] not in ('@','#') and not term.lower().startswith("http"):
+                    if term[0] not in ('@', '#') and not term.lower().startswith("http"):
                         working_text.append(term)
                 lines.append(' '.join(working_text))
 
-        print('Retrieved user mentions text:', lines)
+        # print('Retrieved user mentions text:', lines)
         return lines
 
     def stimulate_word_tally(self, source_name, lines, depth, word_tally, multiplier=10):
@@ -254,7 +254,7 @@ class ChainLinker:
                 source_text = f_handle.readlines()
                 source_text = source_text[3:]
                 source_text = [line for line in source_text if line[0] != '#']
-                self.add_lines_to_word_tally(depth, file_path, source_text, word_tally)
+                self.add_lines_to_word_tally(depth, file_path, source_text, word_tally, multiplier)
             else:
                 for line in f_handle:
                     line = line.strip()

@@ -63,6 +63,7 @@ class Repeater:
 
     def __init__(self):
         self.awake = True
+        self.passage_results = []
 
     def send_message(self, prompt=""):
         self.init_target()
@@ -90,17 +91,27 @@ class Repeater:
         if fail_on_lost_prompt and Repeater.target.prompt_reset:
             return ''
         else:
+            self.passage_results = passage_results
             return message
 
     def get_expanded_prompt(self, tweet_id, current_prompt):
+        previous_tweet = self.get_tweet_uplink(tweet_id)
+        if previous_tweet is not None:
+            current_prompt = previous_tweet['full_text'] + ' ' + current_prompt
+        return current_prompt
+
+    @staticmethod
+    def get_tweet_uplink(tweet_id):
+        previous_tweet = None
         if tweet_id != 0:
             this_tweet = Repeater.target.get_tweet(tweet_id)
             if this_tweet is not None:
                 if 'in_reply_to_status_id' in this_tweet:
                     previous_tweet = Repeater.target.get_tweet(this_tweet['in_reply_to_status_id'])
-                    if previous_tweet is not None:
-                        current_prompt = previous_tweet['full_text'] + ' ' + this_tweet['full_text']
-        return current_prompt
+        return previous_tweet
+
+
+
 
     @staticmethod
     def init_target():
@@ -232,6 +243,7 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
             if mention_tweet is not None:
                 prompt_id = mention_tweet['id']
                 prompt = mention_tweet['text']
+                r.passage_results = []
                 print('Replying to tweet id', prompt_id, ':', prompt, 'from', '@' + mention_tweet['posted_by'])
                 message = r.build_message(prompt)
                 if len(message) == 0 and mention_tweet['reaction_status'] == 'speechless':
@@ -240,6 +252,7 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
                     print('Building message for exended prompt:', prompt)
                     old_percentage = r.target.max_percent
                     r.target.max_percent = 3/4
+                    r.passage_results = []
                     message = r.build_message(prompt)
                     r.target.max_percent = old_percentage
                 if len(message) == 0:
@@ -248,6 +261,8 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
                 else:
                     tid = r.send_tweet(message, prompt_id)
                     if tid > 0:
+                        breakdown = r.target.build_tweet_breakdown(message, r.passage_results, tid)
+                        r.target.store_tweet_breakdown(breakdown)
                         mentions[str(prompt_id)]['reaction_status'] = 'replied:' + str(tid)
                     last_message = message
                     message_buckets[channel] = {'id': int(r.target.last_tweet_id), 'text': last_message}
@@ -306,6 +321,15 @@ def run_commands(commands, config_file):
                         Repeater.target.initialize_chain()
                         to_user = Repeater.target.get_reply_users(command['id'])
                         Repeater.target.send_build_announcement(to_user)
+                if options[0] in ('source','sources'):
+                    if len(options) == 1:
+                        previous_tweet = Repeater.get_tweet_uplink(command['id'])
+                        to_user = Repeater.target.get_reply_users(command['id'])
+                        Repeater.target.append_tweet_breakdown(previous_tweet['id'], mention_user=to_user)
+                        # this one only works when the command is a reply to the specific message to view sources.
+                    # elif len(options) == 2:
+                        # a second arg could be the specfic tweet id or a quote-tweet of the twitter id
+                        # the quote-tweet may require translation
                 if options[0] == 'task' and len(options) >= 3:
                     change_type = ''
                     timing_queue = []

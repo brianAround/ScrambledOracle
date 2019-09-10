@@ -45,6 +45,7 @@ class Scribe:
         src_filepath = filepath + ".srcmap"
         if read_srcmap and os.path.isfile(src_filepath):
             Scribe.read_sourcemap(src_filepath, chain)
+            chain.text_source = chain.normalize_text(chain.text_source)
         pos_filepath = filepath + ".posmap"
         if os.path.isfile(pos_filepath):
             Scribe.read_posmap(pos_filepath, chain)
