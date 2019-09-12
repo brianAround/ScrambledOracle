@@ -15,8 +15,8 @@ fetch_data_every = 300
 ignore_bot_ratio = 0.80
 
 
-ini_stems = ['Oracle']
-# ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
+# ini_stems = ['Oracle']
+ini_stems = ['Oracle', 'ScrambledPratchett', 'ScrambledDouglasAdams']
 
 message_buckets = {}
 last_messages_filename = "message_buckets.txt"
@@ -133,6 +133,23 @@ else:
     Repeater.last_message = ""
 
 
+def commands(use_config_stem=None):
+    config_stems = ini_stems
+    if use_config_stem is not None:
+        config_stems = [use_config_stem]
+    start_time = time.time()
+    adjustment = ""
+    r = Repeater()
+    random.shuffle(config_stems)
+    for config_stem in config_stems:
+        file_config = config_stem + adjustment + '.ini'
+        handle_mention_commands_for_config(file_config, r)
+    save_message_buckets()
+
+    Repeater.target = None
+    print("Time taken:", time.time() - start_time)
+
+
 def send(mode='originate', use_config_stem=None):
     adjustment = ""
     iterations = 1
@@ -196,18 +213,43 @@ def send(mode='originate', use_config_stem=None):
     print("Time taken:", time.time() - start_time)
 
 
+def handle_mention_commands_for_config(config_file, r:Repeater):
+    try:
+        add_hashtags = []
+        channel = config_file.split('.')[0]
+        configure_repeater_target(add_hashtags, config_file)
+        print(time.ctime(int(time.time())), "Handling commands for",
+              channel, 'via', Repeater.target.twitter_handle, "...")
+
+        mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@', ''))
+
+        mentions = {}
+        if not os.path.isfile(mentions_file) or os.path.getmtime(mentions_file) < time.time() - fetch_data_every:
+            mentions = TwitterTimeline.get_mentions(config_file, Repeater.target.twitter_handle.replace('@', ''),
+                                                    mentions_file)
+            TwitterTimeline.store_tweets(mentions_file, mentions)
+        else:
+            mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=False)
+
+        current_commands = get_commands_pending(mentions)
+
+        run_commands(current_commands, config_file)
+
+        TwitterTimeline.store_tweets(mentions_file, mentions)
+
+    except ValueError:
+        pass
+    else:
+        pass
+
+
 def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max_length=270, add_hashtags=None,
                                      strangers_only=True):
     try:
-        # linker = ChainLinker(config_file=config_file)
         if add_hashtags is None:
             add_hashtags = []
         channel = config_file.split('.')[0]
-        # linker.data_refresh_time = 10
-        # linker.verbose = True
-        # linker.initialize_chain()
         configure_repeater_target(add_hashtags, config_file, max_length)
-        # Repeater.target.is_new_build = linker.file_rebuilt
         print(time.ctime(int(time.time())), "Handling mentions for", Repeater.target.twitter_handle, "...")
 
         mentions_file = TwitterTimeline.get_mentions_filename(Repeater.target.twitter_handle.replace('@', ''))
@@ -220,17 +262,7 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
         else:
             mentions = TwitterTimeline.load_mentions(mentions_file, pending_only=False)
 
-        # now that the system can post responses, we're close to being able to process commands.
-        # possible valuable commands to use: show build, rebuild, set reply timing 30, set tweet timing 120
-
-        commands = get_commands_pending(mentions)
-
-        run_commands(commands, config_file)
-
         target_tweets = get_response_candidates(mentions)
-
-        prompt_id = 0
-        prompt = ''
 
         mention_tweet = None
         for idx in range(iterations):
@@ -269,8 +301,6 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
                     prompt = last_message
         TwitterTimeline.store_tweets(mentions_file, mentions)
 
-        linker = None
-
     except ValueError:
         pass
     else:
@@ -279,7 +309,7 @@ def send_mention_response_for_config(config_file, r: Repeater, iterations=1, max
 
 def get_commands_pending(mentions):
     target_tweets = [mentions[tid] for tid in mentions
-                     if mentions[tid]['reaction_status'] == 'pending'
+                     if mentions[tid]['reaction_status'] in ['pending','speechless']
                      and ' oracle: ' in mentions[tid]['text'].lower()]
     for tweet in target_tweets:
         clean_words = []
@@ -293,10 +323,12 @@ def get_commands_pending(mentions):
 
 def get_response_candidates(mentions):
     target_tweets = [mentions[tid] for tid in mentions
-                     if mentions[tid]['reaction_status'] == 'pending']
+                     if mentions[tid]['reaction_status'] == 'pending'
+                     and ' oracle: ' not in mentions[tid]['text'].lower()]
     if len(target_tweets) == 0:
         target_tweets = [mentions[tid] for tid in mentions
-                         if mentions[tid]['reaction_status'] == 'speechless']
+                         if mentions[tid]['reaction_status'] == 'speechless'
+                         and ' oracle: ' not in mentions[tid]['text'].lower()]
     return target_tweets
 
 
@@ -384,9 +416,7 @@ def run_commands(commands, config_file):
         command['reaction_status'] = 'executed'
 
 
-
-
-def configure_repeater_target(add_hashtags, config_file, max_length):
+def configure_repeater_target(add_hashtags, config_file, max_length=270):
     Repeater.target = Oracle(config_file=config_file)
     Repeater.target.hashtags += add_hashtags
     Repeater.target.max_percent = Repeater.max_percent
@@ -463,7 +493,6 @@ def get_recent_tweets(tweets, sample_size=5, skip_retweets=True):
     return top_tweets
 
 
-
 def check():
     pass
 
@@ -473,18 +502,23 @@ def check():
 # the course of the day/hour, tweets responses based on this data.
 
 
+def show_scheduled_jobs():
+    for job in schedule.jobs:
+        print(job)
+
+
 if not single_run:
+    schedule.every(5).minutes.do(commands).tag('commands')
     schedule.every(15).minutes.do(send, 'respond').tag('respond_all')
-    schedule.every(60).minutes.do(send, 'originate').tag('originate_all')
-    # schedule.every(10).minutes.do(send, 'originate', 'oracle').tag('originate_oracle')
+    schedule.every(120).minutes.do(send, 'originate').tag('originate_all')
 
     schedule.run_all(1)
     last_hash = str(schedule.jobs)
-    print(schedule.jobs)
+    show_scheduled_jobs()
     while 1:
         schedule.run_pending()
         if last_hash != str(schedule.jobs):
-            print(schedule.jobs)
+            show_scheduled_jobs()
             last_hash = str(schedule.jobs)
         time.sleep(60)
 else:
