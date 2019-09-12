@@ -98,7 +98,9 @@ for idx in range(20, 50):
                             if next_token[1] == 'DT' and token_idx + 2 < len(sentence):
                                 if sentence[token_idx + 2][1] in noun_pos or sentence[token_idx + 2][0] in all_people:
                                     speaker = sentence[token_idx + 2][0]
+
                     all_people[speaker] = 1
+
                     for person in recent_person:
                         all_people[person] = 1
 
@@ -108,15 +110,17 @@ for idx in range(20, 50):
                         elif next_token is not None and next_token[1] in noun_pos:
                             recent_person.append(next_token[0])
     recent_person = recent_person[-5:]
-    if speaker == '':
+    if len(speech) > 0 and speaker == '':
         if recent_speaker_paragraph == idx - 1:
             for person_idx in range(-1,len(recent_person)*-1 - 1,-1):
                 if recent_person[person_idx] != recent_speaker:
                     speaker = recent_person[person_idx]
                     break
-    if speaker == '':
+    if len(speech) > 0 and speaker == '':
         # this rule is dubious
         speaker = ' '.join(mentioned_person)
+    if speaker != '' and recent_person[-1] != speaker:
+        recent_person.append(speaker)
     print('speech:', speech)
     print('speaker:', speaker)
     print('recent_person:', recent_person)
