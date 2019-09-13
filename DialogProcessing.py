@@ -27,15 +27,16 @@ speaker = ''
 
 paragraphs = [block.strip() for block in ''.join(lines).split('\n\n') if block.strip() != '']
 paragraphs = [nltk.sent_tokenize(paragraph) for paragraph in paragraphs]
+clean_para = paragraphs
 paragraphs = [[nltk.word_tokenize(sentence) for sentence in paragraph] for paragraph in paragraphs]
 paragraphs = [nltk.pos_tag_sents(paragraph) for paragraph in paragraphs]
 
 quote_start = '``'
 quote_end = "''"
 
-speech_verbs = ['said']
-noun_pos = ['NN','NNS','NNP','NNPS','PRP']
-name_pos = ['NNP','NNPS']
+speech_verbs = ['said', 'repeated', 'whispered', 'replied', 'joked']
+noun_pos = ['NN', 'NNS', 'NNP', 'NNPS', 'PRP']
+name_pos = ['NNP', 'NNPS']
 names = {}
 all_people = {}
 people_verbs = ['said', 'considered', 'pretended', 'smiled', 'shrugged', 'nodded', 'thought']
@@ -46,7 +47,7 @@ in_quote = False
 recent_speaker = ''
 recent_speaker_paragraph = -1
 
-for idx in range(20, 50):
+for idx in range(len(paragraphs)):
     print('(', idx, ') Number of sentences:', len(paragraphs[idx]))
     speech = []
     other = []
@@ -54,7 +55,7 @@ for idx in range(20, 50):
         recent_speaker_paragraph = idx - 1
         recent_speaker = speaker
     speaker = ''
-    print(' '.join([' '.join([token[0] for token in sentence]) for sentence in paragraphs[idx]]))
+    print(' '.join([sentence for sentence in clean_para[idx]]))
     for sentence_idx in range(len(paragraphs[idx])):
         sentence = paragraphs[idx][sentence_idx]
         # print('sentence:', ' '.join([token[0] for token in sentence]))
@@ -89,9 +90,8 @@ for idx in range(20, 50):
                             recent_person.append(token[0])
                     elif token[1] == 'VBD' and token[0].lower() in speech_verbs:
                         # decide if the speaker comes before or after
-                        if prev_token is not None:
-                            if prev_token[1] in noun_pos or prev_token[0] in all_people:
-                                speaker = prev_token[0]
+                        if prev_token is not None and (prev_token[1] in noun_pos or prev_token[0] in all_people):
+                            speaker = prev_token[0]
                         elif next_token is not None:
                             if next_token[1] in noun_pos:
                                 speaker = next_token[0]
@@ -99,7 +99,8 @@ for idx in range(20, 50):
                                 if sentence[token_idx + 2][1] in noun_pos or sentence[token_idx + 2][0] in all_people:
                                     speaker = sentence[token_idx + 2][0]
 
-                    all_people[speaker] = 1
+                    if speaker != '':
+                        all_people[speaker] = 1
 
                     for person in recent_person:
                         all_people[person] = 1
@@ -110,22 +111,23 @@ for idx in range(20, 50):
                         elif next_token is not None and next_token[1] in noun_pos:
                             recent_person.append(next_token[0])
     recent_person = recent_person[-5:]
-    if len(speech) > 0 and speaker == '':
+    avoid_list = ['', 'he', 'she']
+    if len(speech) > 0 and speaker.lower() in avoid_list:
         if recent_speaker_paragraph == idx - 1:
-            for person_idx in range(-1,len(recent_person)*-1 - 1,-1):
-                if recent_person[person_idx] != recent_speaker:
-                    speaker = recent_person[person_idx]
-                    break
+            avoid_list.append(recent_speaker.lower())
+        for person_idx in range(-1, len(recent_person)*-1 - 1, -1):
+            if recent_person[person_idx].lower() not in avoid_list:
+                speaker = recent_person[person_idx]
+                break
     if len(speech) > 0 and speaker == '':
         # this rule is dubious
         speaker = ' '.join(mentioned_person)
     if speaker != '' and recent_person[-1] != speaker:
         recent_person.append(speaker)
-    print('speech:', speech)
-    print('speaker:', speaker)
-    print('recent_person:', recent_person)
-    print('mentioned_person', mentioned_person)
-    print('other:', other)
+    print(speaker.upper(), ':/t', ' '.join(speech))
+    print()
+    print('mentioned_person', mentioned_person,'recent_person:', ' '.join(recent_person))
+    # print('other:', ' '.join(other))
 print('vbd_verbs:', [verb for verb in vbd_verbs])
 print('people_verbs:', [verb for verb in people_verbs])
 print('all_people:', [person for person in all_people])
