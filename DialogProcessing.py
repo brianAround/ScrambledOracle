@@ -6,7 +6,7 @@ from collections import Iterable
 source_folder = os.path.join('sources','pratchett')
 document_file = 'EqualRites.txt'
 
-para_range_start = 25
+para_range_start = 0
 para_range_end = 70
 
 recognized_pronouns = Person.recognized_pronouns[:]
@@ -102,9 +102,8 @@ for idx in range(len(paragraphs)):
                         if last_quote_idx > token_idx - 4 > 0:
                             speaker = token[0]
                             speaker_pos = token[1]
-                    if token[1] == 'POS':
-                        recent_person.append(prev_token[0])
-                    elif token[0] in all_people and token[0] not in recent_person[-2:]:
+
+                    if token[0] in all_people and token[0] not in recent_person[-2:]:
                         recent_person.append(token[0])
                     elif token[1] in name_pos and token[0] != token[0].upper():
                         recent_person.append(token[0])
@@ -138,7 +137,7 @@ for idx in range(len(paragraphs)):
                             if speaker_pos in name_pos:
                                 speaker_obj.add_name(speaker)
                             else:
-                                speaker_obj[0][0].add_noun(speaker)
+                                speaker_obj.add_noun(speaker)
                     #do something with this
                     avoid_list = recognized_pronouns[:]
                     if len(speech) > 0 and speaker.lower() in recognized_pronouns:
@@ -217,9 +216,9 @@ for idx in range(len(paragraphs)):
         print(speaker.upper(), ':\t', ' '.join([token[0] for token in speech]))
         print('mentioned_person', mentioned_person, 'recent_person:', ' '.join(recent_person))
         print()
-        print('full_people:')
-        for p in full_people:
-            print(p)
+        #print('full_people:')
+        #for p in full_people:
+        #    print(p)
         # print('other:', ' '.join(other))
 print('vbd_verbs:', [verb for verb in vbd_verbs])
 print('people_verbs:', [verb for verb in people_verbs])

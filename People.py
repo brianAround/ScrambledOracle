@@ -62,11 +62,11 @@ class Person:
 
     def say_person(self):
         if len(self.names) > 0:
-            return ' '.join(self.names)
+            return ' '.join([word for word in self.names])
         if len(self.nouns) > 0:
-            return self.nouns[0]
+            return [word for word in self.nouns][0]
         if len(self.pronouns) > 0:
-            return self.pronouns[0]
+            return [word for word in self.pronouns][0]
         return 'person'
 
 
