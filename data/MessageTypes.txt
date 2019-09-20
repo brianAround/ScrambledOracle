@@ -1,0 +1,16 @@
+Accept
+Bye
+Clarify
+Continuer
+Emotion
+Emphasis
+Greet
+No Answer
+Other
+Reject
+Statement
+System
+Wh-Question
+Yes Answer
+Yes/No Questions
+
