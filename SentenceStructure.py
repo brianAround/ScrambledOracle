@@ -32,7 +32,7 @@ else:
     print('training all chunker with', len(train_sents), 'sentences:', time.asctime())
     all_chunker = ConsecutiveAllChunker(train_sents)
     print('all chunker trained:', time.asctime())
-    print('saving np chunker:', time.asctime())
+
     with open('all_chunker.pickle', 'wb') as save_chunker:
         pickle.dump(all_chunker, save_chunker)
     print('all chunker saved:', time.asctime())

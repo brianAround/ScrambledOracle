@@ -25,15 +25,16 @@ def allchunk_features(sentence, i, history):
             "nextword": nextword,
             "prevpos+pos": "%s+%s" % (prevpos, pos),
             "pos+nextpos": "%s+%s" % (pos, nextpos),
-            "tags-since-dt": tags_since_dt(sentence, i),
+            "tags-since-dt": tags_since_pos(sentence, i, 'DT'),
+            "tags-since-it": tags_since_pos(sentence, i, 'IN'),
             "prev-result": prev_result
             }
 
 
-def tags_since_dt(sentence, i):
+def tags_since_pos(sentence, i, anchor_pos):
     tags = set()
     for word, pos in sentence[:i]:
-        if pos == 'DT':
+        if pos == anchor_pos:
             tags = set()
         else:
             tags.add(pos)
