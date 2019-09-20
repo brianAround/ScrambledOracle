@@ -1,7 +1,28 @@
 import nltk
 import pickle
 
-
+def npchunk_features(sentence, i, history):
+    word, pos = sentence[i]
+    if i == 0:
+        prevword, prevpos = "<START>", "<START>"
+    else:
+        prevword, prevpos = sentence[i - 1]
+    if i == len(sentence) - 1:
+        nextword, nextpos = "<END>", "<END>"
+    else:
+        nextword, nextpos = sentence[i + 1]
+    if len(history) == 0:
+        prev_result = history[i - 1]
+    else:
+        prev_result = '<NONE>'
+    return {"pos": pos,
+            "word": word,
+            "prevpos": prevpos,
+            "nextpos": nextpos,
+            "prevpos+pos": "%s+%s" % (prevpos, pos),
+            "pos+nextpos": "%s+%s" % (pos, nextpos),
+            "tags-since-dt": tags_since_dt(sentence, i),
+            "prev-result": prev_result}
 
 def tags_since_dt(sentence, i):
     tags = set()

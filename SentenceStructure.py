@@ -1,4 +1,4 @@
-from ConsecutiveNPChunkTagger import ConsecutiveNPChunker
+from ConsecutiveAllChunkTagger import ConsecutiveAllChunker
 import nltk
 from nltk.corpus import conll2000
 import os
@@ -7,7 +7,7 @@ import time
 
 source_folder = os.path.join('sources','dougadams')
 
-retrain = False
+retrain = True
 max_sample_size = 100000
 
 # source_folder = os.path.join('sources','various')
@@ -17,24 +17,25 @@ original_file = os.path.join(source_folder, document_file)
 output_file = os.path.join(source_folder, document_file.split('.')[0] + '.talk')
 # output_file = None
 
-test_sents = conll2000.chunked_sents('test.txt', chunk_types=['NP'])
-train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+test_sents = conll2000.chunked_sents('test.txt')
+train_sents = conll2000.chunked_sents('train.txt')
 train_sents = train_sents[:max_sample_size]
 
-# np_chunker = ConsecutiveNPChunker([])
-if os.path.isfile('np_chunker.pickle') and not retrain:
-    print('loading np chunker from pickle:', time.asctime())
-    with open('np_chunker.pickle', 'rb') as load_chunker:
-        np_chunker = pickle.load(load_chunker)
-    print('np chunker loaded:', time.asctime())
+
+# all_chunker = ConsecutiveNPChunker([])
+if os.path.isfile('all_chunker.pickle') and not retrain:
+    print('loading all chunker from pickle:', time.asctime())
+    with open('all_chunker.pickle', 'rb') as load_chunker:
+        all_chunker = pickle.load(load_chunker)
+    print('all chunker loaded:', time.asctime())
 else:
-    print('training np chunker with', len(train_sents), 'sentences:', time.asctime())
-    np_chunker = ConsecutiveNPChunker(train_sents)
-    print('np chunker trained:', time.asctime())
+    print('training all chunker with', len(train_sents), 'sentences:', time.asctime())
+    all_chunker = ConsecutiveAllChunker(train_sents)
+    print('all chunker trained:', time.asctime())
     print('saving np chunker:', time.asctime())
-    with open('np_chunker.pickle', 'wb') as save_chunker:
-        pickle.dump(np_chunker, save_chunker)
-    print('np chunker saved:', time.asctime())
+    with open('all_chunker.pickle', 'wb') as save_chunker:
+        pickle.dump(all_chunker, save_chunker)
+    print('all chunker saved:', time.asctime())
 
 input('hit enter:')
 grammar = r"""
@@ -127,7 +128,7 @@ paragraphs = [nltk.sent_tokenize(para_text) for para_text in paragraphs]
 paragraphs = [[nltk.word_tokenize(sent) for sent in sentences] for sentences in paragraphs]
 paragraphs = [nltk.pos_tag_sents(sentences) for sentences in paragraphs]
 
-map_structure2(paragraphs, np_chunker, destination_file=output_file)
+map_structure2(paragraphs, all_chunker, destination_file=output_file)
 
 print('Done')
 
