@@ -1,7 +1,7 @@
 USE [Viewpoint]
 GO
 
-/****** Object:  StoredProcedure [dbo].[spPSC_EcoSysExtract_Cost_Actuals]    Script Date: 10/14/2019 3:28:31 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPSC_EcoSysExtract_Cost_Actuals]    Script Date: 10/14/2019 5:15:22 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -16,9 +16,8 @@ ALTER PROCEDURE [dbo].[spPSC_EcoSysExtract_Cost_Actuals]
     @Job varchar(10) = NULL,
     @StartID bigint = NULL,
     @EndID bigint = NULL,
-    @NullReplacement varchar(50) = NULL
+	@NullReplacement varchar(50) = NULL
 as
-
 if @Span = 'all'
 BEGIN
     select @StartDate = '1/1/1990', @EndDate = DATEADD(year, 1, GETDATE());
@@ -84,17 +83,17 @@ select 'Project' as Project
     --, 'TrackDateDELETE' as [TrackDate]
 Union All
 select distinct
-    replace(replace(replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', ''), CHAR(13), ''), CHAR(10), '') as Project
-    , replace(replace(replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', ''), CHAR(13), ''), CHAR(10), '') +
+    replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', '') as Project
+    , replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', '') +
     '.' + coalesce(pm.udDisciplineCode, 'XX') +
 --    '.' + replace(replace(iif(jp.udPhaseOverride is null, jp.Phase, left(ltrim(jp.udPhaseOverride), len(jp.udPhaseOverride) - 3) + right('000' + isnull(jp.udAreaIdentifier, ''), 3)), ' ', ''), '-', '') +
-    '.' + replace(replace(replace(replace(jp.Phase, ' ', ''), '-', ''), CHAR(13), ''), CHAR(10), '') +
+    '.' + replace(replace(jp.Phase, ' ', ''), '-', '') +
     '.' + convert(varchar(10), ct.CostType) as WBSPathID
     , convert(varchar(10), ct.CostType) as CostAccountID
-    , replace(replace(replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', ''), CHAR(13), ''), CHAR(10), '') +
+    , replace(iif(right(rtrim(jp.Job), 1) = '-', left(ltrim(jp.Job), len(ltrim(rtrim(jp.Job))) - 1), ltrim(rtrim(jp.Job))), ' ', '') +
     '.' + coalesce(pm.udDisciplineCode, 'XX') +
 --    '.' + replace(replace(iif(jp.udPhaseOverride is null, jp.Phase, left(ltrim(jp.udPhaseOverride), len(jp.udPhaseOverride) - 3) + right('000' + isnull(jp.udAreaIdentifier, ''), 3)), ' ', ''), '-', '') +
-    '.' + replace(replace(replace(replace(jp.Phase, ' ', ''), '-', ''), CHAR(13), ''), CHAR(10), '') +
+    '.' + replace(replace(jp.Phase, ' ', ''), '-', '') +
     '.' + convert(varchar(10), ct.CostType) as [ViewpointWBS]
     , coalesce(cd.PO, cd.SL, @NullReplacement) as CommitmentID
     , convert(varchar(20), convert(decimal(10, 2), cd.ActualUnits)) as Quantity
@@ -111,7 +110,7 @@ select distinct
     , isnull(convert(varchar(3), cd.[Shift]), @NullReplacement) as [Shift]
     , isnull(ltrim(rtrim(cd.APRef)), @NullReplacement) as [InvoiceNumber]
     , isnull(convert(varchar(20), cd.JBBillNumber), @NullReplacement) as [BillingNumber]
-    , iif(cd.KeyID > 83000000, 'E', '') + convert(varchar(20), cd.KeyID) as ExternalKey
+    , iif(cd.KeyID > 125000000, 'W', '') + convert(varchar(20), cd.KeyID) as ExternalKey
 
     --, cd.*
     --, convert(varchar(50), coalesce(bc.DateClosed, cd.PostedDate)) as TrackDate
@@ -124,7 +123,7 @@ from JCCD cd with(nolock)
         on esr.udDateCompleted is null
             and esr.Co = cd.JCCo
             and esr.udJob = cd.Job
-            and coalesce(esr.udPhase, cd.Phase) = cd.Phase
+            and (esr.udPhase is null Or esr.udPhase = cd.Phase)
     inner join JCJM jm with(nolock)
         on jm.JCCo = cd.JCCo and jm.Job = cd.Job
     left outer join HQBC bc with(nolock)

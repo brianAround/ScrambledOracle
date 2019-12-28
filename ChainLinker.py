@@ -79,7 +79,7 @@ class ChainLinker:
         target_file = self.filename
         self.file_rebuilt = False
         is_timed_out = False
-        if not prevent_timeout:
+        if not prevent_timeout and os.path.isfile(target_file):
             is_timed_out = (os.path.getmtime(target_file) < time.time() - self.data_refresh_time)
         if not os.path.isfile(target_file) or is_timed_out:
             self.regenerate_by_config(target_file)
@@ -236,7 +236,7 @@ class ChainLinker:
                 working_text.append(term)
         return ' '.join(working_text)
 
-    def stimulate_word_tally(self, source_name, lines, depth, word_tally, multiplier=10):
+    def stimulate_word_tally(self, source_name, lines, depth, word_tally, multiplier=1):
         self.say("Stimulating word tally with " + str(len(lines)) + " additional patterns.")
         self.add_lines_to_word_tally(depth, source_name, lines, word_tally, multiplier)
 

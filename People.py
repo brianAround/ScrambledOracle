@@ -9,7 +9,7 @@ class Person:
         self.pronouns = {}
         self.adjectives = {}
 
-    def matches_word(self, word):
+    def matches_word(self, word, min_strength=0.5):
         strength = 0
         if word in self.names:
             strength = 1 / len(self.names)
@@ -43,11 +43,15 @@ class Person:
     def matches_phrase(self, words:list):
         return sum([self.matches_word(this_word) for this_word in words])
 
-    def add_name(self, word:str):
+    def add_name(self, word: str):
         if word not in self.names:
             self.names[word] = 1
 
-    def add_noun(self, word:str):
+    def add_names(self, words):
+        for word in words:
+            self.add_name(word)
+
+    def add_noun(self, word: str):
         word = word.lower()
         if word not in self.nouns:
             if word in self.recognized_pronouns:
@@ -55,7 +59,7 @@ class Person:
             else:
                 self.nouns[word] = 1
 
-    def add_pronoun(self, word:str):
+    def add_pronoun(self, word: str):
         word = word.lower()
         if word in self.recognized_pronouns and word not in self.pronouns:
             self.pronouns[word] = 1

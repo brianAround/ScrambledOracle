@@ -143,7 +143,8 @@ def commands(use_config_stem=None):
     random.shuffle(config_stems)
     for config_stem in config_stems:
         file_config = config_stem + adjustment + '.ini'
-        handle_mention_commands_for_config(file_config, r)
+        if os.path.isfile(file_config):
+            handle_mention_commands_for_config(file_config, r)
     save_message_buckets()
 
     Repeater.target = None
@@ -175,8 +176,6 @@ def send(mode='originate', use_config_stem=None):
             Repeater.max_percent = 1/2
         if day_of_week == 4:
             adjustment = ".named"
-        if day_of_week == 5:
-            max_size = random.randint(70, 840)
 
         if 1 <= time.localtime()[3] <= 23:
             if random.randint(1, 1) == 1:
@@ -203,8 +202,9 @@ def send(mode='originate', use_config_stem=None):
                 random.shuffle(config_stems)
                 for config_stem in config_stems:
                     file_config = config_stem + adjustment + '.ini'
-                    send_mention_response_for_config(file_config, r, iterations, max_length=max_size,
-                                                     add_hashtags=hash_tags, strangers_only=False)
+                    if os.path.isfile(file_config):
+                        send_mention_response_for_config(file_config, r, iterations, max_length=max_size,
+                                                         add_hashtags=hash_tags, strangers_only=False)
                 save_message_buckets()
             else:
                 print(time.ctime(int(time.time())), "Tick!")
@@ -508,9 +508,9 @@ def show_scheduled_jobs():
 
 
 if not single_run:
+    schedule.every(120).minutes.do(send, 'originate').tag('originate_all')
     schedule.every(5).minutes.do(commands).tag('commands')
     schedule.every(15).minutes.do(send, 'respond').tag('respond_all')
-    schedule.every(120).minutes.do(send, 'originate').tag('originate_all')
 
     schedule.run_all(1)
     last_hash = str(schedule.jobs)

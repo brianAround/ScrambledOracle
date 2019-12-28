@@ -5,21 +5,12 @@ import os
 import pickle
 import time
 
-source_folder = os.path.join('sources','dougadams')
+source_folder = os.path.join('sources', 'pratchett')
 
-retrain = True
+retrain = False
 max_sample_size = 100000
 
-# source_folder = os.path.join('sources','various')
-document_file = 'HitchhikersGuideToTheGalaxy.txt'
 
-original_file = os.path.join(source_folder, document_file)
-output_file = os.path.join(source_folder, document_file.split('.')[0] + '.talk')
-# output_file = None
-
-test_sents = conll2000.chunked_sents('test.txt')
-train_sents = conll2000.chunked_sents('train.txt')
-train_sents = train_sents[:max_sample_size]
 
 
 # all_chunker = ConsecutiveNPChunker([])
@@ -30,14 +21,17 @@ if os.path.isfile('all_chunker.pickle') and not retrain:
     print('all chunker loaded:', time.asctime())
 else:
     print('training all chunker with', len(train_sents), 'sentences:', time.asctime())
+    test_sents = conll2000.chunked_sents('test.txt')
+    train_sents = conll2000.chunked_sents('train.txt')
+    train_sents = train_sents[:max_sample_size]
     all_chunker = ConsecutiveAllChunker(train_sents)
     print('all chunker trained:', time.asctime())
-
+    input('hit enter:')
     with open('all_chunker.pickle', 'wb') as save_chunker:
         pickle.dump(all_chunker, save_chunker)
     print('all chunker saved:', time.asctime())
 
-input('hit enter:')
+
 grammar = r"""
 
   PP: {<IN><NP>}
@@ -117,20 +111,33 @@ def map_structure2(paragraphs, cp:nltk.ChunkParserI, destination_file=None):
         write_doc.close()
 
 
+def map_structure_file(original_file, destination_file, cp:nltk.ChunkParserI):
+    with open(original_file, 'r') as read_doc:
+        text = read_doc.read()
+    read_doc.close()
 
-with open(original_file, 'r') as read_doc:
-    text = read_doc.read()
-read_doc.close()
+    paragraphs = text.split('\n\n')
+    paragraphs = [nltk.sent_tokenize(para_text) for para_text in paragraphs]
+    paragraphs = [[nltk.word_tokenize(sent) for sent in sentences] for sentences in paragraphs]
+    paragraphs = [nltk.pos_tag_sents(sentences) for sentences in paragraphs]
 
-source_text = text
-paragraphs = text.split('\n\n')
-paragraphs = [nltk.sent_tokenize(para_text) for para_text in paragraphs]
-paragraphs = [[nltk.word_tokenize(sent) for sent in sentences] for sentences in paragraphs]
-paragraphs = [nltk.pos_tag_sents(sentences) for sentences in paragraphs]
+    map_structure2(paragraphs, all_chunker, destination_file=destination_file)
 
-map_structure2(paragraphs, all_chunker, destination_file=output_file)
 
-print('Done')
+print('Done setting up chunker')
+
+
+file_listing = [f for f in os.listdir(source_folder) if f.endswith(".txt")]
+file_listing = [os.path.join(source_folder, f) for f in file_listing]
+file_listing = [f for f in file_listing if os.path.isfile(f)]
+
+for document_file in file_listing:
+    filename = os.path.basename(document_file)
+    output_file = os.path.join(source_folder, filename.split('.')[0] + '.talk')
+    # output_file = None
+    print('Chunking', document_file, 'to file', output_file)
+    map_structure_file(document_file, output_file, all_chunker)
+
 
 """
     '',
