@@ -108,6 +108,8 @@ class WordChain:
             # replace alphabet characters in the back clip
             while back_clip < 0 and working_items[0][back_clip].isalpha():
                 back_clip += 1
+            while front_clip > 0 and working_items[0][front_clip - 1].isalpha():
+                front_clip -= 1
             if front_clip > -1 or back_clip < 0:
                 for item in working_items:
                     clean_list.append(item[front_clip:len(item) + back_clip])
